@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>认识有理数｜互动闯关</title>
+  <script src="https://static.zxxk.com/h5/static/7a614b9a197e532c00d09a23b0996b5f.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    @keyframes correctPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.035); }
+    }
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    @keyframes scoreFloat {
+      0% { opacity: 0; transform: translateY(10px) scale(.8); }
+      20% { opacity: 1; transform: translateY(0) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-35px) scale(1); }
+    }
+    @keyframes comboPop {
+      0% { opacity: 0; transform: scale(.6); }
+      45% { opacity: 1; transform: scale(1.12); }
+      100% { opacity: 0; transform: scale(1); }
+    }
+    @keyframes targetGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, .1); }
+      50% { box-shadow: 0 0 0 8px rgba(14, 165, 233, .12); }
+    }
+    .correct-pulse {
+      animation: correctPulse .45s ease;
+    }
+    .wrong-shake {
+      animation: wrongShake .42s ease;
+    }
+    .score-float {
+      animation: scoreFloat 1.1s ease forwards;
+    }
+    .combo-pop {
+      animation: comboPop 1.4s ease forwards;
+    }
+    .drop-active {
+      border-color: rgb(14 165 233) !important;
+      background-color: rgb(240 249 255) !important;
+      animation: targetGlow 1s infinite;
+    }
+    .drag-ghost {
+      position: fixed;
+      z-index: 1000;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(1.08);
+      opacity: .92;
+      box-shadow: 0 18px 35px rgba(15, 23, 42, .22);
+    }
+    .number-card {
+      touch-action: none;
+      user-select: none;
+    }
+    .number-card:active {
+      cursor: grabbing;
+    }
+    .axis-arrow {
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 14px solid rgb(30 64 175);
+    }
+    .axis-mark {
+      position: absolute;
+      top: 50%;
+      width: 2px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      background: rgb(51 65 85);
+    }
+    .axis-mark.major {
+      height: 28px;
+      background: rgb(15 23 42);
+    }
+    .axis-label {
+      position: absolute;
+      top: calc(50% + 22px);
+      transform: translateX(-50%);
+      color: rgb(51 65 85);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .axis-point {
+      position: absolute;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 9999px;
+      background: rgb(34 197 94);
+      border: 3px solid white;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, .25);
+      z-index: 5;
+    }
+    .axis-point-label {
+      position: absolute;
+      top: calc(50% - 52px);
+      transform: translateX(-50%);
+      min-width: 44px;
+      text-align: center;
+      border-radius: 6px;
+      padding: 4px 7px;
+      background: rgb(22 163 74);
+      color: white;
+      font-weight: 800;
+      z-index: 5;
+    }
+    .star-filled {
+      color: rgb(245 158 11);
+      filter: drop-shadow(0 2px 2px rgba(245, 158, 11, .25));
+    }
+  </style>
+  <meta name="copyright" content="学科网（zxxk.com）版权所有">
+  <meta name="signature" content="QQABKQa94gi4kFSACT7KB0GECEoYkpAhJIosQQCQOAQKgANABAA=">
+ </head>
+ <body class="min-h-screen overflow-x-hidden bg-slate-100 text-slate-800">
+  <div id="app" class="min-h-screen">
+   <header class="border-b border-slate-200 bg-white shadow-sm">
+    <div class="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
+     <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-md bg-blue-800 text-xl font-black text-white">
+       ℚ
+      </div>
+      <div>
+       <h1 class="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">认识有理数</h1>
+       <p class="text-xs font-medium text-slate-500">分类 · 数轴 · 比较互动闯关</p>
+      </div><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAkCAIAAABql9/yAAAAmElEQVR42u2T4QrAIAiEff+H1tGPMUk9JcZgcBKjFvqdqWLL1H3TY9z7n3NbXnI7+2Vhb9mVFlcGY5psEjIMCKTDzLy7HL1PC0AqwcOmIaro8xo/WeJSxZ4C74zdyyzTrsHKWhE70grApGZgJeoFNuGkXTVIaQZJBgMwGRXtaqE4y3fHZjexz41IIokkkkgiiSSSSCL/iLwAW9L38xvtU84AAAAASUVORK5CYII=" style="position: absolute; left: -99999px; top: -99999px; opacity: 0; pointer-events: none; width: 1px; height: 1px;">
+     </div>
+     <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+      <div class="rounded-md border border-blue-100 bg-blue-50 px-3 py-2"><span class="text-xs text-slate-500">关卡</span> <strong id="headerLevel" class="ml-1 text-sm text-blue-800">第 1 关</strong>
+      </div>
+      <div class="rounded-md border border-slate-200 bg-white px-3 py-2"><span class="text-xs text-slate-500">得分</span> <strong id="scoreText" class="ml-1 text-lg text-slate-900">0</strong>
+      </div>
+      <div class="rounded-md border border-orange-200 bg-orange-50 px-3 py-2"><span class="text-xs text-orange-700">连击</span> <strong id="comboText" class="ml-1 text-lg text-orange-600">0</strong>
+      </div>
+      <div class="flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2" aria-label="星级进度"><span id="star1" class="text-lg text-slate-300">★</span> <span id="star2" class="text-lg text-slate-300">★</span> <span id="star3" class="text-lg text-slate-300">★</span>
+      </div><button id="soundButton" type="button" class="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50" aria-label="切换音效"> 🔊 音效开 </button>
+     </div>
+    </div>
+   </header>
+   <main class="mx-auto max-w-[1500px] px-4 py-4 lg:px-6">
+    <section class="mb-4 rounded-md border border-slate-200 bg-white px-3 py-3 shadow-sm">
+     <div id="levelSteps" class="grid grid-cols-3 gap-2 sm:grid-cols-6"></div>
+    </section>
+    <section class="grid min-h-[68vh] gap-4 lg:grid-cols-[250px_minmax(0,1fr)_270px]">
+     <aside class="order-1 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="mb-4 flex items-center gap-2"><span class="flex h-7 w-7 items-center justify-center rounded-md bg-blue-800 text-sm font-black text-white">!</span>
+       <h2 class="font-black text-slate-900">当前任务</h2>
+      </div>
+      <h3 id="missionTitle" class="mb-2 text-lg font-black text-blue-900"></h3>
+      <p id="missionText" class="text-sm leading-6 text-slate-600"></p>
+      <div class="mt-5 rounded-md border border-blue-100 bg-blue-50 p-3">
+       <p class="mb-1 text-xs font-bold uppercase tracking-wide text-blue-700">学习提示</p>
+       <p id="tipText" class="text-sm leading-6 text-slate-700"></p>
+      </div>
+      <div class="mt-5">
+       <div class="mb-2 flex items-center justify-between text-xs font-bold"><span class="text-slate-500">本关进度</span> <span id="taskProgressText" class="text-blue-800">0 / 0</span>
+       </div>
+       <div class="h-2.5 overflow-hidden rounded-full bg-slate-200">
+        <div id="taskProgressBar" class="h-full rounded-full bg-blue-700 transition-all duration-500" style="width:0%"></div>
+       </div>
+      </div>
+      <div class="mt-5 grid gap-2"><button id="retryButton" type="button" class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-blue-400 hover:text-blue-800"> 重试本关 </button> <button id="restartButton" type="button" class="rounded-md bg-slate-800 px-3 py-2 text-sm font-bold text-white transition hover:bg-slate-700"> 整局重玩 </button>
+      </div>
+     </aside>
+     <section class="order-3 min-h-[560px] rounded-md border border-slate-200 bg-white shadow-sm lg:order-2">
+      <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+       <div><span id="levelBadge" class="rounded bg-blue-100 px-2 py-1 text-xs font-black text-blue-800">第 1 关</span> <span id="levelName" class="ml-2 font-black text-slate-900"></span>
+       </div><span id="difficultyText" class="rounded border border-slate-200 px-2 py-1 text-xs font-bold text-slate-500"></span>
+      </div>
+      <div id="gameArea" class="relative min-h-[510px] p-4 sm:p-6"></div>
+     </section>
+     <aside class="order-2 rounded-md border border-slate-200 bg-white p-4 shadow-sm lg:order-3">
+      <div class="mb-4 flex items-center gap-2"><span class="flex h-7 w-7 items-center justify-center rounded-md bg-orange-500 text-sm font-black text-white">✓</span>
+       <h2 class="font-black text-slate-900">即时反馈</h2>
+      </div>
+      <div id="feedbackBox" class="rounded-md border border-slate-200 bg-slate-50 p-4 transition">
+       <div id="feedbackIcon" class="mb-2 text-3xl">
+        💡
+       </div>
+       <h3 id="feedbackTitle" class="font-black text-slate-800">准备好了吗？</h3>
+       <p id="feedbackText" class="mt-2 text-sm leading-6 text-slate-600">完成操作后，这里会立即告诉你结果。</p>
+       <div id="feedbackScore" class="mt-3 hidden text-lg font-black text-green-600"></div>
+      </div>
+      <div class="mt-4 rounded-md border border-slate-200 p-3">
+       <div class="flex items-center justify-between text-sm"><span class="text-slate-500">正确</span> <strong id="correctText" class="text-green-600">0</strong>
+       </div>
+       <div class="mt-2 flex items-center justify-between text-sm"><span class="text-slate-500">尝试</span> <strong id="attemptText" class="text-slate-700">0</strong>
+       </div>
+       <div class="mt-2 flex items-center justify-between text-sm"><span class="text-slate-500">正确率</span> <strong id="accuracyText" class="text-blue-800">100%</strong>
+       </div>
+      </div>
+      <div class="mt-4">
+       <h3 class="mb-2 text-sm font-black text-slate-800">成就徽章</h3>
+       <div id="achievementList" class="flex flex-wrap gap-2"><span class="rounded border border-dashed border-slate-300 px-2 py-1 text-xs text-slate-400">等待解锁</span>
+       </div>
+      </div>
+     </aside>
+    </section>
+   </main>
+  </div>
+  <div id="floatingLayer" class="pointer-events-none fixed inset-0 z-[1100]"></div>
+  <div id="modal" class="fixed inset-0 z-[1200] hidden items-center justify-center bg-slate-950/55 p-4">
+   <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-2xl">
+    <div id="modalIcon" class="mb-3 text-center text-5xl">
+     🏆
+    </div>
+    <h2 id="modalTitle" class="text-center text-2xl font-black text-slate-900"></h2>
+    <p id="modalSubtitle" class="mt-2 text-center text-sm leading-6 text-slate-600"></p>
+    <div id="modalBody" class="mt-5"></div>
+    <div id="modalActions" class="mt-6 grid gap-2 sm:grid-cols-2"></div>
+   </div>
+  </div>
+  <script>
+    const levels = [
+      {
+        name: "有理数分类小能手",
+        difficulty: "入门级",
+        mission: "把数字卡片拖到正确的分类框中。",
+        tip: "先看正负号，再判断它是整数还是分数。"
+      },
+      {
+        name: "数轴侦察员",
+        difficulty: "基础理解级",
+        mission: "按任务点击数轴上的关键元素或作出判断。",
+        tip: "数轴有原点、正方向和单位长度三个要素。"
+      },
+      {
+        name: "数轴定位训练",
+        difficulty: "核心技能级",
+        mission: "把数字卡片拖到数轴对应的位置。",
+        tip: "正数在原点右边，负数在原点左边，单位长度必须一致。"
+      },
+      {
+        name: "谁更大挑战",
+        difficulty: "应用提升级",
+        mission: "选择正确的比较符号，并完成从小到大排序。",
+        tip: "数轴上越靠右的数越大。两个负数中，绝对值大的反而小。"
+      },
+      {
+        name: "有理数大闯关",
+        difficulty: "综合达标级",
+        mission: "依次完成分类、定位和比较三步任务。",
+        tip: "把分类、数轴位置和大小关系连接起来思考。"
+      },
+      {
+        name: "极速数轴王",
+        difficulty: "限时加分关",
+        mission: "在 30 秒内完成尽可能多的定位和比较任务。",
+        tip: "加分关不影响基础通关成绩，稳中求快！"
+      }
+    ];
+
+    const state = {
+      level: 0,
+      score: 0,
+      combo: 0,
+      correct: 0,
+      attempts: 0,
+      sound: true,
+      completed: new Set(),
+      achievements: new Set(),
+      levelStartScore: 0,
+      levelStartCorrect: 0,
+      levelStartAttempts: 0,
+      currentIndex: 0,
+      locked: false,
+      selectedValue: null,
+      challengeTimer: null,
+      challengeTime: 30,
+      challengeCount: 0
+    };
+
+    const classificationItems = [
+      { html: "\\(3\\)", value: 3, category: "正整数" },
+      { html: "\\(-2\\)", value: -2, category: "负整数" },
+      { html: "\\(0\\)", value: 0, category: "零" },
+      { html: "\\(\\frac{1}{2}\\)", value: 0.5, category: "正分数" },
+      { html: "\\(-\\frac{3}{4}\\)", value: -0.75, category: "负分数" },
+      { html: "\\(8\\)", value: 8, category: "正整数" },
+      { html: "\\(-10\\)", value: -10, category: "负整数" }
+    ];
+
+    const axisItems = [
+      { html: "\\(-3\\)", value: -3 },
+      { html: "\\(-1\\)", value: -1 },
+      { html: "\\(0\\)", value: 0 },
+      { html: "\\(2\\)", value: 2 },
+      { html: "\\(4\\)", value: 4 },
+      { html: "\\(\\frac{1}{2}\\)", value: 0.5 },
+      { html: "\\(-\\frac{1}{2}\\)", value: -0.5 },
+      { html: "\\(\\frac{3}{2}\\)", value: 1.5 },
+      { html: "\\(-\\frac{3}{2}\\)", value: -1.5 }
+    ];
+
+    const compareTasks = [
+      { a: "\\(2\\)", av: 2, b: "\\(-1\\)", bv: -1, answer: ">", hint: "正数大于负数。" },
+      { a: "\\(0\\)", av: 0, b: "\\(-3\\)", bv: -3, answer: ">", hint: "0 大于任何负数。" },
+      { a: "\\(-2\\)", av: -2, b: "\\(-5\\)", bv: -5, answer: ">", hint: "两个负数比较，绝对值大的反而小。" },
+      { type: "sort", values: [
+        { html: "\\(-\\frac{1}{2}\\)", value: -0.5 },
+        { html: "\\(0\\)", value: 0 },
+        { html: "\\(\\frac{3}{2}\\)", value: 1.5 }
+      ]}
+    ];
+
+    const comprehensiveTasks = [
+      {
+        html: "\\(-\\frac{1}{2}\\)",
+        value: -0.5,
+        category: "负分数",
+        compareHtml: "\\(0\\)",
+        compareValue: 0,
+        symbol: "<"
+      },
+      {
+        html: "\\(\\frac{3}{2}\\)",
+        value: 1.5,
+        category: "正分数",
+        compareHtml: "\\(1\\)",
+        compareValue: 1,
+        symbol: ">"
+      }
+    ];
+
+    const encouragements = ["太棒了！", "完全正确！", "真厉害！", "继续保持！", "非常好！"];
+    const errorWords = ["再想想哦～", "差一点点！", "不要灰心！", "换个思路试试～"];
+    let audioContext = null;
+    let pointerDrag = null;
+    let level2Task = 0;
+    let comprehensiveStep = 0;
+    let sortSelection = [];
+
+    function randomItem(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function typeset() {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    }
+
+    function playTone(success) {
+      if (!state.sound) {
+        return;
+      }
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = success ? "sine" : "triangle";
+      oscillator.frequency.setValueAtTime(success ? 620 : 210, audioContext.currentTime);
+      if (success) {
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.12);
+      }
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.18);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.18);
+    }
+
+    function showFloating(text, colorClass) {
+      const layer = document.getElementById("floatingLayer");
+      const element = document.createElement("div");
+      element.className = "score-float fixed left-1/2 top-1/3 -translate-x-1/2 rounded-md bg-white px-5 py-3 text-2xl font-black shadow-xl " + colorClass;
+      element.textContent = text;
+      layer.appendChild(element);
+      setTimeout(function() {
+        element.remove();
+      }, 1200);
+    }
+
+    function showCombo() {
+      if (state.combo < 2) {
+        return;
+      }
+      const layer = document.getElementById("floatingLayer");
+      const element = document.createElement("div");
+      element.className = "combo-pop fixed left-1/2 top-[42%] -translate-x-1/2 rounded-md bg-orange-500 px-6 py-3 text-xl font-black text-white shadow-xl";
+      element.textContent = state.combo >= 6 ? "势不可挡！连续答对 " + state.combo + " 题！" : "连续答对 " + state.combo + " 题！";
+      layer.appendChild(element);
+      setTimeout(function() {
+        element.remove();
+      }, 1450);
+    }
+
+    function updateHeader() {
+      document.getElementById("scoreText").textContent = state.score;
+      document.getElementById("comboText").textContent = state.combo;
+      document.getElementById("correctText").textContent = state.correct;
+      document.getElementById("attemptText").textContent = state.attempts;
+      const accuracy = state.attempts === 0 ? 100 : Math.round(state.correct / state.attempts * 100);
+      document.getElementById("accuracyText").textContent = accuracy + "%";
+      const stars = accuracy >= 90 && state.correct >= 5 ? 3 : accuracy >= 70 && state.correct >= 3 ? 2 : 1;
+      for (let index = 1; index <= 3; index += 1) {
+        const star = document.getElementById("star" + index);
+        star.className = index <= stars ? "star-filled text-lg" : "text-lg text-slate-300";
+      }
+      renderAchievements();
+    }
+
+    function updateProgress(current, total) {
+      document.getElementById("taskProgressText").textContent = current + " / " + total;
+      const percent = total === 0 ? 0 : Math.min(100, current / total * 100);
+      document.getElementById("taskProgressBar").style.width = percent + "%";
+    }
+
+    function setFeedback(type, title, text, scoreText) {
+      const box = document.getElementById("feedbackBox");
+      const icon = document.getElementById("feedbackIcon");
+      const titleElement = document.getElementById("feedbackTitle");
+      const textElement = document.getElementById("feedbackText");
+      const scoreElement = document.getElementById("feedbackScore");
+      box.className = "rounded-md border p-4 transition";
+      if (type === "success") {
+        box.classList.add("border-green-200", "bg-green-50", "correct-pulse");
+        icon.textContent = "✅";
+        titleElement.className = "font-black text-green-700";
+        scoreElement.className = "mt-3 text-lg font-black text-green-600";
+      } else if (type === "error") {
+        box.classList.add("border-red-200", "bg-red-50", "wrong-shake");
+        icon.textContent = "❌";
+        titleElement.className = "font-black text-red-700";
+        scoreElement.className = "mt-3 text-lg font-black text-red-600";
+      } else {
+        box.classList.add("border-slate-200", "bg-slate-50");
+        icon.textContent = "💡";
+        titleElement.className = "font-black text-slate-800";
+        scoreElement.className = "hidden";
+      }
+      titleElement.textContent = title;
+      textElement.textContent = text;
+      if (scoreText) {
+        scoreElement.textContent = scoreText;
+      }
+      setTimeout(function() {
+        box.classList.remove("correct-pulse", "wrong-shake");
+      }, 500);
+    }
+
+    function award(points, explanation) {
+      state.attempts += 1;
+      state.correct += 1;
+      state.combo += 1;
+      const bonus = state.combo >= 3 ? 5 : 0;
+      const gained = points + bonus;
+      state.score += gained;
+      playTone(true);
+      showFloating("+" + gained, "text-green-600");
+      showCombo();
+      setFeedback("success", randomItem(encouragements), explanation, "+" + gained + (bonus ? "（含连击 +5）" : ""));
+      updateHeader();
+    }
+
+    function miss(explanation) {
+      state.attempts += 1;
+      state.combo = 0;
+      playTone(false);
+      setFeedback("error", randomItem(errorWords), explanation, "本次未得分");
+      updateHeader();
+    }
+
+    function renderLevelSteps() {
+      const container = document.getElementById("levelSteps");
+      container.innerHTML = "";
+      levels.forEach(function(level, index) {
+        const button = document.createElement("button");
+        const completed = state.completed.has(index);
+        const active = state.level === index;
+        button.type = "button";
+        button.className = "flex min-h-12 items-center gap-2 rounded-md border px-2 py-2 text-left transition";
+        if (active) {
+          button.classList.add("border-blue-700", "bg-blue-700", "text-white");
+        } else if (completed) {
+          button.classList.add("border-green-200", "bg-green-50", "text-green-800");
+        } else {
+          button.classList.add("border-slate-200", "bg-white", "text-slate-500");
+        }
+        button.innerHTML = "<span class=\"flex h-7 w-7 shrink-0 items-center justify-center rounded-full " + (active ? "bg-white text-blue-800" : completed ? "bg-green-600 text-white" : "bg-slate-100 text-slate-500") + " text-xs font-black\">" + (completed ? "✓" : index === 5 ? "★" : index + 1) + "</span><span class=\"hidden text-xs font-bold leading-4 sm:block\">" + (index === 5 ? "加分关" : "第 " + (index + 1) + " 关") + "</span>";
+        button.addEventListener("click", function() {
+          const highestUnlocked = Math.min(5, state.completed.size);
+          if (index <= highestUnlocked || state.completed.has(index)) {
+            loadLevel(index);
+          } else {
+            setFeedback("error", "关卡尚未解锁", "请先完成前面的关卡。", "");
+          }
+        });
+        container.appendChild(button);
+      });
+    }
+
+    function renderAchievements() {
+      const container = document.getElementById("achievementList");
+      if (state.achievements.size === 0) {
+        container.innerHTML = "<span class=\"rounded border border-dashed border-slate-300 px-2 py-1 text-xs text-slate-400\">等待解锁</span>";
+        return;
+      }
+      container.innerHTML = "";
+      state.achievements.forEach(function(item) {
+        const badge = document.createElement("span");
+        badge.className = "rounded border border-orange-200 bg-orange-50 px-2 py-1 text-xs font-bold text-orange-700";
+        badge.textContent = "🏅 " + item;
+        container.appendChild(badge);
+      });
+    }
+
+    function shuffle(array) {
+      const result = array.slice();
+      for (let index = result.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        const temporary = result[index];
+        result[index] = result[randomIndex];
+        result[randomIndex] = temporary;
+      }
+      return result;
+    }
+
+    function loadLevel(index) {
+      clearInterval(state.challengeTimer);
+      state.challengeTimer = null;
+      state.level = index;
+      state.currentIndex = 0;
+      state.locked = false;
+      state.selectedValue = null;
+      state.levelStartScore = state.score;
+      state.levelStartCorrect = state.correct;
+      state.levelStartAttempts = state.attempts;
+      level2Task = 0;
+      comprehensiveStep = 0;
+      sortSelection = [];
+      const info = levels[index];
+      document.getElementById("headerLevel").textContent = index === 5 ? "加分关" : "第 " + (index + 1) + " 关";
+      document.getElementById("levelBadge").textContent = index === 5 ? "加分关" : "第 " + (index + 1) + " 关";
+      document.getElementById("levelName").textContent = info.name;
+      document.getElementById("difficultyText").textContent = info.difficulty;
+      document.getElementById("missionTitle").textContent = info.name;
+      document.getElementById("missionText").textContent = info.mission;
+      document.getElementById("tipText").textContent = info.tip;
+      setFeedback("neutral", "开始观察", "先读清任务，再进行操作。", "");
+      renderLevelSteps();
+      if (index === 0) {
+        renderClassification();
+      } else if (index === 1) {
+        renderAxisScout();
+      } else if (index === 2) {
+        renderAxisPosition();
+      } else if (index === 3) {
+        renderComparison();
+      } else if (index === 4) {
+        renderComprehensive();
+      } else {
+        renderChallengeIntro();
+      }
+      updateHeader();
+      typeset();
+    }
+
+    function numberCard(item, extraClass) {
+      return "<div class=\"number-card draggable-card mx-auto flex h-24 w-36 cursor-grab items-center justify-center rounded-md border-2 border-blue-200 bg-white text-3xl font-black text-slate-900 shadow-md transition hover:-translate-y-1 hover:border-blue-500 hover:shadow-lg " + (extraClass || "") + "\" draggable=\"true\" data-value=\"" + item.value + "\" data-category=\"" + (item.category || "") + "\">" + item.html + "</div>";
+    }
+
+    function renderClassification() {
+      const area = document.getElementById("gameArea");
+      const item = classificationItems[state.currentIndex];
+      updateProgress(state.currentIndex, classificationItems.length);
+      if (!item) {
+        state.achievements.add("分类小能手");
+        finishLevel("分类小能手", "先看正负，再分辨整数与分数；0 单独作为一类。");
+        return;
+      }
+      area.innerHTML = "<div class=\"mb-5 text-center\"><p class=\"text-sm font-bold text-slate-500\">拖动这张卡片</p><div class=\"mt-3\">" + numberCard(item) + "</div><p class=\"mt-3 text-xs text-slate-400\">也可以先点数字卡片，再点分类框</p></div><div class=\"grid grid-cols-2 gap-3 xl:grid-cols-5\" id=\"categoryGrid\"></div>";
+      const categories = ["正整数", "负整数", "零", "正分数", "负分数"];
+      const grid = document.getElementById("categoryGrid");
+      categories.forEach(function(category) {
+        const zone = document.createElement("button");
+        zone.type = "button";
+        zone.className = "drop-zone flex min-h-32 flex-col items-center justify-center rounded-md border-2 border-dashed border-slate-300 bg-slate-50 p-3 transition hover:border-blue-400 hover:bg-blue-50";
+        zone.dataset.dropType = "category";
+        zone.dataset.category = category;
+        const symbol = category === "零" ? "0" : category.includes("负") ? "−" : "+";
+        const color = category === "零" ? "bg-slate-600" : category.includes("负") ? "bg-blue-700" : "bg-orange-500";
+        zone.innerHTML = "<span class=\"mb-2 flex h-9 w-9 items-center justify-center rounded-full " + color + " text-lg font-black text-white\">" + symbol + "</span><strong class=\"text-sm text-slate-800\">" + category + "</strong>";
+        zone.addEventListener("click", function() {
+          handleCategoryDrop(category);
+        });
+        grid.appendChild(zone);
+      });
+      bindDraggableCards();
+      typeset();
+    }
+
+    function handleCategoryDrop(category) {
+      if (state.locked) {
+        return;
+      }
+      const item = state.level === 4 ? comprehensiveTasks[state.currentIndex] : classificationItems[state.currentIndex];
+      if (!item) {
+        return;
+      }
+      if (category === item.category) {
+        state.locked = true;
+        award(10, "它属于“" + item.category + "”。");
+        const zone = document.querySelector("[data-category=\"" + category + "\"]");
+        if (zone) {
+          zone.classList.add("border-green-500", "bg-green-50");
+        }
+        setTimeout(function() {
+          state.locked = false;
+          if (state.level === 4) {
+            comprehensiveStep = 1;
+            renderComprehensive();
+          } else {
+            state.currentIndex += 1;
+            renderClassification();
+          }
+        }, 850);
+      } else {
+        miss("注意先看正负，再看是不是整数。正确类别是“" + item.category + "”。");
+        const zone = document.querySelector("[data-category=\"" + category + "\"]");
+        if (zone) {
+          zone.classList.add("border-red-500", "bg-red-50", "wrong-shake");
+          setTimeout(function() {
+            zone.classList.remove("border-red-500", "bg-red-50", "wrong-shake");
+          }, 650);
+        }
+      }
+    }
+
+    function axisHtml(showTargets) {
+      let marks = "";
+      for (let half = -8; half <= 8; half += 1) {
+        const value = half / 2;
+        const left = (value + 4) / 8 * 90 + 5;
+        const major = Number.isInteger(value);
+        marks += "<span class=\"axis-mark " + (major ? "major" : "") + "\" style=\"left:" + left + "%\"></span>";
+        if (major) {
+          marks += "<span class=\"axis-label\" style=\"left:" + left + "%\">" + value + "</span>";
+        }
+      }
+      return "<div class=\"relative mx-auto mt-8 w-full max-w-4xl rounded-md border border-slate-200 bg-slate-50 px-3 py-8\"><div class=\"mb-2 flex items-center justify-between text-xs font-bold text-slate-500\"><span>负方向</span><span class=\"text-blue-800\">正方向 →</span></div><div id=\"axisDrop\" class=\"drop-zone relative h-32 cursor-crosshair rounded-md border-2 " + (showTargets ? "border-dashed border-blue-200" : "border-transparent") + " bg-white\" data-drop-type=\"axis\"><div class=\"absolute left-[5%] right-[3%] top-1/2 h-1 -translate-y-1/2 bg-blue-800\"></div><div class=\"axis-arrow absolute right-[1.5%] top-1/2 -translate-y-1/2\"></div>" + marks + "<div id=\"axisPoints\"></div></div><p class=\"mt-3 text-center text-xs text-slate-400\">每相邻两个整数刻度之间的长度表示 1 个单位</p></div>";
+    }
+
+    function positionToPercent(value) {
+      return (value + 4) / 8 * 90 + 5;
+    }
+
+    function addAxisPoint(value, labelHtml) {
+      const points = document.getElementById("axisPoints");
+      if (!points) {
+        return;
+      }
+      const percent = positionToPercent(value);
+      const point = document.createElement("span");
+      point.className = "axis-point";
+      point.style.left = percent + "%";
+      const label = document.createElement("span");
+      label.className = "axis-point-label";
+      label.style.left = percent + "%";
+      label.innerHTML = labelHtml;
+      points.appendChild(point);
+      points.appendChild(label);
+      typeset();
+    }
+
+    function renderAxisScout() {
+      const area = document.getElementById("gameArea");
+      const scoutTasks = [
+        "点击数轴上的原点 0",
+        "点击表示正方向的箭头",
+        "点击一段单位长度",
+        "点 A 在原点左边，它表示正数还是负数？"
+      ];
+      updateProgress(level2Task, scoutTasks.length);
+      if (level2Task >= scoutTasks.length) {
+        state.achievements.add("数轴侦察员");
+        finishLevel("数轴侦察员", "数轴三要素是原点、正方向和单位长度；原点左边是负数，右边是正数。");
+        return;
+      }
+      if (level2Task < 3) {
+        area.innerHTML = "<div class=\"text-center\"><span class=\"rounded bg-orange-50 px-3 py-1 text-sm font-bold text-orange-700\">任务 " + (level2Task + 1) + "</span><h3 class=\"mt-3 text-xl font-black text-slate-900\">" + scoutTasks[level2Task] + "</h3></div>" + scoutAxisInteractive();
+        bindScoutTargets();
+      } else {
+        area.innerHTML = "<div class=\"text-center\"><span class=\"rounded bg-orange-50 px-3 py-1 text-sm font-bold text-orange-700\">任务 4</span><h3 class=\"mt-3 text-xl font-black text-slate-900\">" + scoutTasks[3] + "</h3></div><div class=\"mx-auto mt-8 max-w-3xl\">" + axisHtml(false) + "<div class=\"relative -mt-[152px] mb-[105px] h-0\"><span class=\"absolute left-[33.125%] top-0 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full bg-orange-500 font-black text-white shadow-lg\">A</span></div><div class=\"mt-8 grid grid-cols-2 gap-4\"><button type=\"button\" data-scout-answer=\"正数\" class=\"rounded-md border-2 border-slate-200 bg-white py-4 text-lg font-black hover:border-blue-500\">正数</button><button type=\"button\" data-scout-answer=\"负数\" class=\"rounded-md border-2 border-slate-200 bg-white py-4 text-lg font-black hover:border-blue-500\">负数</button></div></div>";
+        document.querySelectorAll("[data-scout-answer]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            handleScoutAnswer(button.dataset.scoutAnswer === "负数", "原点左边表示负数。", button);
+          });
+        });
+      }
+      typeset();
+    }
+
+    function scoutAxisInteractive() {
+      return "<div class=\"mx-auto mt-10 max-w-4xl rounded-md border border-slate-200 bg-slate-50 p-6\"><div class=\"relative h-48 rounded-md bg-white\"><button type=\"button\" data-scout-target=\"origin\" class=\"absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-blue-700 bg-white text-lg font-black text-blue-800 transition hover:scale-110\">0</button><div class=\"absolute left-[8%] right-[7%] top-1/2 h-1 -translate-y-1/2 bg-blue-800\"></div><button type=\"button\" data-scout-target=\"direction\" class=\"absolute right-[3%] top-1/2 -translate-y-1/2 border-y-[13px] border-l-[22px] border-y-transparent border-l-blue-800 transition hover:scale-125\" aria-label=\"正方向箭头\"></button><button type=\"button\" data-scout-target=\"unit\" class=\"absolute left-1/2 top-[64%] h-12 w-[12%] -translate-x-full rounded border-2 border-dashed border-orange-400 bg-orange-50 text-xs font-bold text-orange-700 transition hover:bg-orange-100\">单位长度 1</button><span class=\"absolute left-[38%] top-[38%] h-12 w-0.5 bg-slate-800\"></span><span class=\"absolute left-[62%] top-[38%] h-12 w-0.5 bg-slate-800\"></span><span class=\"absolute left-[26%] top-[38%] h-12 w-0.5 bg-slate-800\"></span><span class=\"absolute left-[74%] top-[38%] h-12 w-0.5 bg-slate-800\"></span><span class=\"absolute left-[38%] top-[66%] -translate-x-1/2 text-sm font-bold\">−1</span><span class=\"absolute left-[62%] top-[66%] -translate-x-1/2 text-sm font-bold\">1</span></div></div>";
+    }
+
+    function bindScoutTargets() {
+      document.querySelectorAll("[data-scout-target]").forEach(function(button) {
+        button.addEventListener("click", function() {
+          const expected = ["origin", "direction", "unit"][level2Task];
+          const explanations = ["原点表示 0。", "向右的箭头表示正方向。", "相邻两个刻度之间的固定长度叫单位长度。"];
+          handleScoutAnswer(button.dataset.scoutTarget === expected, explanations[level2Task], button);
+        });
+      });
+    }
+
+    function handleScoutAnswer(correct, explanation, element) {
+      if (state.locked) {
+        return;
+      }
+      if (correct) {
+        state.locked = true;
+        element.classList.add("border-green-500", "bg-green-100", "correct-pulse");
+        award(10, explanation);
+        setTimeout(function() {
+          level2Task += 1;
+          state.locked = false;
+          renderAxisScout();
+        }, 850);
+      } else {
+        miss("原点表示 0，右边是正方向，相邻刻度间保持相同单位长度。");
+        element.classList.add("wrong-shake");
+        setTimeout(function() {
+          element.classList.remove("wrong-shake");
+        }, 500);
+      }
+    }
+
+    function renderAxisPosition() {
+      const area = document.getElementById("gameArea");
+      const item = axisItems[state.currentIndex];
+      updateProgress(state.currentIndex, axisItems.length);
+      if (!item) {
+        state.achievements.add("小小定位家");
+        state.achievements.add("数轴定位高手");
+        finishLevel("数轴定位高手", "每个有理数都可以用数轴上的一个点表示，正数在右，负数在左。");
+        return;
+      }
+      area.innerHTML = "<div class=\"text-center\"><p class=\"text-sm font-bold text-slate-500\">把数字拖到正确刻度</p><div class=\"mt-3\">" + numberCard(item) + "</div><p class=\"mt-2 text-xs text-slate-400\">可拖动卡片，也可先点卡片再点数轴位置</p></div>" + axisHtml(true);
+      bindDraggableCards();
+      bindAxisClick();
+      typeset();
+    }
+
+    function bindAxisClick() {
+      const axis = document.getElementById("axisDrop");
+      if (!axis) {
+        return;
+      }
+      axis.addEventListener("click", function(event) {
+        if (event.target.closest(".axis-point-label")) {
+          return;
+        }
+        handleAxisDrop(event.clientX);
+      });
+    }
+
+    function handleAxisDrop(clientX) {
+      if (state.locked) {
+        return;
+      }
+      const axis = document.getElementById("axisDrop");
+      if (!axis) {
+        return;
+      }
+      const item = state.level === 4 ? comprehensiveTasks[state.currentIndex] : axisItems[state.currentIndex];
+      const rect = axis.getBoundingClientRect();
+      const usableLeft = rect.left + rect.width * 0.05;
+      const usableWidth = rect.width * 0.90;
+      const rawValue = (clientX - usableLeft) / usableWidth * 8 - 4;
+      const droppedValue = Math.round(rawValue * 2) / 2;
+      if (Math.abs(droppedValue - item.value) < 0.01) {
+        state.locked = true;
+        addAxisPoint(item.value, item.html);
+        award(10, "位置正确！该数在原点" + (item.value < 0 ? "左边" : item.value > 0 ? "右边" : "处") + "。");
+        setTimeout(function() {
+          state.locked = false;
+          if (state.level === 4) {
+            comprehensiveStep = 2;
+            renderComprehensive();
+          } else {
+            state.currentIndex += 1;
+            renderAxisPosition();
+          }
+        }, 950);
+      } else {
+        let explanation = "";
+        if (item.value < 0 && droppedValue >= 0) {
+          explanation = "这是负数，应在原点左边。";
+        } else if (item.value > 0 && droppedValue <= 0) {
+          explanation = "这是正数，应在原点右边。";
+        } else if (Math.abs(item.value) < Math.abs(droppedValue)) {
+          explanation = "正确位置应该比现在更靠近 0。";
+        } else {
+          explanation = "正确位置应该比现在更远离 0。";
+        }
+        miss(explanation + " 注意单位长度一致。");
+      }
+    }
+
+    function renderComparison() {
+      const area = document.getElementById("gameArea");
+      const task = compareTasks[state.currentIndex];
+      updateProgress(state.currentIndex, compareTasks.length);
+      if (!task) {
+        state.achievements.add("大小比较高手");
+        finishLevel("大小比较高手", "数轴上右边的数大于左边的数；两个负数比较时，绝对值大的反而小。");
+        return;
+      }
+      if (task.type === "sort") {
+        renderSortTask(area, task);
+        return;
+      }
+      area.innerHTML = "<div class=\"mx-auto max-w-3xl text-center\"><p class=\"text-sm font-bold text-slate-500\">选择正确的比较符号</p><div class=\"mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-4\"><div class=\"rounded-md border-2 border-blue-100 bg-blue-50 py-8 text-4xl font-black\">" + task.a + "</div><div id=\"symbolSlot\" class=\"flex h-16 w-20 items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-3xl font-black text-slate-400\">?</div><div class=\"rounded-md border-2 border-orange-100 bg-orange-50 py-8 text-4xl font-black\">" + task.b + "</div></div><div class=\"mt-7 grid grid-cols-3 gap-3\"><button type=\"button\" data-symbol=\"<\" class=\"compare-button rounded-md border-2 border-slate-200 bg-white py-4 text-3xl font-black transition hover:border-blue-500 hover:bg-blue-50\">&lt;</button><button type=\"button\" data-symbol=\"=\" class=\"compare-button rounded-md border-2 border-slate-200 bg-white py-4 text-3xl font-black transition hover:border-blue-500 hover:bg-blue-50\">=</button><button type=\"button\" data-symbol=\">\" class=\"compare-button rounded-md border-2 border-slate-200 bg-white py-4 text-3xl font-black transition hover:border-blue-500 hover:bg-blue-50\">&gt;</button></div><div class=\"mt-8\">" + compactAxis(task.av, task.bv) + "</div></div>";
+      document.querySelectorAll("[data-symbol]").forEach(function(button) {
+        button.addEventListener("click", function() {
+          handleCompare(button.dataset.symbol, task, button);
+        });
+      });
+      typeset();
+    }
+
+    function compactAxis(a, b) {
+      const leftA = positionToPercent(a);
+      const leftB = positionToPercent(b);
+      return "<div class=\"relative h-24 rounded-md bg-slate-50\"><div class=\"absolute left-[5%] right-[5%] top-1/2 h-1 bg-slate-500\"></div><span class=\"absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600 ring-4 ring-blue-100\" style=\"left:" + leftA + "%\"></span><span class=\"absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500 ring-4 ring-orange-100\" style=\"left:" + leftB + "%\"></span><span class=\"absolute bottom-0 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500\">越靠右越大 →</span></div>";
+    }
+
+    function handleCompare(symbol, task, button) {
+      if (state.locked) {
+        return;
+      }
+      if (symbol === task.answer) {
+        state.locked = true;
+        button.classList.add("border-green-500", "bg-green-50", "text-green-700");
+        document.getElementById("symbolSlot").textContent = symbol;
+        award(10, "右边的数更大！" + task.hint);
+        setTimeout(function() {
+          state.currentIndex += 1;
+          state.locked = false;
+          renderComparison();
+        }, 900);
+      } else {
+        miss("在数轴上看看，越靠右越大。" + task.hint);
+        button.classList.add("wrong-shake", "border-red-400");
+        setTimeout(function() {
+          button.classList.remove("wrong-shake", "border-red-400");
+        }, 550);
+      }
+    }
+
+    function renderSortTask(area, task) {
+      const shuffled = shuffle(task.values);
+      sortSelection = [];
+      area.innerHTML = "<div class=\"mx-auto max-w-3xl text-center\"><p class=\"text-sm font-bold text-slate-500\">按从小到大的顺序依次点击数字</p><h3 class=\"mt-2 text-xl font-black text-slate-900\">从左到右：小 → 大</h3><div id=\"sortSlot\" class=\"mt-6 grid grid-cols-3 gap-3\"><div class=\"flex h-20 items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-slate-400\">第 1 个</div><div class=\"flex h-20 items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-slate-400\">第 2 个</div><div class=\"flex h-20 items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-slate-400\">第 3 个</div></div><div id=\"sortCards\" class=\"mt-8 flex flex-wrap justify-center gap-4\"></div><button id=\"clearSort\" type=\"button\" class=\"mt-5 rounded-md border border-slate-300 px-4 py-2 text-sm font-bold text-slate-600 hover:border-blue-400\">清空重排</button></div>";
+      const cardContainer = document.getElementById("sortCards");
+      shuffled.forEach(function(item) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "sort-card flex h-20 w-28 items-center justify-center rounded-md border-2 border-blue-200 bg-blue-50 text-2xl font-black transition hover:-translate-y-1 hover:border-blue-500";
+        button.dataset.value = item.value;
+        button.innerHTML = item.html;
+        button.addEventListener("click", function() {
+          if (button.disabled) {
+            return;
+          }
+          sortSelection.push(item);
+          button.disabled = true;
+          button.classList.add("opacity-30");
+          updateSortSlots();
+          if (sortSelection.length === task.values.length) {
+            checkSort(task);
+          }
+        });
+        cardContainer.appendChild(button);
+      });
+      document.getElementById("clearSort").addEventListener("click", function() {
+        renderSortTask(area, task);
+        typeset();
+      });
+      typeset();
+    }
+
+    function updateSortSlots() {
+      const slots = document.getElementById("sortSlot").children;
+      for (let index = 0; index < slots.length; index += 1) {
+        if (sortSelection[index]) {
+          slots[index].innerHTML = sortSelection[index].html;
+          slots[index].className = "flex h-20 items-center justify-center rounded-md border-2 border-blue-500 bg-blue-50 text-2xl font-black";
+        }
+      }
+      typeset();
+    }
+
+    function checkSort(task) {
+      const correctOrder = task.values.slice().sort(function(a, b) {
+        return a.value - b.value;
+      });
+      const correct = sortSelection.every(function(item, index) {
+        return item.value === correctOrder[index].value;
+      });
+      if (correct) {
+        award(30, "顺序正确！数轴上从左到右，数越来越大。排序全对额外奖励 +20。");
+        state.locked = true;
+        setTimeout(function() {
+          state.currentIndex += 1;
+          state.locked = false;
+          renderComparison();
+        }, 1100);
+      } else {
+        miss("从小到大应为：−1/2、0、3/2。请沿数轴从左向右观察。");
+        setTimeout(function() {
+          renderSortTask(document.getElementById("gameArea"), task);
+        }, 1050);
+      }
+    }
+
+    function renderComprehensive() {
+      const area = document.getElementById("gameArea");
+      const task = comprehensiveTasks[state.currentIndex];
+      updateProgress(state.currentIndex * 3 + comprehensiveStep, comprehensiveTasks.length * 3);
+      if (!task) {
+        state.achievements.add("认识有理数达人");
+        finishLevel("认识有理数达人", "分类决定数的类型，数轴显示数的位置，位置又能帮助比较大小。");
+        return;
+      }
+      const stepLabels = ["第 1 步：分类", "第 2 步：数轴定位", "第 3 步：比较大小"];
+      const progressHtml = "<div class=\"mb-6 grid grid-cols-3 gap-2\">" + stepLabels.map(function(label, index) {
+        return "<div class=\"rounded-md border px-2 py-2 text-center text-xs font-bold " + (index === comprehensiveStep ? "border-blue-700 bg-blue-700 text-white" : index < comprehensiveStep ? "border-green-200 bg-green-50 text-green-700" : "border-slate-200 text-slate-400") + "\">" + label + "</div>";
+      }).join("") + "</div>";
+      if (comprehensiveStep === 0) {
+        area.innerHTML = progressHtml + "<div class=\"text-center\"><p class=\"font-bold text-slate-600\">先判断这个数属于哪一类</p><div class=\"mt-4\">" + numberCard(task) + "</div></div><div id=\"categoryGrid\" class=\"mt-7 grid grid-cols-2 gap-3 xl:grid-cols-5\"></div>";
+        const categories = ["正整数", "负整数", "零", "正分数", "负分数"];
+        const grid = document.getElementById("categoryGrid");
+        categories.forEach(function(category) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.category = category;
+          button.dataset.dropType = "category";
+          button.className = "drop-zone min-h-24 rounded-md border-2 border-dashed border-slate-300 bg-slate-50 p-3 font-black transition hover:border-blue-500 hover:bg-blue-50";
+          button.textContent = category;
+          button.addEventListener("click", function() {
+            handleCategoryDrop(category);
+          });
+          grid.appendChild(button);
+        });
+        bindDraggableCards();
+      } else if (comprehensiveStep === 1) {
+        area.innerHTML = progressHtml + "<div class=\"text-center\"><p class=\"font-bold text-slate-600\">再把它放到数轴上</p><div class=\"mt-4\">" + numberCard(task) + "</div></div>" + axisHtml(true);
+        bindDraggableCards();
+        bindAxisClick();
+      } else {
+        area.innerHTML = progressHtml + "<div class=\"mx-auto max-w-3xl text-center\"><p class=\"font-bold text-slate-600\">最后比较两个数的大小</p><div class=\"mt-7 grid grid-cols-[1fr_auto_1fr] items-center gap-3\"><div class=\"rounded-md bg-blue-50 py-7 text-3xl font-black\">" + task.html + "</div><div class=\"text-2xl font-black text-slate-400\">?</div><div class=\"rounded-md bg-orange-50 py-7 text-3xl font-black\">" + task.compareHtml + "</div></div><div class=\"mt-6 grid grid-cols-3 gap-3\"><button data-comp-symbol=\"<\" class=\"rounded-md border-2 border-slate-200 py-4 text-3xl font-black hover:border-blue-500\">&lt;</button><button data-comp-symbol=\"=\" class=\"rounded-md border-2 border-slate-200 py-4 text-3xl font-black hover:border-blue-500\">=</button><button data-comp-symbol=\">\" class=\"rounded-md border-2 border-slate-200 py-4 text-3xl font-black hover:border-blue-500\">&gt;</button></div></div>";
+        document.querySelectorAll("[data-comp-symbol]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            if (button.dataset.compSymbol === task.symbol) {
+              award(10, "比较正确！数轴上越靠右的数越大。");
+              state.locked = true;
+              setTimeout(function() {
+                state.currentIndex += 1;
+                comprehensiveStep = 0;
+                state.locked = false;
+                renderComprehensive();
+              }, 900);
+            } else {
+              miss("观察它们在数轴上的位置，越靠右的数越大。");
+            }
+          });
+        });
+      }
+      typeset();
+    }
+
+    function renderChallengeIntro() {
+      const area = document.getElementById("gameArea");
+      updateProgress(0, 30);
+      area.innerHTML = "<div class=\"mx-auto flex min-h-[450px] max-w-2xl flex-col items-center justify-center text-center\"><div class=\"flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 text-4xl\">⏱️</div><h3 class=\"mt-5 text-3xl font-black text-slate-900\">30 秒极速挑战</h3><p class=\"mt-3 max-w-lg leading-7 text-slate-600\">定位题与比较题交替出现。答错只会中断连击，不扣基础分，也不会影响已经获得的星级。</p><button id=\"startChallenge\" type=\"button\" class=\"mt-7 rounded-md bg-orange-500 px-8 py-3 text-lg font-black text-white shadow-md transition hover:bg-orange-600\">开始挑战</button></div>";
+      document.getElementById("startChallenge").addEventListener("click", startChallenge);
+    }
+
+    function startChallenge() {
+      state.challengeTime = 30;
+      state.challengeCount = 0;
+      state.currentIndex = 0;
+      state.locked = false;
+      renderChallengeTask();
+      state.challengeTimer = setInterval(function() {
+        state.challengeTime -= 1;
+        const timer = document.getElementById("challengeTimer");
+        if (timer) {
+          timer.textContent = state.challengeTime + " 秒";
+        }
+        updateProgress(30 - state.challengeTime, 30);
+        if (state.challengeTime <= 0) {
+          clearInterval(state.challengeTimer);
+          state.challengeTimer = null;
+          finishChallenge();
+        }
+      }, 1000);
+    }
+
+    function renderChallengeTask() {
+      if (state.challengeTime <= 0) {
+        return;
+      }
+      const area = document.getElementById("gameArea");
+      const isCompare = state.challengeCount % 2 === 1;
+      if (isCompare) {
+        const pairs = [
+          { a: -3, b: 1 },
+          { a: -2, b: -4 },
+          { a: 0, b: -0.5 },
+          { a: 1.5, b: 2 }
+        ];
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        const answer = pair.a > pair.b ? ">" : pair.a < pair.b ? "<" : "=";
+        area.innerHTML = challengeHeader() + "<div class=\"mx-auto mt-10 max-w-xl text-center\"><p class=\"font-bold text-slate-600\">选择正确的符号</p><div class=\"mt-6 flex items-center justify-center gap-5 text-4xl font-black\"><span class=\"rounded bg-blue-50 px-8 py-6\">" + displayNumber(pair.a) + "</span><span>?</span><span class=\"rounded bg-orange-50 px-8 py-6\">" + displayNumber(pair.b) + "</span></div><div class=\"mt-7 grid grid-cols-3 gap-3\"><button data-fast-symbol=\"<\" class=\"rounded-md border-2 py-4 text-3xl font-black hover:border-blue-500\">&lt;</button><button data-fast-symbol=\"=\" class=\"rounded-md border-2 py-4 text-3xl font-black hover:border-blue-500\">=</button><button data-fast-symbol=\">\" class=\"rounded-md border-2 py-4 text-3xl font-black hover:border-blue-500\">&gt;</button></div></div>";
+        document.querySelectorAll("[data-fast-symbol]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            if (button.dataset.fastSymbol === answer) {
+              award(10, "判断正确，继续！");
+            } else {
+              miss("越靠右的数越大，快速调整！");
+            }
+            state.challengeCount += 1;
+            renderChallengeTask();
+          });
+        });
+      } else {
+        const values = [-3, -1.5, -0.5, 0, 0.5, 2, 3];
+        const value = values[Math.floor(Math.random() * values.length)];
+        state.challengeValue = value;
+        area.innerHTML = challengeHeader() + "<div class=\"mt-6 text-center\"><p class=\"font-bold text-slate-600\">把这个数放到数轴上</p><div class=\"mt-3\"><div class=\"number-card draggable-card mx-auto flex h-20 w-32 cursor-grab items-center justify-center rounded-md border-2 border-blue-200 bg-white text-3xl font-black shadow-md\" draggable=\"true\" data-value=\"" + value + "\">" + displayNumber(value) + "</div></div></div>" + axisHtml(true);
+        bindDraggableCards();
+        const axis = document.getElementById("axisDrop");
+        axis.addEventListener("click", function(event) {
+          handleChallengeAxis(event.clientX);
+        });
+      }
+      typeset();
+    }
+
+    function challengeHeader() {
+      return "<div class=\"flex items-center justify-between rounded-md border border-orange-200 bg-orange-50 px-4 py-3\"><strong class=\"text-orange-700\">极速数轴王</strong><span id=\"challengeTimer\" class=\"rounded bg-orange-500 px-3 py-1 text-lg font-black text-white\">" + state.challengeTime + " 秒</span><span class=\"text-sm font-bold text-slate-600\">完成 " + state.challengeCount + " 题</span></div>";
+    }
+
+    function displayNumber(value) {
+      if (value === 0.5) {
+        return "\\(\\frac{1}{2}\\)";
+      }
+      if (value === -0.5) {
+        return "\\(-\\frac{1}{2}\\)";
+      }
+      if (value === 1.5) {
+        return "\\(\\frac{3}{2}\\)";
+      }
+      if (value === -1.5) {
+        return "\\(-\\frac{3}{2}\\)";
+      }
+      return "\\(" + value + "\\)";
+    }
+
+    function handleChallengeAxis(clientX) {
+      const axis = document.getElementById("axisDrop");
+      if (!axis || state.locked) {
+        return;
+      }
+      const rect = axis.getBoundingClientRect();
+      const raw = (clientX - (rect.left + rect.width * 0.05)) / (rect.width * 0.90) * 8 - 4;
+      const dropped = Math.round(raw * 2) / 2;
+      if (Math.abs(dropped - state.challengeValue) < 0.01) {
+        award(10, "定位准确！");
+      } else {
+        miss(state.challengeValue < 0 ? "负数在原点左边，再看清刻度。" : "正数在原点右边，再看清刻度。");
+      }
+      state.challengeCount += 1;
+      renderChallengeTask();
+    }
+
+    function finishChallenge() {
+      state.completed.add(5);
+      if (state.challengeCount >= 6) {
+        state.achievements.add("极速数轴王");
+      }
+      updateHeader();
+      renderLevelSteps();
+      const area = document.getElementById("gameArea");
+      area.innerHTML = "<div class=\"flex min-h-[450px] flex-col items-center justify-center text-center\"><div class=\"text-6xl\">⚡</div><h3 class=\"mt-4 text-3xl font-black\">挑战结束</h3><p class=\"mt-3 text-slate-600\">你在 30 秒内完成了 <strong class=\"text-orange-600\">" + state.challengeCount + "</strong> 道任务。</p><button id=\"challengeAgain\" class=\"mt-6 rounded-md bg-orange-500 px-6 py-3 font-black text-white hover:bg-orange-600\">再挑战一次</button><button id=\"showFinal\" class=\"mt-3 rounded-md border border-blue-300 px-6 py-3 font-black text-blue-800 hover:bg-blue-50\">查看总成绩</button></div>";
+      document.getElementById("challengeAgain").addEventListener("click", startChallenge);
+      document.getElementById("showFinal").addEventListener("click", showFinalResult);
+    }
+
+    function finishLevel(badge, summary) {
+      state.completed.add(state.level);
+      state.achievements.add(badge);
+      renderLevelSteps();
+      updateHeader();
+      const levelCorrect = state.correct - state.levelStartCorrect;
+      const levelAttempts = state.attempts - state.levelStartAttempts;
+      const levelScore = state.score - state.levelStartScore;
+      const accuracy = levelAttempts === 0 ? 100 : Math.round(levelCorrect / levelAttempts * 100);
+      showModal(
+        "🎉",
+        "本关通过！",
+        summary,
+        "<div class=\"grid grid-cols-3 gap-3 text-center\"><div class=\"rounded-md bg-blue-50 p-3\"><div class=\"text-xl font-black text-blue-800\">" + levelScore + "</div><div class=\"text-xs text-slate-500\">本关得分</div></div><div class=\"rounded-md bg-green-50 p-3\"><div class=\"text-xl font-black text-green-700\">" + accuracy + "%</div><div class=\"text-xs text-slate-500\">正确率</div></div><div class=\"rounded-md bg-orange-50 p-3\"><div class=\"text-xl font-black text-orange-600\">🏅</div><div class=\"text-xs text-slate-500\">" + badge + "</div></div></div>",
+        [
+          {
+            text: "重玩本关",
+            className: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+            action: function() {
+              closeModal();
+              resetCurrentLevelScore();
+              loadLevel(state.level);
+            }
+          },
+          {
+            text: state.level === 4 ? "进入加分关" : "进入下一关",
+            className: "bg-blue-800 text-white hover:bg-blue-700",
+            action: function() {
+              closeModal();
+              if (state.level < 5) {
+                loadLevel(state.level + 1);
+              } else {
+                showFinalResult();
+              }
+            }
+          }
+        ]
+      );
+    }
+
+    function resetCurrentLevelScore() {
+      state.score = state.levelStartScore;
+      state.correct = state.levelStartCorrect;
+      state.attempts = state.levelStartAttempts;
+      state.combo = 0;
+      state.completed.delete(state.level);
+      updateHeader();
+    }
+
+    function showFinalResult() {
+      const accuracy = state.attempts === 0 ? 100 : Math.round(state.correct / state.attempts * 100);
+      const stars = accuracy >= 90 && state.completed.size >= 5 ? 3 : accuracy >= 70 ? 2 : 1;
+      if (accuracy === 100 && state.completed.size >= 5) {
+        state.achievements.add("全对通关");
+      }
+      const starText = "★".repeat(stars) + "☆".repeat(3 - stars);
+      let suggestion = "继续练习，数轴会帮助你看清每个数的位置与大小。";
+      if (accuracy >= 90) {
+        suggestion = "你已经熟练掌握分类、数轴表示和大小比较！";
+      } else if (accuracy < 70) {
+        suggestion = "建议优先重玩数轴定位和大小比较关卡。";
+      }
+      showModal(
+        "🏆",
+        "有理数闯关完成",
+        suggestion,
+        "<div class=\"text-center\"><div class=\"text-4xl tracking-widest text-orange-500\">" + starText + "</div></div><div class=\"mt-5 grid grid-cols-3 gap-3 text-center\"><div class=\"rounded-md bg-slate-50 p-3\"><div class=\"text-2xl font-black\">" + state.score + "</div><div class=\"text-xs text-slate-500\">总分</div></div><div class=\"rounded-md bg-green-50 p-3\"><div class=\"text-2xl font-black text-green-700\">" + accuracy + "%</div><div class=\"text-xs text-slate-500\">正确率</div></div><div class=\"rounded-md bg-blue-50 p-3\"><div class=\"text-2xl font-black text-blue-800\">" + state.achievements.size + "</div><div class=\"text-xs text-slate-500\">成就</div></div></div><div class=\"mt-4 rounded-md border border-orange-100 bg-orange-50 p-3 text-sm text-orange-800\">已获成就：" + Array.from(state.achievements).join("、") + "</div>",
+        [
+          {
+            text: "返回第 3 关练定位",
+            className: "border border-blue-300 bg-white text-blue-800 hover:bg-blue-50",
+            action: function() {
+              closeModal();
+              loadLevel(2);
+            }
+          },
+          {
+            text: "整局再玩一次",
+            className: "bg-blue-800 text-white hover:bg-blue-700",
+            action: function() {
+              closeModal();
+              restartGame();
+            }
+          }
+        ]
+      );
+    }
+
+    function showModal(icon, title, subtitle, body, actions) {
+      const modal = document.getElementById("modal");
+      document.getElementById("modalIcon").textContent = icon;
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalSubtitle").textContent = subtitle;
+      document.getElementById("modalBody").innerHTML = body;
+      const actionContainer = document.getElementById("modalActions");
+      actionContainer.innerHTML = "";
+      actions.forEach(function(action) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "rounded-md px-4 py-3 font-black transition " + action.className;
+        button.textContent = action.text;
+        button.addEventListener("click", action.action);
+        actionContainer.appendChild(button);
+      });
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function bindDraggableCards() {
+      document.querySelectorAll(".draggable-card").forEach(function(card) {
+        card.addEventListener("dragstart", function(event) {
+          event.dataTransfer.setData("text/plain", card.dataset.value || "");
+          card.classList.add("scale-105", "shadow-xl");
+        });
+        card.addEventListener("dragend", function() {
+          card.classList.remove("scale-105", "shadow-xl");
+          clearDropHighlights();
+        });
+        card.addEventListener("pointerdown", startPointerDrag);
+        card.addEventListener("click", function() {
+          state.selectedValue = card.dataset.value;
+          card.classList.add("ring-4", "ring-blue-200");
+          document.querySelectorAll(".drop-zone").forEach(function(zone) {
+            zone.classList.add("drop-active");
+          });
+        });
+      });
+      document.querySelectorAll(".drop-zone").forEach(function(zone) {
+        zone.addEventListener("dragover", function(event) {
+          event.preventDefault();
+          zone.classList.add("drop-active");
+        });
+        zone.addEventListener("dragleave", function() {
+          zone.classList.remove("drop-active");
+        });
+        zone.addEventListener("drop", function(event) {
+          event.preventDefault();
+          zone.classList.remove("drop-active");
+          executeDrop(zone, event.clientX);
+        });
+      });
+    }
+
+    function startPointerDrag(event) {
+      if (event.pointerType === "mouse" && event.button !== 0) {
+        return;
+      }
+      const card = event.currentTarget;
+      const ghost = card.cloneNode(true);
+      ghost.classList.add("drag-ghost");
+      ghost.style.width = card.offsetWidth + "px";
+      ghost.style.height = card.offsetHeight + "px";
+      document.body.appendChild(ghost);
+      pointerDrag = {
+        card: card,
+        ghost: ghost,
+        pointerId: event.pointerId,
+        moved: false,
+        startX: event.clientX,
+        startY: event.clientY
+      };
+      moveGhost(event.clientX, event.clientY);
+      card.setPointerCapture(event.pointerId);
+      card.addEventListener("pointermove", movePointerDrag);
+      card.addEventListener("pointerup", endPointerDrag);
+      card.addEventListener("pointercancel", endPointerDrag);
+    }
+
+    function movePointerDrag(event) {
+      if (!pointerDrag) {
+        return;
+      }
+      if (Math.abs(event.clientX - pointerDrag.startX) > 5 || Math.abs(event.clientY - pointerDrag.startY) > 5) {
+        pointerDrag.moved = true;
+      }
+      moveGhost(event.clientX, event.clientY);
+      document.querySelectorAll(".drop-zone").forEach(function(zone) {
+        const rect = zone.getBoundingClientRect();
+        const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+        zone.classList.toggle("drop-active", inside);
+      });
+    }
+
+    function moveGhost(x, y) {
+      if (!pointerDrag) {
+        return;
+      }
+      pointerDrag.ghost.style.left = x + "px";
+      pointerDrag.ghost.style.top = y + "px";
+    }
+
+    function endPointerDrag(event) {
+      if (!pointerDrag) {
+        return;
+      }
+      const dragData = pointerDrag;
+      dragData.card.releasePointerCapture(dragData.pointerId);
+      dragData.card.removeEventListener("pointermove", movePointerDrag);
+      dragData.card.removeEventListener("pointerup", endPointerDrag);
+      dragData.card.removeEventListener("pointercancel", endPointerDrag);
+      dragData.ghost.remove();
+      pointerDrag = null;
+      clearDropHighlights();
+      if (!dragData.moved) {
+        return;
+      }
+      const target = document.elementFromPoint(event.clientX, event.clientY);
+      const zone = target ? target.closest(".drop-zone") : null;
+      if (zone) {
+        executeDrop(zone, event.clientX);
+      } else {
+        dragData.card.classList.add("wrong-shake");
+        setTimeout(function() {
+          dragData.card.classList.remove("wrong-shake");
+        }, 450);
+      }
+    }
+
+    function executeDrop(zone, clientX) {
+      if (zone.dataset.dropType === "category") {
+        handleCategoryDrop(zone.dataset.category);
+      } else if (zone.dataset.dropType === "axis") {
+        if (state.level === 5) {
+          handleChallengeAxis(clientX);
+        } else {
+          handleAxisDrop(clientX);
+        }
+      }
+    }
+
+    function clearDropHighlights() {
+      document.querySelectorAll(".drop-zone").forEach(function(zone) {
+        zone.classList.remove("drop-active");
+      });
+    }
+
+    function restartGame() {
+      clearInterval(state.challengeTimer);
+      state.level = 0;
+      state.score = 0;
+      state.combo = 0;
+      state.correct = 0;
+      state.attempts = 0;
+      state.completed.clear();
+      state.achievements.clear();
+      loadLevel(0);
+    }
+
+    document.getElementById("soundButton").addEventListener("click", function() {
+      state.sound = !state.sound;
+      this.textContent = state.sound ? "🔊 音效开" : "🔇 音效关";
+      this.classList.toggle("bg-slate-100", !state.sound);
+    });
+
+    document.getElementById("retryButton").addEventListener("click", function() {
+      resetCurrentLevelScore();
+      loadLevel(state.level);
+    });
+
+    document.getElementById("restartButton").addEventListener("click", function() {
+      showModal(
+        "↻",
+        "重新开始整局？",
+        "当前得分与关卡记录会被清空。",
+        "<div class=\"rounded-md bg-slate-50 p-4 text-center text-sm text-slate-600\">当前得分：<strong class=\"text-slate-900\">" + state.score + "</strong></div>",
+        [
+          {
+            text: "继续当前游戏",
+            className: "border border-slate-300 text-slate-700 hover:bg-slate-50",
+            action: closeModal
+          },
+          {
+            text: "确认重新开始",
+            className: "bg-red-600 text-white hover:bg-red-500",
+            action: function() {
+              closeModal();
+              restartGame();
+            }
+          }
+        ]
+      );
+    });
+
+    window.addEventListener("load", function() {
+      loadLevel(0);
+      typeset();
+    });
+  </script>
+ </body>
+</html>

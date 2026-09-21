@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#173b57">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>平行与垂直实验室｜鲁老师 × 当当老师</title>
+  <style>
+    :root{--navy:#173b57;--navy2:#0d2b43;--paper:#f7f1e5;--paper2:#fffaf0;--amber:#efb747;--teal:#2d8f8b;--coral:#e66a4f;--pin:#d93f5d;--muted:#6d7b80;--line:#d9d0bf;--white:#fff;--shadow:0 18px 55px rgba(27,49,62,.15)}
+    *{box-sizing:border-box}html,body{margin:0;min-width:320px;min-height:100%;background:#e8e2d6;color:var(--navy);font-family:"Microsoft YaHei","PingFang SC",sans-serif}button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid rgba(45,143,139,.35);outline-offset:2px}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:radial-gradient(#807667 0.65px,transparent .7px);background-size:7px 7px;mix-blend-mode:multiply}
+    .app{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-rows:auto 1fr}
+    header{height:76px;padding:0 clamp(16px,3vw,44px);display:flex;align-items:center;justify-content:space-between;background:var(--navy2);color:white;border-bottom:4px solid var(--amber)}
+    .brand{display:flex;align-items:center;gap:13px}.brandMark{width:44px;height:44px;display:grid;place-items:center;border:2px solid var(--amber);border-radius:50%;font:800 21px/1 "STKaiti","KaiTi",serif;color:var(--amber)}.brand strong{display:block;font-size:17px;letter-spacing:.08em}.brand small{display:block;margin-top:3px;color:#99b4c5;font:700 9px/1 Arial,sans-serif;letter-spacing:.18em}
+    .headerTitle{font-family:"STKaiti","KaiTi",serif;font-size:clamp(20px,2.4vw,31px);letter-spacing:.08em}.headerTools{display:flex;align-items:center;gap:9px}.headerBtn{height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08);color:white;font-weight:700;font-size:13px}.headerBtn:hover{background:rgba(255,255,255,.16)}
+    .workspace{min-height:0;padding:18px;display:grid;grid-template-columns:292px minmax(0,1fr) 278px;gap:16px}
+    .panel{min-height:0;border:1px solid rgba(23,59,87,.13);border-radius:18px;background:rgba(255,250,240,.88);box-shadow:var(--shadow);backdrop-filter:blur(12px);overflow:auto}.panelInner{padding:19px}.panelTitle{margin:0 0 14px;font:800 17px/1.3 "STKaiti","KaiTi",serif;letter-spacing:.06em}.eyebrow{display:block;margin-bottom:7px;color:var(--teal);font:800 10px/1 Arial,sans-serif;letter-spacing:.18em}
+    .modeTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:#e8e1d3;border-radius:12px}.modeBtn{height:42px;border:0;border-radius:9px;background:transparent;color:#607077;font-weight:800}.modeBtn.active{background:var(--navy);color:white;box-shadow:0 5px 14px rgba(23,59,87,.22)}
+    .section{padding:17px 0;border-bottom:1px dashed #d8cdbb}.section:last-child{border:0}.sectionLabel{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:13px}.sectionLabel em{font-style:normal;color:#9a876c;font-size:11px;font-weight:600}
+    .toolGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolBtn{min-height:58px;padding:9px;border:1px solid #d7cbb7;border-radius:12px;background:#fffaf1;color:var(--navy);font-weight:800;font-size:12px;transition:.2s}.toolBtn span{display:block;margin-bottom:5px;font-size:21px}.toolBtn:hover{border-color:var(--teal);transform:translateY(-1px)}.toolBtn.active{border-color:var(--teal);background:#e5f3f0;box-shadow:inset 0 0 0 1px var(--teal)}.toolBtn.future{opacity:.48;cursor:not-allowed}.toolBtn.wide{grid-column:1/-1}
+    .triPick{display:grid;gap:8px}.triChip{height:47px;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid #d7cbb7;border-radius:11px;background:white;color:var(--navy);font-weight:800}.triIcon{width:33px;height:27px;clip-path:polygon(0 100%,0 0,100% 100%);background:linear-gradient(135deg,rgba(239,183,71,.35),var(--amber));border-radius:3px}.triIcon.thirty{clip-path:polygon(0 100%,0 42%,100% 100%);background:linear-gradient(135deg,rgba(45,143,139,.28),var(--teal))}
+    .hintCard{padding:13px 14px;border-radius:12px;background:#fff2cf;border-left:4px solid var(--amber);font-size:12px;line-height:1.7;color:#5e5b50}.hintCard strong{color:var(--navy)}
+    .challengeBox{display:none}.challengeBox.show{display:block}.challengeSelect{width:100%;height:42px;padding:0 10px;border:1px solid #cfbea2;border-radius:10px;background:white;color:var(--navy);font-weight:700}.taskCard{margin-top:10px;padding:13px;border-radius:12px;background:var(--navy);color:white}.taskCard small{color:#9ed5d1;font-weight:800}.taskCard p{margin:7px 0 0;font:700 15px/1.65 "STKaiti","KaiTi",serif}
+    .actionRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.actionBtn{height:42px;border:0;border-radius:10px;background:var(--navy);color:white;font-weight:800}.actionBtn.alt{background:var(--teal)}.actionBtn.light{background:#e7dfd1;color:var(--navy)}
+    .stagePanel{position:relative;min-height:620px;overflow:hidden;background:var(--paper);border:1px solid rgba(23,59,87,.15);border-radius:18px;box-shadow:var(--shadow)}
+    .stagePanel:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(37,94,120,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(37,94,120,.075) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to bottom,#000,rgba(0,0,0,.58))}
+    #board{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:default}.stageTop{position:absolute;z-index:3;top:14px;left:14px;right:14px;display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none}.statusPill{max-width:min(520px,70%);padding:10px 14px;border:1px solid rgba(23,59,87,.13);border-radius:12px;background:rgba(255,253,247,.91);box-shadow:0 5px 20px rgba(23,59,87,.09);font-size:12px;line-height:1.55;color:#53666e;pointer-events:auto}.statusPill strong{color:var(--navy)}.snapLegend{display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;background:rgba(23,59,87,.88);color:white;font-size:11px;pointer-events:auto}.snapDot{width:9px;height:9px;border-radius:50%;background:var(--pin);box-shadow:0 0 0 5px rgba(217,63,93,.2)}
+    .toast{position:absolute;z-index:8;left:50%;bottom:22px;min-width:260px;max-width:80%;padding:13px 18px;border-radius:12px;background:var(--navy2);color:white;text-align:center;font-weight:800;font-size:13px;box-shadow:0 12px 35px rgba(13,43,67,.3);transform:translate(-50%,25px);opacity:0;pointer-events:none;transition:.28s}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.ok{background:#23786e}.toast.bad{background:#a64942}
+    .rightPanel .panelInner{display:flex;min-height:100%;flex-direction:column}.stepList{display:grid;gap:9px}.step{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:10px;border-radius:12px;background:#eee6d8;color:#6a7478;font-size:12px;line-height:1.6}.stepNum{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:white;color:var(--navy);font:800 13px Arial}.step.active{background:#dff0ed;color:var(--navy);box-shadow:inset 0 0 0 1px rgba(45,143,139,.28)}.step.active .stepNum{background:var(--teal);color:white}.step.done .stepNum{background:var(--navy);color:white}.step strong{display:block;margin-bottom:2px;color:var(--navy)}
+    .resultBox{margin-top:14px;padding:15px;border:1px dashed #cbbd9f;border-radius:13px;background:#fffaf0}.resultBox h3{margin:0 0 6px;font:800 16px "STKaiti","KaiTi",serif}.resultBox p{margin:0;color:#6c777a;font-size:12px;line-height:1.7}.resultBox.success{border-style:solid;border-color:#79b9ad;background:#e4f4ef}.resultBox.error{border-style:solid;border-color:#e19a86;background:#fff0e9}
+    .teacherTip{margin-top:auto;padding-top:18px;display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:end}.teacherTip img{width:72px;height:95px;object-fit:cover;object-position:top;border-radius:36px 36px 12px 12px;filter:drop-shadow(0 7px 10px rgba(0,0,0,.15))}.bubble{position:relative;padding:12px;border-radius:12px 12px 12px 2px;background:var(--navy);color:white;font-size:11px;line-height:1.65}.bubble strong{color:var(--amber)}
+    .demoPanel{position:absolute;z-index:10;inset:18px;display:none;grid-template-columns:minmax(0,1fr) 260px;overflow:hidden;border-radius:16px;background:rgba(247,241,229,.97);box-shadow:0 20px 60px rgba(13,43,67,.28);backdrop-filter:blur(14px)}.demoPanel.show{display:grid}.demoVisual{position:relative;overflow:hidden;background:linear-gradient(135deg,#f7f1e5,#efe4d1)}.demoCanvas{width:100%;height:100%;display:block}.demoCopy{padding:24px;display:flex;flex-direction:column;background:var(--navy2);color:white}.demoCopy small{color:#78cbc4;font-weight:800;letter-spacing:.12em}.demoCopy h2{margin:12px 0 14px;font:800 27px/1.3 "STKaiti","KaiTi",serif}.demoCopy p{margin:0;color:#bed0db;font-size:13px;line-height:1.8}.demoNav{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}.demoNav button{height:42px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08);color:white;font-weight:800}.demoNav button.primary{background:var(--amber);color:var(--navy2);border-color:var(--amber)}
+    .mobileRotate,.mobileToolBar{display:none}
+    @media(max-width:1080px){.workspace{grid-template-columns:250px minmax(0,1fr)}.rightPanel{grid-column:1/-1;max-height:none}.rightPanel .panelInner{display:grid;grid-template-columns:1fr 1fr;gap:20px}.teacherTip{margin-top:0}.stagePanel{min-height:650px}}
+    @media(max-width:760px){header{height:66px;padding:0 12px}.brand strong{font-size:14px}.brand small{display:none}.headerTitle{font-size:18px}.headerTools .headerBtn:first-child{display:none}.workspace{display:flex;flex-direction:column;padding:9px;gap:9px}.panel{border-radius:14px}.leftPanel{order:2}.stagePanel{order:1;min-height:68svh;border-radius:14px}.rightPanel{order:3}.panelInner{padding:14px}.leftPanel .panelInner{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.leftPanel .panelTitle,.leftPanel .modeTabs,.leftPanel .challengeBox{grid-column:1/-1}.drawingTools{display:none}.toolBtn{min-height:52px}.rightPanel .panelInner{grid-template-columns:1fr}.teacherTip{display:none}.stageTop{display:none}.mobileToolBar{position:absolute;z-index:6;top:8px;left:8px;right:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:5px;border:1px solid rgba(23,59,87,.15);border-radius:12px;background:rgba(255,250,240,.94);box-shadow:0 7px 22px rgba(23,59,87,.14);backdrop-filter:blur(10px)}.mobileToolBar button{height:38px;padding:0 4px;border:0;border-radius:8px;background:#e9e1d3;color:var(--navy);font-size:11px;font-weight:800}.mobileToolBar button.active{background:var(--teal);color:white;box-shadow:0 4px 10px rgba(45,143,139,.25)}body.demo-open{overflow:hidden}.demoPanel{position:fixed;z-index:1000;inset:0;width:100vw;height:100dvh;border-radius:0;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;background:var(--paper)}.demoVisual{min-height:0}.demoCopy{min-height:190px;padding:16px 16px max(16px,env(safe-area-inset-bottom))}.demoCopy h2{font-size:21px;margin:6px 0}.demoCopy p{font-size:12px;line-height:1.6}.demoNav{margin-top:10px}.snapLegend{display:none}.statusPill{max-width:95%;font-size:11px}.mobileRotate{display:block;position:absolute;z-index:4;right:10px;bottom:10px;padding:8px 11px;border-radius:9px;background:rgba(23,59,87,.86);color:white;font-size:10px}}
+    @media(max-width:460px){.headerTitle{display:none}.headerBtn{padding:0 10px}.leftPanel .panelInner{display:block}.toolGrid{grid-template-columns:repeat(2,1fr)}.stagePanel{min-height:68svh}.taskCard p{font-size:14px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="brandMark">当</span><span><strong>鲁老师 × 当当老师</strong><small>GEOMETRY WORKSHOP</small></span></div>
+    <div class="headerTitle">平行与垂直实验室</div>
+    <div class="headerTools"><button class="headerBtn" id="undoBtn">退一步</button><button class="headerBtn" id="resetBtn">重新摆放</button></div>
+  </header>
+  <main class="workspace">
+    <aside class="panel leftPanel">
+      <div class="panelInner">
+        <span class="eyebrow">LEARNING MODE</span><h1 class="panelTitle">今天怎样探索？</h1>
+        <div class="modeTabs"><button class="modeBtn active" data-mode="free">自由操作</button><button class="modeBtn" data-mode="challenge">闯关练习</button></div>
+        <div class="challengeBox" id="challengeBox">
+          <div class="section"><div class="sectionLabel">选择任务</div><select class="challengeSelect" id="taskSelect"><option value="perpendicular">过点 A 作垂线</option><option value="parallel">过点 B 作平行线</option><option value="double">两把三角板画平行线</option></select><div class="taskCard"><small>本关任务</small><p id="taskText">过直线外一点 A，画出直线 l 的垂线。</p></div></div>
+        </div>
+        <div class="section drawingTools"><div class="sectionLabel">画线方式 <em>两种都能用</em></div><div class="toolGrid"><button class="toolBtn active" data-tool="move"><span>✥</span>移动工具</button><button class="toolBtn" data-tool="drag"><span>✎</span>沿边拖画</button><button class="toolBtn wide" data-tool="auto"><span>—</span>点边画整条直线</button></div></div>
+        <div class="section"><div class="sectionLabel">三角板 <em>点击顶点可固定</em></div><div class="triPick"><button class="triChip" data-select-tri="0"><span class="triIcon"></span>45° 三角板</button><button class="triChip" data-select-tri="1"><span class="triIcon thirty"></span>30°—60° 三角板</button></div></div>
+        <div class="section"><div class="sectionLabel">以后可增加的工具</div><div class="toolGrid"><button class="toolBtn future" disabled><span>▰</span>直尺</button><button class="toolBtn future" disabled><span>◠</span>量角器</button><button class="toolBtn future wide" disabled><span>◯</span>圆规 · 预留位置</button></div></div>
+        <div class="section"><div class="hintCard"><strong>磁吸提示：</strong>顶点靠近点或线会点吸附；两条方向接近的边靠拢时会整条边吸附，并用粉色高亮显示。</div></div>
+      </div>
+    </aside>
+
+    <section class="stagePanel" id="stagePanel">
+      <canvas id="board" aria-label="几何作图画板"></canvas>
+      <div class="stageTop"><div class="statusPill" id="statusPill"><strong>移动工具：</strong>拖动三角板；顶点和整条边都能自动吸附。</div><div class="snapLegend"><i class="snapDot"></i>点 / 边吸附</div></div>
+      <div class="mobileToolBar" aria-label="手机画线工具"><button class="active" data-tool="move">✥ 移动</button><button data-tool="drag">✎ 拖画</button><button data-tool="auto">— 整条线</button></div>
+      <div class="mobileRotate">横屏操作更宽敞</div>
+      <div class="toast" id="toast"></div>
+      <div class="demoPanel" id="demoPanel">
+        <div class="demoVisual"><canvas class="demoCanvas" id="demoCanvas"></canvas></div>
+        <div class="demoCopy"><small id="demoIndex">STEP 1 / 5</small><h2 id="demoTitle">先让三角板歪着靠近</h2><p id="demoText">三角板先不要摆正，准备先让一个顶点吸附到已知直线。</p><div class="demoNav"><button id="demoClose">退出演示</button><button class="primary" id="demoNext">下一步</button></div></div>
+      </div>
+    </section>
+
+    <aside class="panel rightPanel">
+      <div class="panelInner">
+        <div>
+          <span class="eyebrow">CONSTRUCTION STEPS</span><h2 class="panelTitle">作图记录</h2>
+          <div class="stepList" id="stepList">
+            <div class="step active"><span class="stepNum">1</span><div><strong>靠近目标</strong>让顶点或整条边完成吸附。</div></div>
+            <div class="step"><span class="stepNum">2</span><div><strong>锁定基准</strong>点击顶点固定，或按住辅助三角板不动。</div></div>
+            <div class="step"><span class="stepNum">3</span><div><strong>旋转或平移</strong>拖动三角板其他位置完成对齐。</div></div>
+            <div class="step"><span class="stepNum">4</span><div><strong>沿边画线</strong>拖画线段，或点击边画整条直线。</div></div>
+          </div>
+          <div class="actionRow"><button class="actionBtn alt" id="checkBtn">检查作图</button><button class="actionBtn" id="demoBtn">分步演示</button><button class="actionBtn light" id="clearLinesBtn">清除画线</button><button class="actionBtn light" id="nextTaskBtn">下一题</button></div>
+          <div class="resultBox" id="resultBox"><h3>还没有检查</h3><p>完成作图后点击“检查作图”，我会告诉你角度是否正确。</p></div>
+        </div>
+        <div class="teacherTip"><img src="assets/dangdang-teacher.png" alt="当当老师动漫形象"><div class="bubble"><strong>当当老师小提示：</strong><br>顶点固定后，拖动三角板的其他位置，它就会真正围绕这个点旋转。</div></div>
+      </div>
+    </aside>
+  </main>
+</div>
+<script>
+(() => {
+  window.addEventListener('pageshow',e=>{if(e.persisted)window.location.reload()});
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const stage = document.getElementById('stagePanel');
+  const toast = document.getElementById('toast');
+  const statusPill = document.getElementById('statusPill');
+  const resultBox = document.getElementById('resultBox');
+  const taskSelect = document.getElementById('taskSelect');
+  const taskText = document.getElementById('taskText');
+  const stepEls = [...document.querySelectorAll('.step')];
+  let W=900,H=650,dpr=1, mode='free', tool='move', selectedTri=0, interaction=null, history=[], toastTimer;
+  let currentTask='perpendicular', userLines=[], givenLines=[], taskPoint=null, demoStep=0, demoReturnY=0, demoWasMobile=false;
+
+  const palette = {navy:'#173b57',amber:'#efb747',teal:'#2d8f8b',coral:'#e66a4f',pin:'#d93f5d',paper:'#f7f1e5'};
+  const triangles = [
+    {name:'45°三角板',type:'45',x:360,y:410,angle:-0.08,color:palette.amber,local:[[-118,80],[118,80],[-118,-156]],snap:null,anchor:null},
+    {name:'30°—60°三角板',type:'30',x:650,y:360,angle:0.18,color:palette.teal,local:[[-145,78],[145,78],[-145,-89]],snap:null,anchor:null}
+  ];
+
+  const tasks = {
+    perpendicular:{text:'过直线外一点 A，画出直线 l 的垂线。',short:'过点 A 作垂线'},
+    parallel:{text:'过直线外一点 B，画出直线 m 的平行线。',short:'过点 B 作平行线'},
+    double:{text:'让两把三角板的边贴合，平移其中一块，画出一组平行线。',short:'两把三角板画平行线'}
+  };
+
+  function resize(){
+    const r=stage.getBoundingClientRect(); W=r.width; H=r.height; dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr); canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); draw();
+  }
+  new ResizeObserver(resize).observe(stage);
+  const rot=(p,a)=>({x:p[0]*Math.cos(a)-p[1]*Math.sin(a),y:p[0]*Math.sin(a)+p[1]*Math.cos(a)});
+  const triScale=()=>Math.min(1,Math.max(.56,W/760));
+  const scaledLocal=(t,i)=>{const s=triScale(),p=t.local[i];return[p[0]*s,p[1]*s]};
+  const verts=t=>t.local.map((p,i)=>{const q=rot(scaledLocal(t,i),t.angle);return{x:t.x+q.x,y:t.y+q.y}});
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const pointSeg=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l2=dx*dx+dy*dy;if(!l2)return{p:a,d:dist(p,a),t:0};const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/l2));const q={x:a.x+t*dx,y:a.y+t*dy};return{p:q,d:dist(p,q),t}};
+  const pointLine=(p,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,l2=dx*dx+dy*dy;if(!l2)return{p:a,d:dist(p,a)};const t=((p.x-a.x)*dx+(p.y-a.y)*dy)/l2,q={x:a.x+t*dx,y:a.y+t*dy};return{p:q,d:dist(p,q),t}};
+  const pointLineDist=(p,a,b)=>Math.abs((b.y-a.y)*p.x-(b.x-a.x)*p.y+b.x*a.y-b.y*a.x)/Math.max(.001,dist(a,b));
+  const angleOf=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x);
+  const angle180=a=>{let d=(a*180/Math.PI)%180;if(d<0)d+=180;return d};
+  const angleDiff=(a,b)=>{let d=Math.abs(angle180(a)-angle180(b));return Math.min(d,180-d)};
+  function inPoly(p,vs){let inside=false;for(let i=0,j=vs.length-1;i<vs.length;j=i++){const a=vs[i],b=vs[j];if(((a.y>p.y)!=(b.y>p.y))&&(p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x))inside=!inside}return inside}
+  function triEdges(t){const v=verts(t);return[[v[0],v[1],0],[v[1],v[2],1],[v[2],v[0],2]]}
+  function rotationHandle(t){const q=rot([0,-205*triScale()],t.angle);return{x:t.x+q.x,y:t.y+q.y}}
+  function getPoint(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+
+  function draw(){
+    ctx.clearRect(0,0,W,H); drawGiven();
+    userLines.forEach((l,i)=>drawLine(l,'#173b57',i===userLines.length-1?4:3));
+    triangles.forEach((t,i)=>drawTriangle(t,i));
+    if(interaction?.kind==='draw'&&interaction.preview){ctx.save();ctx.setLineDash([8,7]);drawLine(interaction.preview,palette.coral,4);ctx.restore()}
+  }
+  function drawGiven(){
+    givenLines.forEach(l=>{drawLine(l,'#536d7c',3);const mid={x:(l.a.x+l.b.x)/2,y:(l.a.y+l.b.y)/2};ctx.save();ctx.fillStyle='#173b57';ctx.font='italic 700 18px Georgia';ctx.fillText(l.label||'',mid.x+8,mid.y-9);ctx.restore()});
+    if(taskPoint){ctx.save();ctx.beginPath();ctx.arc(taskPoint.x,taskPoint.y,6,0,Math.PI*2);ctx.fillStyle=palette.coral;ctx.fill();ctx.fillStyle=palette.navy;ctx.font='800 18px Georgia';ctx.fillText(taskPoint.label,taskPoint.x+11,taskPoint.y-8);ctx.restore()}
+  }
+  function drawLine(l,color,width){ctx.save();ctx.beginPath();ctx.moveTo(l.a.x,l.a.y);ctx.lineTo(l.b.x,l.b.y);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke();ctx.restore()}
+  function drawTriangle(t,index){
+    const v=verts(t); ctx.save();
+    ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);ctx.lineTo(v[1].x,v[1].y);ctx.lineTo(v[2].x,v[2].y);ctx.closePath();
+    const grad=ctx.createLinearGradient(v[0].x,v[0].y,v[2].x,v[2].y);grad.addColorStop(0,t.color+'76');grad.addColorStop(1,t.color+'35');ctx.fillStyle=grad;ctx.fill();ctx.strokeStyle=index===selectedTri?palette.navy:'#5b6c70';ctx.lineWidth=index===selectedTri?4:2.5;ctx.stroke();
+    if(Number.isInteger(t.snap?.edge)){const [a,b]=triEdges(t)[t.snap.edge];ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle='rgba(217,63,93,.34)';ctx.lineWidth=13;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle='#ff617e';ctx.lineWidth=4;ctx.stroke()}
+    ctx.beginPath();const inset=t.type==='45'?45:42;const c={x:(v[0].x+v[1].x+v[2].x)/3,y:(v[0].y+v[1].y+v[2].y)/3};const iv=v.map(p=>({x:c.x+(p.x-c.x)*.58,y:c.y+(p.y-c.y)*.58}));ctx.moveTo(iv[0].x,iv[0].y);ctx.lineTo(iv[1].x,iv[1].y);ctx.lineTo(iv[2].x,iv[2].y);ctx.closePath();ctx.strokeStyle='rgba(23,59,87,.35)';ctx.lineWidth=1.5;ctx.stroke();
+    v.forEach((p,i)=>{const snapped=t.snap?.vertex===i, anchored=t.anchor?.vertex===i;ctx.beginPath();ctx.arc(p.x,p.y,anchored?10:snapped?8:5.5,0,Math.PI*2);ctx.fillStyle=anchored?palette.pin:snapped?'#ff7388':'#fffaf0';ctx.fill();ctx.strokeStyle=anchored?palette.pin:palette.navy;ctx.lineWidth=2;ctx.stroke();if(snapped||anchored){ctx.beginPath();ctx.arc(p.x,p.y,16,0,Math.PI*2);ctx.strokeStyle=anchored?'rgba(217,63,93,.45)':'rgba(255,115,136,.4)';ctx.lineWidth=4;ctx.stroke()}});
+    const h=rotationHandle(t);ctx.beginPath();ctx.moveTo(t.x,t.y-4);ctx.lineTo(h.x,h.y);ctx.strokeStyle='rgba(23,59,87,.42)';ctx.lineWidth=1.5;ctx.setLineDash([4,5]);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.arc(h.x,h.y,13,0,Math.PI*2);ctx.fillStyle=index===selectedTri?palette.navy:'#71858e';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='white';ctx.font='700 15px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('↻',h.x,h.y+1);
+    ctx.fillStyle='rgba(23,59,87,.72)';ctx.font='800 12px Microsoft YaHei';ctx.textAlign='center';ctx.fillText(t.type==='45'?'45°':'30° / 60°',t.x,t.y+8);ctx.restore();
+  }
+  function pushHistory(){history.push(JSON.stringify({triangles:triangles.map(t=>({x:t.x,y:t.y,angle:t.angle,snap:t.snap,anchor:t.anchor})),userLines}));if(history.length>30)history.shift()}
+  function undo(){const raw=history.pop();if(!raw)return showToast('已经没有更早的步骤了');const s=JSON.parse(raw);s.triangles.forEach((x,i)=>Object.assign(triangles[i],x));userLines=s.userLines;updateSteps();draw()}
+  function resetTriangles(){const narrow=W<500;triangles[0].x=W*(narrow ? .32 : .37);triangles[0].y=H*(narrow ? .67 : .64);triangles[0].angle=-.08;triangles[0].snap=null;triangles[0].anchor=null;triangles[1].x=W*(narrow ? .69 : .70);triangles[1].y=H*(narrow ? .45 : .56);triangles[1].angle=.18;triangles[1].snap=null;triangles[1].anchor=null;selectedTri=0;interaction=null;draw();updateSteps()}
+  function setupTask(type=currentTask){
+    currentTask=type;taskSelect.value=type;taskText.textContent=tasks[type].text;userLines=[];history=[];resultBox.className='resultBox';resultBox.innerHTML='<h3>还没有检查</h3><p>完成作图后点击“检查作图”，我会告诉你角度是否正确。</p>';
+    const y=H*.60;
+    if(type==='perpendicular'){givenLines=[{a:{x:W*.16,y},b:{x:W*.84,y},label:'l'}];taskPoint={x:W*.57,y:H*.48,label:'A'};}
+    else if(type==='parallel'){givenLines=[{a:{x:W*.16,y:H*.64},b:{x:W*.76,y:H*.49},label:'m'}];taskPoint={x:W*.56,y:H*.39,label:'B'};}
+    else{givenLines=[{a:{x:W*.14,y:H*.72},b:{x:W*.48,y:H*.72},label:'示范线'}];taskPoint=null;}
+    resetTriangles();
+  }
+  function setMode(next){mode=next;document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.getElementById('challengeBox').classList.toggle('show',mode==='challenge');if(mode==='challenge')setupTask(currentTask);else{givenLines=[{a:{x:W*.13,y:H*.70},b:{x:W*.62,y:H*.70},label:'参考线'}];taskPoint={x:W*.43,y:H*.62,label:'A'};userLines=[];resetTriangles()} }
+  function setTool(next){tool=next;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));statusPill.innerHTML=tool==='move'?'<strong>移动工具：</strong>顶点靠近目标会点吸附；两条方向接近的边靠拢会整边吸附。':tool==='drag'?'<strong>沿边拖画：</strong>从三角板边上按住并沿边拖动，松开完成线段。':'<strong>点边画整条：</strong>直接点击三角板任意一条边，自动画出整条直线。'}
+  function findHit(p){
+    const vertexHits=[];
+    triangles.forEach((t,ti)=>verts(t).forEach((v,vi)=>{const d=dist(p,v);if(d<20){const priority=(t.anchor?.vertex===vi?12:0)+(t.snap?.vertex===vi?8:0)+(ti===selectedTri?2:0);vertexHits.push({kind:'vertex',ti,vi,d,score:d-priority})}}));
+    if(vertexHits.length){vertexHits.sort((a,b)=>a.score-b.score||a.d-b.d);return vertexHits[0]}
+    for(let ti=triangles.length-1;ti>=0;ti--){const t=triangles[ti],h=rotationHandle(t);if(dist(p,h)<19)return{kind:'rotate',ti}}
+    for(let ti=triangles.length-1;ti>=0;ti--){const t=triangles[ti],v=verts(t);for(const [a,b,ei] of triEdges(t)){const q=pointSeg(p,a,b);if(q.d<14)return{kind:'edge',ti,ei,proj:q.p}}if(inPoly(p,v))return{kind:'body',ti}}
+    return null;
+  }
+  function snapTriangle(t,ti){
+    const threshold=16,edgeThreshold=6;let best=null,edgeBest=null;const v=verts(t);
+    function consider(vertex,point,d,label,extra={}){if(d<threshold&&(!best||d<best.d))best={vertex,point:{x:point.x,y:point.y},d,label,...extra}}
+    v.forEach((p,vi)=>{
+      if(taskPoint)consider(vi,taskPoint,dist(p,taskPoint),`题目点 ${taskPoint.label}`);
+      givenLines.concat(userLines).forEach(l=>{const q=pointSeg(p,l.a,l.b);consider(vi,q.p,q.d,'直线')});
+      triangles.forEach((other,oi)=>{if(oi===ti)return;const ov=verts(other);ov.forEach(op=>consider(vi,op,dist(p,op),'另一个顶点'));triEdges(other).forEach(([a,b])=>{const q=pointSeg(p,a,b);consider(vi,q.p,q.d,'另一块三角板的边',{targetEdge:[a,b]})})});
+    });
+    const targets=[];
+    givenLines.concat(userLines).forEach(l=>targets.push({a:l.a,b:l.b,label:'直线',long:true}));
+    triangles.forEach((other,oi)=>{if(oi!==ti)triEdges(other).forEach(([a,b])=>targets.push({a,b,label:'另一块三角板的边',long:false}))});
+    triEdges(t).forEach(([sa,sb,edge])=>targets.forEach(target=>{
+      let delta=angleOf(target.a,target.b)-angleOf(sa,sb);while(delta>Math.PI/2)delta-=Math.PI;while(delta<-Math.PI/2)delta+=Math.PI;
+      if(Math.abs(delta)>Math.PI/60)return;
+      const d=target.long?Math.min(pointLine(sa,target.a,target.b).d,pointLine(sb,target.a,target.b).d):Math.min(pointSeg(sa,target.a,target.b).d,pointSeg(sb,target.a,target.b).d,pointSeg(target.a,sa,sb).d,pointSeg(target.b,sa,sb).d);
+      if(d<edgeThreshold&&(!edgeBest||d<edgeBest.d))edgeBest={edge,target,delta,d};
+    }));
+    if(edgeBest&&(!best||edgeBest.d<=best.d+5)){
+      t.angle+=edgeBest.delta;const [a,b]=triEdges(t)[edgeBest.edge],mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2},q=pointLine(mid,edgeBest.target.a,edgeBest.target.b).p;t.x+=q.x-mid.x;t.y+=q.y-mid.y;
+      t.snap={edge:edgeBest.edge,targetEdge:[edgeBest.target.a,edgeBest.target.b],d:edgeBest.d,label:edgeBest.target.label+'（整条边已贴合）'};showToast(`已完成边对边吸附：${t.snap.label}`,'ok',1100)
+    }else if(best){
+      const now=verts(t)[best.vertex];t.x+=best.point.x-now.x;t.y+=best.point.y-now.y;
+      if(best.targetEdge){
+        const targetAngle=angleOf(best.targetEdge[0],best.targetEdge[1]);let align=null;
+        triEdges(t).forEach(([a,b,ei])=>{if(![ei,(ei+1)%3].includes(best.vertex))return;let delta=targetAngle-angleOf(a,b);while(delta>Math.PI/2)delta-=Math.PI;while(delta<-Math.PI/2)delta+=Math.PI;if(Math.abs(delta)<Math.PI/60&&(!align||Math.abs(delta)<Math.abs(align.delta)))align={delta}});
+        if(align){t.angle+=align.delta;const local=scaledLocal(t,best.vertex),q=rot(local,t.angle);t.x=best.point.x-q.x;t.y=best.point.y-q.y;best.label='另一块三角板的边（两边已对齐）'}
+      }
+      t.snap=best;showToast(`已吸附到${best.label}，点击发光点可以固定`,'ok',1100)
+    }else t.snap=null;
+  }
+  function snapAnchoredEdge(t,ti){
+    if(!t.anchor)return false;const ap=t.anchor.point,targets=[];givenLines.concat(userLines).forEach(l=>targets.push({a:l.a,b:l.b,label:'直线',long:true}));triangles.forEach((other,oi)=>{if(oi!==ti)triEdges(other).forEach(([a,b])=>targets.push({a,b,label:'另一块三角板的边',long:false}))});let best=null;
+    triEdges(t).forEach(([a,b,edge])=>{if(![edge,(edge+1)%3].includes(t.anchor.vertex))return;targets.forEach(target=>{const near=target.long?pointLine(ap,target.a,target.b).d:pointSeg(ap,target.a,target.b).d;if(near>7)return;let delta=angleOf(target.a,target.b)-angleOf(a,b);while(delta>Math.PI/2)delta-=Math.PI;while(delta<-Math.PI/2)delta+=Math.PI;if(Math.abs(delta)<=Math.PI/60&&(!best||Math.abs(delta)<Math.abs(best.delta)))best={edge,target,delta}})});
+    if(!best)return false;t.angle+=best.delta;const local=scaledLocal(t,t.anchor.vertex),q=rot(local,t.angle);t.x=ap.x-q.x;t.y=ap.y-q.y;t.snap={vertex:t.anchor.vertex,edge:best.edge,point:{...ap},targetEdge:[best.target.a,best.target.b],label:best.target.label+'（固定点不动，整条边已贴合）'};showToast('固定点保持不动，直角边已与目标边重合','ok',1200);return true;
+  }
+  function pinVertex(t,vi){
+    const p=verts(t)[vi];if(t.anchor&&t.anchor.vertex===vi){t.anchor=null;showToast('已解除固定点');}
+    else if(t.snap&&t.snap.vertex===vi){t.anchor={vertex:vi,point:{x:p.x,y:p.y}};showToast('固定成功！现在拖动三角板其他位置试试','ok');}
+    else{t.anchor={vertex:vi,point:{x:p.x,y:p.y}};t.snap={vertex:vi,point:{x:p.x,y:p.y},label:'当前位置'};showToast('顶点已固定，可以围绕它旋转','ok');}updateSteps();draw();
+  }
+  function clipLine(a,b){
+    const dx=b.x-a.x,dy=b.y-a.y,pts=[];const add=(x,y)=>{if(x>=-1&&x<=W+1&&y>=-1&&y<=H+1&&!pts.some(p=>dist(p,{x,y})<1))pts.push({x,y})};
+    if(Math.abs(dx)>.001){let t=(0-a.x)/dx;add(0,a.y+t*dy);t=(W-a.x)/dx;add(W,a.y+t*dy)}if(Math.abs(dy)>.001){let t=(0-a.y)/dy;add(a.x+t*dx,0);t=(H-a.y)/dy;add(a.x+t*dx,H)}return pts.length>=2?{a:pts[0],b:pts[1]}:{a,b};
+  }
+  function addAutoLine(hit){pushHistory();const [a,b]=triEdges(triangles[hit.ti])[hit.ei];userLines.push(clipLine(a,b));showToast('已沿三角板边画出直线','ok');updateSteps();draw()}
+  function beginInteraction(e){
+    e.preventDefault();canvas.setPointerCapture?.(e.pointerId);const p=getPoint(e),hit=findHit(p);if(!hit)return;
+    selectedTri=hit.ti;const t=triangles[hit.ti];
+    if(hit.kind==='vertex'&&tool==='move'){pinVertex(t,hit.vi);return}
+    if(hit.kind==='edge'&&tool==='auto'){addAutoLine(hit);return}
+    if(hit.kind==='edge'&&tool==='drag'){interaction={kind:'draw',ti:hit.ti,ei:hit.ei,start:hit.proj,preview:null};return}
+    if(tool!=='move')return;
+    pushHistory();
+    if(hit.kind==='rotate'){interaction={kind:'rotate',ti:hit.ti,startPointer:Math.atan2(p.y-t.y,p.x-t.x),startAngle:t.angle};}
+    else if(hit.kind==='body'||hit.kind==='edge'){
+      if(t.anchor&&Number.isInteger(t.snap?.edge)&&t.snap?.targetEdge){const [a,b]=t.snap.targetEdge,len=Math.max(1,dist(a,b)),ux=(b.x-a.x)/len,uy=(b.y-a.y)/len;interaction={kind:'edgeSlide',ti:hit.ti,start:{x:p.x,y:p.y},center:{x:t.x,y:t.y},ux,uy,edge:t.snap.edge,targetEdge:t.snap.targetEdge};t.anchor=null;showToast('固定点已释放，现在沿重合的边平移','ok')}
+      else if(t.anchor){const ap=t.anchor.point;interaction={kind:'anchorRotate',ti:hit.ti,startPointer:Math.atan2(p.y-ap.y,p.x-ap.x),startAngle:t.angle};}
+      else interaction={kind:'move',ti:hit.ti,dx:p.x-t.x,dy:p.y-t.y};
+    }draw();
+  }
+  function moveInteraction(e){
+    if(!interaction)return;e.preventDefault();const p=getPoint(e),t=triangles[interaction.ti];
+    if(interaction.kind==='move'){t.x=p.x-interaction.dx;t.y=p.y-interaction.dy;t.snap=null;snapTriangle(t,interaction.ti)}
+    else if(interaction.kind==='rotate'){t.angle=interaction.startAngle+Math.atan2(p.y-t.y,p.x-t.x)-interaction.startPointer;t.snap=null;}
+    else if(interaction.kind==='anchorRotate'){const ap=t.anchor.point;t.angle=interaction.startAngle+Math.atan2(p.y-ap.y,p.x-ap.x)-interaction.startPointer;const local=scaledLocal(t,t.anchor.vertex),q=rot(local,t.angle);t.x=ap.x-q.x;t.y=ap.y-q.y;t.snap={vertex:t.anchor.vertex,point:{...ap},label:'固定点'};snapAnchoredEdge(t,interaction.ti);}
+    else if(interaction.kind==='edgeSlide'){const dx=p.x-interaction.start.x,dy=p.y-interaction.start.y,s=dx*interaction.ux+dy*interaction.uy;t.x=interaction.center.x+s*interaction.ux;t.y=interaction.center.y+s*interaction.uy;t.snap={edge:interaction.edge,targetEdge:interaction.targetEdge,label:'沿重合边平移中'};}
+    else if(interaction.kind==='draw'){const [a,b]=triEdges(t)[interaction.ei];const q=pointSeg(p,a,b).p;interaction.preview={a:interaction.start,b:q};}
+    updateSteps();draw();
+  }
+  function endInteraction(){
+    if(!interaction)return;if(interaction.kind==='draw'&&interaction.preview&&dist(interaction.preview.a,interaction.preview.b)>18){pushHistory();userLines.push(interaction.preview);showToast('线段画好了','ok')}interaction=null;updateSteps();draw();
+  }
+  canvas.addEventListener('pointerdown',beginInteraction);canvas.addEventListener('pointermove',moveInteraction);canvas.addEventListener('pointerup',endInteraction);canvas.addEventListener('pointercancel',endInteraction);
+
+  function updateSteps(){const snapped=triangles.some(t=>t.snap),anchored=triangles.some(t=>t.anchor),aligned=anchored||triangles.some(t=>Number.isInteger(t.snap?.edge)||Math.abs(angleDiff(t.angle,0))<4),drawn=userLines.length>0;const vals=[snapped,anchored||aligned,aligned,drawn];let first=vals.findIndex(v=>!v);if(first<0)first=3;stepEls.forEach((el,i)=>{el.classList.toggle('done',vals[i]&&i<first);el.classList.toggle('active',i===first)})}
+  function validate(){
+    if(!userLines.length){setResult(false,'还没有画线','请先选择一种画线方式，沿三角板的边画出直线。');return}
+    if(currentTask==='double'){if(userLines.length<2){setResult(false,'还差一条线','这个任务需要画出至少两条直线，才能检查它们是否平行。');return}let best=180;for(let i=0;i<userLines.length;i++)for(let j=i+1;j<userLines.length;j++)best=Math.min(best,angleDiff(angleOf(userLines[i].a,userLines[i].b),angleOf(userLines[j].a,userLines[j].b)));if(best<=3)setResult(true,'作图正确！','两条直线方向相同，夹角误差只有 '+best.toFixed(1)+'°。');else setResult(false,'还没有平行','两条线方向相差 '+best.toFixed(1)+'°，让两块三角板的边贴合后再平移。');return}
+    const base=givenLines[0],baseA=angleOf(base.a,base.b);let best=null;userLines.forEach(l=>{const pass=pointLineDist(taskPoint,l.a,l.b);const diff=angleDiff(angleOf(l.a,l.b),baseA);const err=currentTask==='perpendicular'?Math.abs(90-diff):diff;const score=pass+err*4;if(!best||score<best.score)best={pass,err,score}});
+    const ok=best.pass<=12&&best.err<=3;if(ok)setResult(true,'作图正确！',`${taskPoint.label} 点在线上，角度误差 ${best.err.toFixed(1)}°。${currentTask==='perpendicular'?'两条直线互相垂直。':'两条直线互相平行。'}`);else{let advice=best.pass>12?`画出的线离 ${taskPoint.label} 点还有 ${best.pass.toFixed(0)} 像素。`:`角度还相差 ${best.err.toFixed(1)}°。`;setResult(false,'再调整一下',advice+' 固定吸附点后，慢慢旋转三角板会更准确。')}
+  }
+  function setResult(ok,title,text){resultBox.className='resultBox '+(ok?'success':'error');resultBox.innerHTML=`<h3>${ok?'✓ ':''}${title}</h3><p>${text}</p>`;showToast(title,ok?'ok':'bad')}
+  function showToast(text,type='',time=1800){clearTimeout(toastTimer);toast.textContent=text;toast.className='toast show '+type;toastTimer=setTimeout(()=>toast.className='toast',time)}
+
+  document.querySelectorAll('.modeBtn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
+  document.querySelectorAll('[data-select-tri]').forEach(b=>b.addEventListener('click',()=>{selectedTri=+b.dataset.selectTri;showToast('已选择'+triangles[selectedTri].name);draw()}));
+  taskSelect.addEventListener('change',()=>setupTask(taskSelect.value));
+  document.getElementById('undoBtn').addEventListener('click',undo);
+  document.getElementById('resetBtn').addEventListener('click',()=>{pushHistory();resetTriangles();showToast('三角板已重新摆放')});
+  document.getElementById('clearLinesBtn').addEventListener('click',()=>{pushHistory();userLines=[];draw();updateSteps();showToast('画线已清除')});
+  document.getElementById('checkBtn').addEventListener('click',validate);
+  document.getElementById('nextTaskBtn').addEventListener('click',()=>{const order=['perpendicular','parallel','double'];setupTask(order[(order.indexOf(currentTask)+1)%order.length]);showToast('已进入下一题')});
+
+  const demoPanel=document.getElementById('demoPanel'),demoCanvas=document.getElementById('demoCanvas'),dctx=demoCanvas.getContext('2d');
+  const demoData={
+    perpendicular:[
+      ['先让三角板歪着靠近','三角板先不要摆正。观察直线 l 和直线外一点 A，准备先固定一个顶点。'],
+      ['一个顶点吸附到直线','把三角板的直角顶点靠近直线 l，出现吸附提示后点击这个顶点把它固定住。'],
+      ['绕固定点旋转到重合','拖动三角板的其他位置，让它绕固定点旋转，直到一条直角边与直线 l 完全重合。'],
+      ['沿直线平移到 A 点','拖动三角板，使它沿重合的边平移，直到另一条直角边经过点 A。'],
+      ['沿直角边画垂线','沿经过 A 的直角边画线。这条边与 l 成直角，所以得到的是垂线。']
+    ],
+    parallel:[
+      ['第一块三角板先歪着靠近','先观察直线 m 和直线外一点 B。第一块三角板先保持倾斜。'],
+      ['第一块板一点吸附到 m','让第一块三角板的直角顶点吸附到直线 m，并点击顶点固定。'],
+      ['旋转第一块板贴住 m','绕固定点旋转第一块三角板，让一条直角边与直线 m 完全重合。'],
+      ['第二块板一点吸附到第一块板','让第二块三角板的一个顶点先吸附到第一块板的另一条直角边，先固定一个点。'],
+      ['旋转第二块板使边重合','绕吸附点旋转第二块三角板，直到它的一条直角边与第一块板的直角边完全重合。'],
+      ['沿第二块板滑到 B 点','保持第二块板不动，让第一块板沿两板重合的边平移，直到画线边经过 B。'],
+      ['沿边画出平行线','沿经过 B 的边画线。它与原来贴住 m 的边方向相同，所以新线与 m 平行。']
+    ],
+    double:[
+      ['第一块三角板先歪着靠近','第一块三角板先倾斜靠近参考线，不要一步就摆正。'],
+      ['一个顶点先吸附参考线','让直角顶点吸附到参考线，并点击这个顶点固定。'],
+      ['绕固定点旋转到贴边','绕固定点旋转，让第一块板的一条直角边与参考线重合。'],
+      ['第二块板先吸附一个点','让第二块板的顶点先吸附到第一块板的另一条直角边。'],
+      ['旋转第二块板使边贴合','绕吸附点旋转第二块板，直到两块板的直角边完全重合。'],
+      ['沿贴合边平移第一块板','按住第二块板不动，让第一块板沿贴合边滑动。'],
+      ['沿原来的边画第二条线','沿第一块板原来的画线边作线，两次画线方向相同，所以互相平行。']
+    ]
+  };
+  function openDemo(){demoReturnY=window.scrollY;demoWasMobile=window.matchMedia('(max-width:760px)').matches;demoStep=0;demoPanel.classList.add('show');if(demoWasMobile)document.body.classList.add('demo-open');renderDemo()}
+  function closeDemo(){demoPanel.classList.remove('show');document.body.classList.remove('demo-open');if(demoWasMobile)requestAnimationFrame(()=>window.scrollTo({top:demoReturnY,behavior:'auto'}));demoWasMobile=false}
+  function renderDemo(){const list=demoData[currentTask],data=list[demoStep];document.getElementById('demoIndex').textContent=`STEP ${demoStep+1} / ${list.length}`;document.getElementById('demoTitle').textContent=data[0];document.getElementById('demoText').textContent=data[1];document.getElementById('demoNext').textContent=demoStep===list.length-1?'完成演示':'下一步';drawDemoScene()}
+  function drawDemoScene(){
+    const r=demoCanvas.getBoundingClientRect(),dd=Math.min(devicePixelRatio||1,2);demoCanvas.width=r.width*dd;demoCanvas.height=r.height*dd;dctx.setTransform(dd,0,0,dd,0,0);const w=r.width,h=r.height;dctx.clearRect(0,0,w,h);
+    dctx.strokeStyle='rgba(23,59,87,.08)';dctx.lineWidth=1;for(let x=0;x<w;x+=28){dctx.beginPath();dctx.moveTo(x,0);dctx.lineTo(x,h);dctx.stroke()}for(let y=0;y<h;y+=28){dctx.beginPath();dctx.moveTo(0,y);dctx.lineTo(w,y);dctx.stroke()}
+    const line=(a,b,color=palette.navy,width=4)=>{dctx.beginPath();dctx.moveTo(a.x,a.y);dctx.lineTo(b.x,b.y);dctx.strokeStyle=color;dctx.lineWidth=width;dctx.lineCap='round';dctx.stroke()};
+    const tri=(pts,color)=>{dctx.beginPath();dctx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>dctx.lineTo(p.x,p.y));dctx.closePath();dctx.fillStyle=color+'55';dctx.fill();dctx.strokeStyle=color;dctx.lineWidth=3;dctx.stroke()};
+    const glow=(a,b)=>{line(a,b,'rgba(217,63,93,.25)',14);line(a,b,'#ff617e',4)};
+    const rightMark=(r,p,q)=>{const u={x:(p.x-r.x),y:(p.y-r.y)},v={x:(q.x-r.x),y:(q.y-r.y)},ul=Math.max(1,Math.hypot(u.x,u.y)),vl=Math.max(1,Math.hypot(v.x,v.y)),s=17,a={x:r.x+u.x/ul*s,y:r.y+u.y/ul*s},c={x:r.x+v.x/vl*s,y:r.y+v.y/vl*s},b={x:a.x+v.x/vl*s,y:a.y+v.y/vl*s};dctx.beginPath();dctx.moveTo(a.x,a.y);dctx.lineTo(b.x,b.y);dctx.lineTo(c.x,c.y);dctx.strokeStyle=palette.navy;dctx.lineWidth=2;dctx.stroke()};
+    const dot=(p,color=palette.coral)=>{dctx.beginPath();dctx.arc(p.x,p.y,8,0,Math.PI*2);dctx.fillStyle=color;dctx.fill();dctx.beginPath();dctx.arc(p.x,p.y,16,0,Math.PI*2);dctx.strokeStyle=color+'55';dctx.lineWidth=5;dctx.stroke()};
+    const rotateAround=(p,o,a)=>{const x=p.x-o.x,y=p.y-o.y;return{x:o.x+x*Math.cos(a)-y*Math.sin(a),y:o.y+x*Math.sin(a)+y*Math.cos(a)}};
+    const arrow=(a,b,label)=>{dctx.save();dctx.setLineDash([7,7]);line(a,b,palette.navy,2);dctx.setLineDash([]);const ang=Math.atan2(b.y-a.y,b.x-a.x);dctx.beginPath();dctx.moveTo(b.x,b.y);dctx.lineTo(b.x-13*Math.cos(ang-.5),b.y-13*Math.sin(ang-.5));dctx.lineTo(b.x-13*Math.cos(ang+.5),b.y-13*Math.sin(ang+.5));dctx.closePath();dctx.fillStyle=palette.navy;dctx.fill();dctx.font='700 13px Microsoft YaHei';dctx.fillText(label,(a.x+b.x)/2+10,(a.y+b.y)/2-9);dctx.restore()};
+    const baseY=h*.74,baseA={x:w*.10,y:baseY},baseB={x:w*.90,y:baseY};line(baseA,baseB,'#9b3d3d',5);dctx.fillStyle=palette.navy;dctx.font='italic 700 17px Georgia';dctx.fillText(currentTask==='perpendicular'?'l':'m',w*.87,baseY-10);
+    if(currentTask==='perpendicular'){
+      const leg=Math.min(w*.25,h*.30),A={x:w*.64,y:baseY-leg*.42};dot(A);dctx.fillStyle=palette.navy;dctx.font='800 18px Georgia';dctx.fillText('A',A.x+13,A.y-8);
+      const startR={x:w*.69,y:baseY-leg*.65},startP={x:startR.x,y:startR.y-leg},startQ={x:startR.x+leg,y:startR.y};
+      const fixedR={x:w*.34,y:baseY},fixedP={x:fixedR.x,y:baseY-leg},fixedQ={x:fixedR.x+leg,y:baseY};
+      const tilted=[fixedR,rotateAround(fixedP,fixedR,-.45),rotateAround(fixedQ,fixedR,-.45)];
+      const finalR={x:A.x,y:baseY},finalP={x:A.x,y:baseY-leg},finalQ={x:A.x+leg,y:baseY};
+      if(demoStep===0){const pts=[rotateAround(startR,startR,-.36),rotateAround(startP,startR,-.36),rotateAround(startQ,startR,-.36)];tri(pts,palette.amber);rightMark(pts[0],pts[1],pts[2])}
+      if(demoStep===1){tri(tilted,palette.amber);rightMark(...tilted);dot(fixedR,palette.pin)}
+      if(demoStep===2){tri([fixedR,fixedP,fixedQ],palette.amber);rightMark(fixedR,fixedP,fixedQ);dot(fixedR,palette.pin);glow(fixedR,fixedQ)}
+      if(demoStep>=3){tri([finalR,finalP,finalQ],palette.amber);rightMark(finalR,finalP,finalQ);glow(finalR,finalQ);glow(finalP,finalR);if(demoStep===3)arrow({x:fixedR.x,y:baseY-28},{x:finalR.x,y:baseY-28},'沿直线平移');if(demoStep===4)line({x:A.x,y:Math.max(24,A.y-leg*.45)},{x:A.x,y:baseY+48},palette.coral,5);dot(A)}
+    }else{
+      const leg=Math.min(w*.23,h*.27),R={x:w*.36,y:baseY},P={x:R.x,y:baseY-leg},Q={x:R.x+leg,y:baseY},L={x:R.x-leg*.78,y:baseY};
+      const B={x:R.x+leg*.62,y:baseY-leg*.82};dot(B);dctx.fillStyle=palette.navy;dctx.font='800 18px Georgia';dctx.fillText('B',B.x+13,B.y-8);
+      const initialR={x:w*.70,y:baseY-leg*.60},initialP={x:initialR.x,y:initialR.y-leg},initialQ={x:initialR.x+leg,y:initialR.y};
+      const firstTilt=[R,rotateAround(P,R,-.43),rotateAround(Q,R,-.43)];
+      const supportTilt=[R,rotateAround(P,R,.70),rotateAround(L,R,.70)];
+      if(demoStep===0){const pts=[initialR,rotateAround(initialP,initialR,-.38),rotateAround(initialQ,initialR,-.38)];tri(pts,palette.amber);rightMark(...pts)}
+      if(demoStep===1){tri(firstTilt,palette.amber);rightMark(...firstTilt);dot(R,palette.pin)}
+      if(demoStep>=2&&demoStep<5){tri([R,P,Q],palette.amber);rightMark(R,P,Q);if(demoStep===2){dot(R,palette.pin);glow(R,Q)}}
+      if(demoStep===3){tri(supportTilt,palette.teal);rightMark(...supportTilt);dot(R,palette.pin)}
+      if(demoStep>=4){tri([R,P,L],palette.teal);rightMark(R,P,L);glow(P,R)}
+      if(demoStep>=5){const dy=B.y-baseY,R2={x:R.x,y:R.y+dy},P2={x:P.x,y:P.y+dy},Q2={x:Q.x,y:Q.y+dy};tri([R2,P2,Q2],palette.amber);rightMark(R2,P2,Q2);glow(R2,Q2);if(demoStep===5)arrow({x:R.x+25,y:baseY-18},{x:R.x+25,y:B.y+18},'沿贴合边滑动');if(demoStep===6)line({x:w*.11,y:B.y},{x:w*.89,y:B.y},palette.coral,5)}
+    }
+  }
+  document.getElementById('demoBtn').addEventListener('click',openDemo);document.getElementById('demoClose').addEventListener('click',closeDemo);document.getElementById('demoNext').addEventListener('click',()=>{const last=demoData[currentTask].length-1;if(demoStep<last){demoStep++;renderDemo()}else closeDemo()});
+  window.addEventListener('keydown',e=>{if(e.key==='Escape')closeDemo();if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo()}});
+  resize();setTimeout(()=>setMode('free'),80);
+})();
+</script>
+</body>
+</html>
