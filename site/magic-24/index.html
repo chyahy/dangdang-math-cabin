@@ -757,7 +757,8 @@
         #deckPrompt,
         #factorPrompt,
         #rubikPrompt,
-        #geometryPrompt {
+        #geometryPrompt,
+        #multiplePrompt {
             position: fixed;
             left: 0;
             top: 0;
@@ -782,7 +783,8 @@
         #deckPrompt.visible,
         #factorPrompt.visible,
         #rubikPrompt.visible,
-        #geometryPrompt.visible {
+        #geometryPrompt.visible,
+        #multiplePrompt.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -794,7 +796,9 @@
         #rubikPrompt:hover,
         #rubikPrompt:focus-visible,
         #geometryPrompt:hover,
-        #geometryPrompt:focus-visible {
+        #geometryPrompt:focus-visible,
+        #multiplePrompt:hover,
+        #multiplePrompt:focus-visible {
             background: #fff3cf;
             transform: translate(-50%, calc(-100% - 20px));
             outline: none;
@@ -878,6 +882,29 @@
             background: linear-gradient(135deg, #efb747, #2d8f8b);
             color: #fff;
             font: 900 15px/1 Georgia, serif;
+            vertical-align: -2px;
+        }
+
+        #multiplePrompt {
+            border-color: #9b4d3a;
+            background: rgba(255, 249, 231, .97);
+            color: #71382d;
+            box-shadow: 3px 4px 0 rgba(113, 56, 45, .16), 0 0 18px rgba(239, 183, 71, .25);
+        }
+
+        #multiplePrompt:hover,
+        #multiplePrompt:focus-visible { background: #fff0bf; }
+
+        #multiplePrompt .multipleIcon {
+            display: inline-grid;
+            place-items: center;
+            width: 25px;
+            height: 22px;
+            margin-right: 7px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #efb747, #e46550);
+            color: #173b57;
+            font: 900 11px/1 "Microsoft YaHei", sans-serif;
             vertical-align: -2px;
         }
 
@@ -981,12 +1008,14 @@
         .gameShelfLink:nth-child(2) .gameShelfIcon { background: #8b4f35; }
         .gameShelfLink:nth-child(3) .gameShelfIcon { background: #55468f; }
         .gameShelfLink:nth-child(4) .gameShelfIcon { background: #1f7180; }
+        .gameShelfLink:nth-child(5) .gameShelfIcon { background: #9b4d3a; }
         .gameShelfGo { color: #8b4f35; font-size: 18px; }
 
         #deckPrompt::after,
         #factorPrompt::after,
         #rubikPrompt::after,
-        #geometryPrompt::after {
+        #geometryPrompt::after,
+        #multiplePrompt::after {
             content: "";
             position: absolute;
             left: 50%;
@@ -1093,7 +1122,7 @@
         @keyframes portalSpin { to { transform: rotate(360deg); } }
 
         @media (max-width: 560px) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
             #gameShelf { top: 66px; width: min(286px, 88vw); transform: translateX(calc(100% - 46px)); }
             #gameShelf.open { transform: translateX(0); }
             .gameShelfPanel { width: calc(100% - 46px); }
@@ -1105,7 +1134,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #gameShelf, #gamePortal { transition-duration: .01ms; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #gameShelf, #gamePortal { transition-duration: .01ms; }
             .portalRing, #gamePortal.show .portalCard { animation-duration: .01ms; animation-iteration-count: 1; }
         }
     </style>
@@ -1199,6 +1228,7 @@
     <button id="factorPrompt" type="button" aria-label="点击桌上的质因数分解机，进入分解质因数练习"><span class="factorIcon">2×</span>质因数分解机</button>
     <button id="rubikPrompt" type="button" aria-label="点击桌上的魔方，进入正方体涂色探索"><span class="cubeIcon">立方</span>正方体涂色探索</button>
     <button id="geometryPrompt" type="button" aria-label="点击二楼墙上的尺规工具，进入平行与垂直实验室"><span class="geometryIcon">∟</span>展开尺规工具 · 进入实验室</button>
+    <button id="multiplePrompt" type="button" aria-label="点击二楼墙上的份数图卷轴，进入和倍差倍课堂"><span class="multipleIcon">1份</span>展开份数图 · 和倍差倍课堂</button>
     <aside id="gameShelf" aria-label="课堂游戏快捷入口">
         <button id="gameShelfToggle" type="button" aria-expanded="false" aria-controls="gameShelfList"><span class="shelfArrow" aria-hidden="true">‹</span>游<br>戏</button>
         <div class="gameShelfPanel">
@@ -1208,6 +1238,7 @@
                 <a class="gameShelfLink" href="../prime-factor/?v=2026.09.18.2" data-live="https://chyahy.github.io/software-picks/prime-factor/?v=2026.09.18.2"><span class="gameShelfIcon">2×</span><span>分解质因数</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="../cube-coloring/?v=2026.09.18.1" data-live="https://chyahy.github.io/software-picks/cube-coloring/?v=2026.09.18.1"><span class="gameShelfIcon">立方</span><span>正方体涂色</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="../geometry-lab/" data-live="https://chyahy.github.io/software-picks/geometry-lab/"><span class="gameShelfIcon">∟</span><span>平行与垂直</span><span class="gameShelfGo">›</span></a>
+                <a class="gameShelfLink" href="../sum-difference-multiple/"><span class="gameShelfIcon">1份</span><span>和倍与差倍</span><span class="gameShelfGo">›</span></a>
             </nav>
         </div>
     </aside>
@@ -3929,6 +3960,27 @@
                 geometryPrompt.style.top = ((-.5 * geometryScreenPos.y + .5) * innerHeight) + 'px';
                 geometryPrompt.classList.toggle('visible', visible);
             }
+
+            /* —— 和倍差倍课堂：二楼后墙的份数图卷轴 —— */
+            const multipleG = new THREE.Group();
+            const MULTIPLE_HOME = V(-0.72, FY + 1.52, -3.92), MULTIPLE_ROT_X = Math.PI / 2;
+            multipleG.position.copy(MULTIPLE_HOME);multipleG.rotation.x=MULTIPLE_ROT_X;scene.add(multipleG);
+            const multiplePaper = new THREE.Mesh(new THREE.BoxGeometry(.86,.035,.56),LITMAT(0xfff4d5));
+            multiplePaper.add(new THREE.LineSegments(new THREE.EdgesGeometry(multiplePaper.geometry),new THREE.LineBasicMaterial({color:0x9b4d3a})));
+            multipleG.add(multiplePaper);
+            const scrollRodMat=LITMAT(0x9b4d3a);
+            for(const z of [-.31,.31]){const rod=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.96,12),scrollRodMat);rod.rotation.z=Math.PI/2;rod.position.set(0,.025,z);multipleG.add(rod);}
+            function addShareBar(z,count,color,width){for(let i=0;i<count;i++){const piece=new THREE.Mesh(new THREE.BoxGeometry(width,.026,.075),LITMAT(color));piece.position.set(-.33+(i+.5)*width,.045,z);piece.add(new THREE.LineSegments(new THREE.EdgesGeometry(piece.geometry),new THREE.LineBasicMaterial({color:0x173b57})));multipleG.add(piece);}}
+            addShareBar(-.105,1,0xefb747,.16);addShareBar(.075,3,0xe46550,.16);
+            const multiplePin=new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),LITMAT(0xefb747));multiplePin.position.set(.35,.065,-.23);multipleG.add(multiplePin);
+            let multipleLaunching=false,multipleLaunch=0;
+            const multiplePrompt=document.getElementById('multiplePrompt'),multipleScreenPos=new THREE.Vector3();
+            multipleG.userData.aimLabel='展开份数图，进入和倍差倍课堂';multipleG.userData.sfx='magic';
+            function openMultipleLesson(playSound=true){if(multipleLaunching)return;multipleLaunching=true;multiplePrompt.classList.remove('visible');if(playSound)SND.play('magic');const target=location.protocol==='file:'?'https://chyahy.github.io/dangdang-math-cabin/sum-difference-multiple/':new URL('../sum-difference-multiple/',location.href).href;setTimeout(()=>{location.href=target},1100)}
+            regMagic(multipleG,()=>openMultipleLesson(false));multiplePrompt.addEventListener('click',()=>openMultipleLesson(true));
+            addEventListener('pageshow',()=>{multipleLaunching=false;multipleLaunch=0;multipleG.position.copy(MULTIPLE_HOME);multipleG.scale.setScalar(1)});
+            function updateMultipleLesson(dt,time){const target=multipleLaunching?1:0;multipleLaunch+=(target-multipleLaunch)*Math.min(1,dt*5);const e=multipleLaunch*multipleLaunch*(3-2*multipleLaunch);multipleG.position.y=MULTIPLE_HOME.y+Math.sin(time*1.9)*.006+e*.12;multipleG.position.z=MULTIPLE_HOME.z+e*.22;multipleG.rotation.x=MULTIPLE_ROT_X;multipleG.rotation.z=Math.sin(time*1.5)*.018-e*.10;multipleG.scale.setScalar(1+e*(.14+.025*Math.sin(time*8)))}
+            function updateMultiplePrompt(){if(fullHouse||multipleLaunching){multiplePrompt.classList.remove('visible');return}multipleG.getWorldPosition(multipleScreenPos);multipleScreenPos.y+=.38;multipleScreenPos.project(camera);const visible=multipleScreenPos.z>-1&&multipleScreenPos.z<1&&Math.abs(multipleScreenPos.x)<1.08&&Math.abs(multipleScreenPos.y)<1.08;multiplePrompt.style.left=((multipleScreenPos.x*.5+.5)*innerWidth)+'px';multiplePrompt.style.top=((-multipleScreenPos.y*.5+.5)*innerHeight)+'px';multiplePrompt.classList.toggle('visible',visible)}
 
             /* —— 椅子 —— */
             const CHAIR_IN = -3.20;
@@ -9067,6 +9119,7 @@
                 { x: DECK_HOME.x, z: DECK_HOME.z, r: 1.7, label: '拿起纸牌，进入24点游戏', act: start24PointGame },
                 { x: FACTOR_HOME.x, z: FACTOR_HOME.z, r: 1.6, label: '启动质因数分解机', act: () => startFactorPractice(true) },
                 { x: RUBIK_HOME.x, z: RUBIK_HOME.z, r: 1.6, label: '打开正方体涂色探索', act: () => startCubeColoring(true) },
+                { x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
                 { x: FX, z: FZ, r: 2.0, label: '点燃 / 熄灭壁炉', act: toggleFire },
                 { x: 0, z: 0, r: 2.4, label: '点亮 / 熄灭魔法吊灯', act: toggleLamp },
                 { x: 0, z: 4, r: 1.8, label: '打开 / 关上大门', act: () => toggleSpring(doorGroup) },
@@ -10621,6 +10674,8 @@
                 updateRubikPrompt();
                 updateGeometryKit(dt,time);
                 updateGeometryPrompt();
+                updateMultipleLesson(dt,time);
+                updateMultiplePrompt();
                 renderer.render(scene, camera);
             }
             animate(0);

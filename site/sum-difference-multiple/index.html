@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173b57">
+  <title>和倍与差倍问题｜当当老师小课堂</title>
+  <style id="edgeone-watermark-override">#edgeone-watermark{display:none!important}</style>
+  <style>
+    :root{--navy:#173b57;--blue:#287aa1;--red:#e46550;--gold:#efb747;--mint:#2d8f8b;--paper:#fffdf7;--cream:#f5eddd;--ink:#233445;--muted:#6d7880;--line:#d9cfbd;--shadow:0 18px 55px rgba(39,46,49,.13)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#eadfca;background-image:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.55)),repeating-linear-gradient(0deg,transparent 0 27px,rgba(23,59,87,.045) 28px),repeating-linear-gradient(90deg,transparent 0 27px,rgba(23,59,87,.04) 28px);min-height:100vh}
+    button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:4px solid rgba(239,183,71,.55);outline-offset:2px}
+    .top{position:relative;overflow:hidden;background:var(--navy);color:#fff;padding:22px max(22px,calc((100vw - 1160px)/2));box-shadow:0 8px 26px rgba(23,59,87,.22)}
+    .top:after{content:"";position:absolute;width:300px;height:300px;border:42px solid rgba(255,255,255,.055);border-radius:50%;right:-55px;top:-190px}
+    .brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}.brand-mark{width:58px;height:58px;background:var(--gold);border-radius:19px 19px 16px 16px;display:grid;place-items:center;color:var(--navy);font:900 25px/1 Georgia;transform:rotate(-3deg);box-shadow:inset 0 -5px rgba(0,0,0,.08)}
+    .brand-mark span{transform:rotate(3deg)}.brand small{display:block;opacity:.78;font-weight:700;letter-spacing:.13em}.brand strong{font-size:clamp(22px,3vw,34px);letter-spacing:.04em}.home-link{margin-left:auto;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:10px 16px;font-weight:700;white-space:nowrap}
+    main{width:min(1160px,calc(100% - 28px));margin:24px auto 48px}.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;align-items:stretch}.paper{background:rgba(255,253,247,.96);border:1px solid rgba(23,59,87,.11);border-radius:26px;box-shadow:var(--shadow)}
+    .intro{padding:clamp(23px,4vw,44px);position:relative;overflow:hidden}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.12em}.intro h1{font-family:"STKaiti","KaiTi",serif;font-size:clamp(38px,7vw,72px);line-height:1;margin:12px 0 16px;color:var(--navy)}.intro p{font-size:clamp(16px,2vw,20px);line-height:1.85;margin:0;max-width:760px}.no-ratio{margin-top:22px;padding:14px 18px;border-radius:16px;background:#fff3cc;border-left:6px solid var(--gold);font-weight:800}.no-ratio b{color:var(--red)}
+    .stamp-card{padding:24px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--red);color:white}.stamp{width:154px;aspect-ratio:1;border:3px dashed #fff;border-radius:50%;display:grid;place-items:center;transform:rotate(5deg);font-family:"STKaiti","KaiTi",serif;font-size:31px;font-weight:900;line-height:1.15}.stamp-card p{font-weight:800;margin:22px 0 0}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.tab{border:0;border-radius:18px;padding:17px;background:#fff;color:var(--navy);font-weight:900;font-size:19px;box-shadow:0 7px 20px rgba(23,59,87,.1)}.tab.active{background:var(--navy);color:#fff;transform:translateY(-2px)}
+    .lesson{display:grid;grid-template-columns:.9fr 1.1fr;overflow:hidden}.lesson-copy{padding:clamp(22px,3vw,38px);border-right:1px solid var(--line)}.section-kicker{font-weight:900;color:var(--mint);letter-spacing:.1em}.example-nav{display:flex;align-items:center;gap:8px;margin:8px 0 16px}.example-nav button,.round{border:1px solid #c9d4d7;background:#fff;color:var(--navy);border-radius:12px;padding:8px 12px;font-weight:900}.example-count{font-size:14px;color:var(--muted);font-weight:800}.problem{font-family:"STKaiti","KaiTi",serif;font-size:clamp(21px,2.5vw,29px);line-height:1.7;color:var(--navy);font-weight:700;min-height:145px}.answer-line{background:var(--cream);padding:14px 16px;border-radius:14px;line-height:1.7;font-weight:700}.answer-line strong{color:var(--red)}
+    .board{padding:clamp(22px,3vw,38px);background:#fbf7ee;min-height:475px}.board-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:24px}.board-title h2{font-family:"STKaiti","KaiTi",serif;color:var(--navy);margin:0;font-size:30px}.chip{background:#e2f2ef;color:#1d716d;border-radius:999px;padding:7px 11px;font-weight:900;font-size:13px}
+    .bar-area{min-height:190px;display:flex;flex-direction:column;gap:24px;justify-content:center}.bar-row{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:start}.bar-name{font-weight:900;color:var(--navy);padding-top:10px}.segments{display:flex;gap:5px;align-items:stretch;min-width:0}.segment{height:54px;flex:1;min-width:0;border:3px solid var(--navy);background:var(--gold);border-radius:9px;display:grid;place-items:center;color:var(--navy);font-weight:900;transform:scaleX(.15);transform-origin:left;opacity:.18;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .35s}.segments.large .segment{background:#f29b88}.segment.show{transform:scaleX(1);opacity:1}.brace{margin:10px 0 0 86px;text-align:center;border-top:3px solid var(--mint);color:var(--mint);font-weight:900;padding-top:7px}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:24px}.step{background:#fff;border:1px solid #d7dcd9;border-radius:14px;padding:13px;opacity:.35;transform:translateY(6px);transition:.35s}.step.on{opacity:1;transform:none;border-color:var(--gold);box-shadow:0 5px 14px rgba(239,183,71,.15)}.step b{display:block;color:var(--red);font-size:13px;margin-bottom:4px}.step span{font-weight:900;font-size:16px}.lesson-actions{display:flex;gap:10px;margin-top:20px}.primary{border:0;border-radius:14px;background:var(--red);color:#fff;padding:12px 17px;font-weight:900;box-shadow:0 5px 0 #ad4535}.secondary{border:2px solid var(--navy);border-radius:14px;background:#fff;color:var(--navy);padding:10px 15px;font-weight:900}
+    .practice{margin-top:22px;padding:clamp(22px,4vw,40px)}.practice-head{display:flex;justify-content:space-between;gap:18px;align-items:end;border-bottom:2px dashed var(--line);padding-bottom:17px}.practice h2{font:900 clamp(28px,4vw,42px)/1.1 "STKaiti","KaiTi",serif;color:var(--navy);margin:5px 0}.progress{font-weight:900;color:var(--muted)}.practice-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;padding-top:25px}.practice-question{font-size:clamp(20px,2.4vw,28px);font-weight:800;line-height:1.75;min-height:135px}.mini-bars{background:var(--cream);padding:17px;border-radius:18px}.mini-line{display:flex;align-items:center;gap:6px;margin:8px 0}.mini-line b{width:68px;font-size:14px}.mini-piece{height:23px;flex:1;border-radius:5px;border:2px solid var(--navy);background:var(--gold)}.mini-line.large .mini-piece{background:#f29b88}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.field label{display:block;font-weight:900;margin-bottom:7px}.field input{width:100%;border:2px solid #b7c4c8;border-radius:13px;padding:12px 14px;font-size:20px;font-weight:900;color:var(--navy);background:#fff}.check-row{display:flex;gap:10px;flex-wrap:wrap}.feedback{min-height:62px;margin-top:15px;border-radius:14px;padding:12px 15px;display:none;font-weight:800;line-height:1.6}.feedback.show{display:block}.feedback.ok{background:#dbf1ea;color:#17695f}.feedback.bad{background:#ffebe5;color:#9b3828}.practice-nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}.dots{display:flex;gap:6px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;background:#d5cdc0}.dot.on{background:var(--red);transform:scale(1.3)}
+    footer{text-align:center;color:#6b6f70;padding:8px 20px 36px;font-weight:700}.hide{display:none!important}
+    @media(max-width:820px){.hero,.lesson,.practice-grid{grid-template-columns:1fr}.stamp-card{display:none}.lesson-copy{border-right:0;border-bottom:1px solid var(--line)}.problem{min-height:auto}.board{min-height:430px}.steps{grid-template-columns:1fr}.step{padding:10px 13px}.top{padding:16px}.brand-mark{width:48px;height:48px}.home-link{font-size:13px;padding:8px 10px}.bar-row{grid-template-columns:62px 1fr}.brace{margin-left:74px}}
+    @media(max-width:480px){main{width:min(100% - 18px,1160px);margin-top:12px}.intro,.lesson-copy,.board,.practice{padding:20px}.intro h1{font-size:42px}.tabs{gap:8px}.tab{padding:14px 8px;font-size:17px}.segments{gap:3px}.segment{height:46px;font-size:13px}.fields{grid-template-columns:1fr}.practice-head{display:block}.brand strong{font-size:20px}.brand small{font-size:11px}.home-link span{display:none}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><div class="brand-mark"><span>当</span></div><div><small>当当老师小课堂</small><strong>把数学画出来</strong></div><a class="home-link" href="../magic-24/"><span>返回</span> 数学小屋</a></div>
+  </header>
+  <main>
+    <section class="hero">
+      <article class="paper intro"><div class="eyebrow">四年级数学 · 份数图</div><h1>和倍与差倍问题</h1><p>先找出 <b>1倍数</b>，把它画成 <b>1份</b>。另一个数是它的几倍，就画成同样长的几份。看见“份”，数量关系就清楚了。</p><div class="no-ratio">今天不用没有学过的写法，只说：<b>1倍数是1份，3倍数是3份。</b></div></article>
+      <aside class="paper stamp-card"><div class="stamp">画一画<br>就会了</div><p>相同的一份<br>长度一定相同</p></aside>
+    </section>
+    <div class="tabs" role="tablist" aria-label="选择问题类型"><button class="tab active" data-mode="sum" role="tab" aria-selected="true">和倍问题 · 知道总数</button><button class="tab" data-mode="diff" role="tab" aria-selected="false">差倍问题 · 知道相差数</button></div>
+    <section class="paper lesson">
+      <article class="lesson-copy"><div class="section-kicker">跟着例题想一想</div><div class="example-nav"><button id="prevExample" aria-label="上一道例题">‹</button><span class="example-count" id="exampleCount"></span><button id="nextExample" aria-label="下一道例题">›</button></div><div class="problem" id="exampleProblem"></div><div class="answer-line" id="exampleRule"></div><div class="lesson-actions"><button class="primary" id="nextStep">下一步</button><button class="secondary" id="replay">重新演示</button></div></article>
+      <article class="board"><div class="board-title"><h2>份数图</h2><span class="chip" id="modeChip">和倍：合起来</span></div><div class="bar-area"><div class="bar-row"><div class="bar-name" id="smallName"></div><div class="segments small" id="smallBar"></div></div><div class="bar-row"><div class="bar-name" id="largeName"></div><div class="segments large" id="largeBar"></div></div><div class="brace" id="braceText"></div></div><div class="steps" id="steps"></div></article>
+    </section>
+    <section class="paper practice" id="practice"><div class="practice-head"><div><div class="section-kicker">轮到你来画</div><h2 id="practiceTitle">和倍问题练习</h2></div><div class="progress" id="practiceProgress"></div></div><div class="practice-grid"><div><div class="practice-question" id="practiceQuestion"></div><div class="mini-bars"><div class="mini-line"><b id="pSmallName"></b><span class="mini-piece"></span></div><div class="mini-line large" id="pLargeBar"><b id="pLargeName"></b></div></div></div><div><div class="fields"><div class="field"><label id="smallLabel" for="smallAnswer"></label><input id="smallAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div><div class="field"><label id="largeLabel" for="largeAnswer"></label><input id="largeAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div></div><div class="check-row"><button class="primary" id="checkAnswer">检查答案</button><button class="secondary" id="showAnswer">看看答案</button><button class="secondary" id="clearAnswer">清空</button></div><div class="feedback" id="feedback" aria-live="polite"></div></div></div><div class="practice-nav"><button class="round" id="prevPractice">‹ 上一题</button><div class="dots" id="dots" aria-hidden="true"></div><button class="round" id="nextPractice">下一题 ›</button></div></section>
+  </main>
+  <footer>当当老师小课堂 · 让每一份都看得见</footer>
+  <script>
+  (()=>{
+    const data={
+      sum:{chip:'和倍：把几份合起来',title:'和倍问题练习',examples:[
+        {names:['科技书','故事书'],total:96,m:3,small:24,large:72,text:'图书角有科技书和故事书共 96 本，故事书的本数是科技书的 3 倍。两种书各有多少本？'},
+        {names:['白花','红花'],total:90,m:2,small:30,large:60,text:'花坛里白花和红花共 90 朵，红花的朵数是白花的 2 倍。白花和红花各有多少朵？'},
+        {names:['小盒','大盒'],total:120,m:4,small:24,large:96,text:'两盒贴纸共 120 张，大盒的张数是小盒的 4 倍。两盒各有多少张贴纸？'}
+      ],practice:[
+        {names:['桃树','梨树'],total:84,m:2,small:28,large:56,text:'果园里桃树和梨树共 84 棵，梨树的棵数是桃树的 2 倍。两种树各有多少棵？'},
+        {names:['一班','二班'],total:108,m:2,small:36,large:72,text:'两个班共收集 108 节废电池，二班收集的数量是一班的 2 倍。两个班各收集多少节？'},
+        {names:['小筐','大筐'],total:100,m:4,small:20,large:80,text:'两筐苹果共 100 个，大筐的个数是小筐的 4 倍。两筐各有多少个？'},
+        {names:['弟弟','哥哥'],total:72,m:3,small:18,large:54,text:'弟弟和哥哥共存了 72 元，哥哥的钱数是弟弟的 3 倍。两人各有多少元？'},
+        {names:['短绳','长绳'],total:144,m:5,small:24,large:120,text:'两根绳子共长 144 米，长绳的长度是短绳的 5 倍。两根绳子各长多少米？'},
+        {names:['小组甲','小组乙'],total:168,m:6,small:24,large:144,text:'两个小组共折了 168 只纸鹤，乙组的数量是甲组的 6 倍。两组各折了多少只？'}
+      ]},
+      diff:{chip:'差倍：找出多出来的份',title:'差倍问题练习',examples:[
+        {names:['小桶','大桶'],diff:18,m:4,small:6,large:24,text:'大桶装水的千克数是小桶的 4 倍，两桶相差 18 千克。两桶各装水多少千克？'},
+        {names:['鸭','鸡'],diff:32,m:5,small:8,large:40,text:'农场鸡的只数是鸭的 5 倍，鸡和鸭相差 32 只。鸡和鸭各有多少只？'},
+        {names:['短彩带','长彩带'],diff:42,m:7,small:7,large:49,text:'长彩带的长度是短彩带的 7 倍，两条彩带相差 42 分米。两条彩带各长多少分米？'}
+      ],practice:[
+        {names:['妹妹','姐姐'],diff:24,m:4,small:8,large:32,text:'姐姐有的邮票张数是妹妹的 4 倍，两人相差 24 张。两人各有多少张邮票？'},
+        {names:['小船','大船'],diff:36,m:3,small:18,large:54,text:'大船载客人数是小船的 3 倍，两船载客人数相差 36 人。两船各载客多少人？'},
+        {names:['灰兔','白兔'],diff:35,m:6,small:7,large:42,text:'白兔的只数是灰兔的 6 倍，两种兔相差 35 只。两种兔各有多少只？'},
+        {names:['短跑道','长跑道'],diff:80,m:5,small:20,large:100,text:'长跑道的长度是短跑道的 5 倍，两条跑道相差 80 米。两条跑道各长多少米？'},
+        {names:['小箱','大箱'],diff:54,m:7,small:9,large:63,text:'大箱橘子的个数是小箱的 7 倍，两箱相差 54 个。两箱各有多少个？'},
+        {names:['低年级','高年级'],diff:96,m:9,small:12,large:108,text:'高年级参加活动的人数是低年级的 9 倍，两边相差 96 人。各有多少人参加？'}
+      ]}
+    };
+    let mode='sum',exIndex=0,pIndex=0,step=0,timers=[];
+    const $=id=>document.getElementById(id);const tabs=[...document.querySelectorAll('.tab')];
+    function pieces(n,klass=''){return Array.from({length:n},(_,i)=>`<span class="segment ${klass}" data-i="${i}">1份</span>`).join('')}
+    function currentExample(){return data[mode].examples[exIndex]}
+    function renderExample(auto=true){timers.forEach(clearTimeout);timers=[];step=0;const q=currentExample();$('exampleCount').textContent=`例题 ${exIndex+1} / ${data[mode].examples.length}`;$('exampleProblem').textContent=q.text;$('smallName').textContent=q.names[0];$('largeName').textContent=q.names[1];$('smallBar').innerHTML=pieces(1);$('largeBar').innerHTML=pieces(q.m);$('modeChip').textContent=data[mode].chip;
+      $('braceText').textContent=mode==='sum'?`一共：1份 + ${q.m}份 = ${q.m+1}份`:`相差：${q.m}份 − 1份 = ${q.m-1}份`;
+      const unit=mode==='sum'?q.total/(q.m+1):q.diff/(q.m-1);$('exampleRule').innerHTML=mode==='sum'?`先求1份：<strong>${q.total} ÷ ${q.m+1} = ${unit}</strong>`:`先求1份：<strong>${q.diff} ÷ ${q.m-1} = ${unit}</strong>`;
+      const stepText=mode==='sum'?[`看倍数：1份和${q.m}份`,`算总份数：1+${q.m}=${q.m+1}份`,`求1份，再求${q.m}份`]:[`看倍数：1份和${q.m}份`,`算相差份数：${q.m}−1=${q.m-1}份`,`求1份，再求${q.m}份`];$('steps').innerHTML=stepText.map((x,i)=>`<div class="step" data-step="${i+1}"><b>第${i+1}步</b><span>${x}</span></div>`).join('');$('nextStep').textContent='下一步';if(auto)timers.push(setTimeout(()=>advanceStep(),250));}
+    function advanceStep(){if(step<3){step++;document.querySelectorAll('.segment').forEach((el,i)=>{if(step===1||i<step)el.classList.add('show')});document.querySelector(`.step[data-step="${step}"]`)?.classList.add('on');$('nextStep').textContent=step===3?'再看一遍':'下一步'}else renderExample(true)}
+    function renderPractice(){const q=data[mode].practice[pIndex];$('practiceTitle').textContent=data[mode].title;$('practiceProgress').textContent=`第 ${pIndex+1} 题 / 共 ${data[mode].practice.length} 题`;$('practiceQuestion').textContent=q.text;$('pSmallName').textContent=q.names[0];$('smallLabel').textContent=`${q.names[0]}是多少？`;$('largeLabel').textContent=`${q.names[1]}是多少？`;$('pLargeBar').innerHTML=`<b>${q.names[1]}</b>`+Array.from({length:q.m},()=>'<span class="mini-piece"></span>').join('');$('smallAnswer').value='';$('largeAnswer').value='';$('feedback').className='feedback';$('feedback').textContent='';$('dots').innerHTML=data[mode].practice.map((_,i)=>`<i class="dot ${i===pIndex?'on':''}"></i>`).join('')}
+    function setMode(next){mode=next;exIndex=0;pIndex=0;tabs.forEach(t=>{const on=t.dataset.mode===mode;t.classList.toggle('active',on);t.setAttribute('aria-selected',String(on))});renderExample(true);renderPractice()}
+    tabs.forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.mode)));$('nextStep').addEventListener('click',advanceStep);$('replay').addEventListener('click',()=>renderExample(true));$('prevExample').addEventListener('click',()=>{exIndex=(exIndex-1+data[mode].examples.length)%data[mode].examples.length;renderExample(true)});$('nextExample').addEventListener('click',()=>{exIndex=(exIndex+1)%data[mode].examples.length;renderExample(true)});
+    function movePractice(d){pIndex=(pIndex+d+data[mode].practice.length)%data[mode].practice.length;renderPractice();$('practice').scrollIntoView({behavior:'smooth',block:'start'})}$('prevPractice').addEventListener('click',()=>movePractice(-1));$('nextPractice').addEventListener('click',()=>movePractice(1));
+    $('checkAnswer').addEventListener('click',()=>{const q=data[mode].practice[pIndex],a=Number($('smallAnswer').value),b=Number($('largeAnswer').value),f=$('feedback');f.className='feedback show '+(a===q.small&&b===q.large?'ok':'bad');f.innerHTML=a===q.small&&b===q.large?`✓ 正确！${q.names[0]}是 ${q.small}，${q.names[1]}是 ${q.large}。`:'再看一眼份数图：先求出“1份”，第二个数还要乘它的份数。'});
+    $('showAnswer').addEventListener('click',()=>{const q=data[mode].practice[pIndex],parts=mode==='sum'?`${q.total} ÷ (${q.m}+1) = ${q.small}`:`${q.diff} ÷ (${q.m}−1) = ${q.small}`;$('feedback').className='feedback show ok';$('feedback').innerHTML=`1份：${parts}<br>${q.m}份：${q.small} × ${q.m} = ${q.large}`});$('clearAnswer').addEventListener('click',()=>{$('smallAnswer').value='';$('largeAnswer').value='';$('feedback').className='feedback';$('smallAnswer').focus()});
+    document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(document.activeElement.tagName==='INPUT'))$('checkAnswer').click()});setMode('sum');
+  })();
+  </script>
+</body>
+</html>
