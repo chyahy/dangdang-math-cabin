@@ -1262,7 +1262,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.09.23.2';
+            const PAGE_VERSION = '2026.09.23.3';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1512,14 +1512,20 @@
             const iline = pts => new THREE.Line(geo(pts), IN_MAT);
             function dline(pts) { const l = new THREE.Line(geo(pts), DASHMAT); l.computeLineDistances(); return l; }
 
-            function edge(g, threshold = 1, lmat) {
+            function edge(g, threshold = 1, lmat, fillMat = FILL) {
                 const grp = new THREE.Group();
-                grp.add(new THREE.Mesh(g, FILL));
+                grp.add(new THREE.Mesh(g, fillMat));
                 grp.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, threshold), lmat || MAT));
                 return grp;
             }
             const box = (w, h, d) => edge(new THREE.BoxGeometry(w, h, d));
             const log = (len, r = 0.15) => edge(new THREE.CylinderGeometry(r, r, len, 8));
+            const WALL_WOOD_LIGHT = LITMAT(0xd7bb96);
+            const WALL_WOOD_DARK = LITMAT(0xcba983);
+            const FLOOR_WOOD = LITMAT(0xcda679);
+            const FLOOR_WOOD_UP = LITMAT(0xd7b58b);
+            const wallLog = (len, row = 0) => edge(new THREE.CylinderGeometry(0.15, 0.15, len, 8), 1, null,
+                row % 2 ? WALL_WOOD_DARK : WALL_WOOD_LIGHT);
             function put(o, x, y, z, rx, ry, rz, parent) {
                 o.position.set(x, y, z); if (rx) o.rotation.x = rx; if (ry) o.rotation.y = ry; if (rz) o.rotation.z = rz; (parent || scene).add(o); return o;
             }
@@ -1531,6 +1537,10 @@
 
             put(new THREE.Mesh(new THREE.PlaneGeometry(130, 130), FILL), 0, -0.01, 0, -Math.PI / 2, 0, 0);
             for (let z = -9; z <= 9; z += 1.5) put(line([[-10, 0.01, z], [10, 0.01, z]]), 0, 0, 0);
+            put(new THREE.Mesh(new THREE.PlaneGeometry(7.96, 7.96), FLOOR_WOOD), 0, 0.014, 0, -Math.PI / 2, 0, 0);
+            for (let z = -3.6; z <= 3.61; z += 0.8) {
+                put(line([[-3.96, 0.021, z], [3.96, 0.021, z]]), 0, 0, 0);
+            }
 
             const HOLE_R = 1.2, FLOOR_TOP = 3.12;
             const DOOR_HOLE = { c: 0, hw: 0.78, y0: 0, y1: 2.35 };
@@ -1556,7 +1566,7 @@
                         }
                     }
                     for (const [a, b] of segs) {
-                        if (b - a < 0.15) continue; const L = log(b - a);
+                        if (b - a < 0.15) continue; const L = wallLog(b - a, i);
                         if (along === 'x') { L.rotation.z = Math.PI / 2; L.position.set((a + b) / 2, y, fixed); }
                         else { L.rotation.x = Math.PI / 2; L.position.set(fixed, y, (a + b) / 2); }
                         g.add(L);
@@ -1596,7 +1606,7 @@
 
             const GABLE_TOP = ridgeY - 0.25;
             function logGable(z, openings, parent) {
-                const g = new THREE.Group(); let y = WALL_TOP + LOG_R;
+                const g = new THREE.Group(); let y = WALL_TOP + LOG_R; let row = 0;
                 while (true) {
                     const halfW = D_HALF * (GABLE_TOP - y) / (GABLE_TOP - WALL_TOP); if (halfW < 0.3) break;
                     let segs = [[-halfW, halfW]];
@@ -1607,8 +1617,8 @@
                             segs = next;
                         }
                     }
-                    for (const [a, b] of segs) { if (b - a < 0.15) continue; const L = log(b - a); L.rotation.z = Math.PI / 2; L.position.set((a + b) / 2, y, z); g.add(L); }
-                    y += LOG_GAP;
+                    for (const [a, b] of segs) { if (b - a < 0.15) continue; const L = wallLog(b - a, row); L.rotation.z = Math.PI / 2; L.position.set((a + b) / 2, y, z); g.add(L); }
+                    y += LOG_GAP; row++;
                 } (parent || scene).add(g);
             }
             logGable(4, [WIN_GABLE]);
@@ -1629,12 +1639,12 @@
             floorShape.moveTo(-4, -4); floorShape.lineTo(4, -4); floorShape.lineTo(4, 4); floorShape.lineTo(-4, 4); floorShape.closePath();
             const holePath = new THREE.Path(); holePath.absarc(0, 0, HOLE_R, 0, Math.PI * 2, true); floorShape.holes.push(holePath);
             const floorGeo = new THREE.ExtrudeGeometry(floorShape, { depth: 0.12, bevelEnabled: false });
-            floorGeo.rotateX(-Math.PI / 2); floorGeo.translate(0, 3, 0); scene.add(edge(floorGeo));
+            floorGeo.rotateX(-Math.PI / 2); floorGeo.translate(0, 3, 0); scene.add(edge(floorGeo, 1, null, FLOOR_WOOD_UP));
             const ring = edge(new THREE.TorusGeometry(HOLE_R, 0.04, 8, 32)); ring.rotation.x = Math.PI / 2; ring.position.set(0, FLOOR_TOP + 0.01, 0); scene.add(ring);
 
             const landingShape = new THREE.Shape(); landingShape.moveTo(0, 0); landingShape.absarc(0, 0, HOLE_R, Math.PI / 6, Math.PI - Math.PI / 6, false); landingShape.lineTo(0, 0);
             const landingGeo = new THREE.ExtrudeGeometry(landingShape, { depth: 0.12, bevelEnabled: false, curveSegments: 10 });
-            landingGeo.rotateX(Math.PI / 2); put(edge(landingGeo), 0, FLOOR_TOP + 0.01, 0);
+            landingGeo.rotateX(Math.PI / 2); put(edge(landingGeo, 1, null, FLOOR_WOOD_UP), 0, FLOOR_TOP + 0.01, 0);
 
             const RAIL_R = 1.24, RAIL_H = 0.85, D2R = Math.PI / 180;
             for (let deg = 60; deg <= 300; deg += 30) { const th = deg * D2R; put(edge(new THREE.CylinderGeometry(0.025, 0.025, RAIL_H, 6)), Math.sin(th) * RAIL_R, FLOOR_TOP + RAIL_H / 2, Math.cos(th) * RAIL_R, 0, 0, 0); }
@@ -1750,7 +1760,7 @@
                 put(log(FLOOR_TOP + RAIL_H, 0.08), 0, (FLOOR_TOP + RAIL_H) / 2, 0, 0, 0, 0, g);
                 function treadGeo(a0, a1) { const s = new THREE.Shape(); s.moveTo(rI * Math.sin(a0), rI * Math.cos(a0)); s.lineTo(rO * Math.sin(a0), rO * Math.cos(a0)); const nSeg = 5; for (let j = 1; j <= nSeg; j++) { const a = a0 + (a1 - a0) * j / nSeg; s.lineTo(rO * Math.sin(a), rO * Math.cos(a)); } s.lineTo(rI * Math.sin(a1), rI * Math.cos(a1)); s.closePath(); const gg = new THREE.ExtrudeGeometry(s, { depth: thick, bevelEnabled: false }); gg.rotateX(Math.PI / 2); gg.translate(0, thick, 0); return gg; }
                 const thetaEnd = -60 - dTheta / 2; const railPts = [];
-                for (let k = 0; k < N; k++) { const thDeg = thetaEnd - (N - 1 - k) * dTheta; const th = thDeg * D2R; const yTop = (k + 1) * stepH; const tread = edge(treadGeo(th - treadHalf * D2R, th + treadHalf * D2R)); tread.position.y = yTop - thick; g.add(tread); const norm = ((thDeg % 360) + 360) % 360; const underPlatform = (norm <= 60 || norm >= 300) && (yTop + railH > FLOOR_TOP - 0.1); if (!underPlatform) { put(edge(new THREE.CylinderGeometry(0.02, 0.02, railH, 6)), rPost * Math.sin(th), yTop + railH / 2, rPost * Math.cos(th), 0, 0, 0, g); } railPts.push(V(rPost * Math.sin(th), yTop + railH, rPost * Math.cos(th))); }
+                for (let k = 0; k < N; k++) { const thDeg = thetaEnd - (N - 1 - k) * dTheta; const th = thDeg * D2R; const yTop = (k + 1) * stepH; const tread = edge(treadGeo(th - treadHalf * D2R, th + treadHalf * D2R), 1, null, FLOOR_WOOD_UP); tread.position.y = yTop - thick; g.add(tread); const norm = ((thDeg % 360) + 360) % 360; const underPlatform = (norm <= 60 || norm >= 300) && (yTop + railH > FLOOR_TOP - 0.1); if (!underPlatform) { put(edge(new THREE.CylinderGeometry(0.02, 0.02, railH, 6)), rPost * Math.sin(th), yTop + railH / 2, rPost * Math.cos(th), 0, 0, 0, g); } railPts.push(V(rPost * Math.sin(th), yTop + railH, rPost * Math.cos(th))); }
                 g.add(edge(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPts), 64, 0.03, 6, false))); return g;
             }
             scene.add(buildStairs());
