@@ -1262,7 +1262,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.09.23.4';
+            const PAGE_VERSION = '2026.09.23.5';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -9111,6 +9111,75 @@
                 put(avatarPart(new THREE.BoxGeometry(0.13, 0.09, 0.22), AV_SHOE), 0, -0.42, 0.045, 0, 0, 0, leg);
             }
             avatarRoot.scale.setScalar(0.92);
+
+            /* ===== 地面上的两位老师：与可操控小人同一线稿造型，不占游戏入口 ===== */
+            const teacherNavy = LITMAT(0x27364d), teacherBlue = LITMAT(0x365477);
+            const teacherBlack = LITMAT(0x25262c), teacherGrey = LITMAT(0x777d85);
+            const teacherSkin = LITMAT(0xf0bc96), teacherPaper = LITMAT(0xf4e9d5);
+            const teacherGold = LITMAT(0xd9aa48), teacherBook = LITMAT(0x8e4b42);
+            const teacherInk = new THREE.MeshBasicMaterial({ color: 0x1e2930 });
+            function teacherNameSprite(name, color) {
+                const c = document.createElement('canvas'); c.width = 320; c.height = 88;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = 'rgba(255,250,238,0.96)';
+                ctx.beginPath(); ctx.moveTo(24, 5); ctx.lineTo(296, 5); ctx.quadraticCurveTo(315, 5, 315, 24);
+                ctx.lineTo(315, 64); ctx.quadraticCurveTo(315, 83, 296, 83); ctx.lineTo(24, 83);
+                ctx.quadraticCurveTo(5, 83, 5, 64); ctx.lineTo(5, 24); ctx.quadraticCurveTo(5, 5, 24, 5); ctx.closePath();
+                ctx.fill(); ctx.lineWidth = 7; ctx.strokeStyle = color; ctx.stroke();
+                ctx.fillStyle = '#21364a'; ctx.font = 'bold 43px Microsoft YaHei, sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(name, 160, 45);
+                const texture = new THREE.CanvasTexture(c);
+                const tag = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
+                tag.position.y = 1.76; tag.scale.set(0.91, 0.25, 1); return tag;
+            }
+            function makeTeacherModel(name, x, z, isDangdang) {
+                const root = new THREE.Group(); root.position.set(x, 0, z); scene.add(root);
+                const coat = isDangdang ? teacherBlack : teacherNavy;
+                const hair = isDangdang ? teacherGrey : AV_HAIR;
+                const base = avatarPart(new THREE.CylinderGeometry(0.31, 0.34, 0.055, 20), isDangdang ? teacherBlue : FURNITURE_WOOD);
+                put(base, 0, 0.028, 0, 0, 0, 0, root);
+                for (const side of [-1, 1]) {
+                    put(avatarPart(new THREE.CylinderGeometry(0.068, 0.062, 0.43, 8), isDangdang ? teacherBlack : AV_PANTS), side * 0.105, 0.29, 0, 0, 0, 0, root);
+                    put(avatarPart(new THREE.BoxGeometry(0.145, 0.10, 0.23), isDangdang ? teacherPaper : teacherBlack), side * 0.105, 0.08, 0.055, 0, 0, 0, root);
+                    put(avatarPart(new THREE.CylinderGeometry(0.06, 0.055, 0.37, 8), coat), side * 0.23, 0.79, 0, 0, 0, side * 0.13, root);
+                    put(avatarPart(new THREE.SphereGeometry(0.06, 10, 8), teacherSkin), side * 0.26, 0.56, 0.025, 0, 0, 0, root);
+                }
+                put(avatarPart(new THREE.CylinderGeometry(0.19, 0.225, 0.53, 10), coat), 0, 0.78, 0, 0, 0, 0, root);
+                if (isDangdang) {
+                    put(avatarPart(new THREE.BoxGeometry(0.013, 0.29, 0.012), teacherPaper), 0, 0.78, 0.195, 0, 0, 0, root);
+                    for (const dx of [-0.045, 0.045]) put(avatarPart(new THREE.CylinderGeometry(0.008, 0.008, 0.15, 6), teacherGrey), dx, 0.96, 0.18, 0, 0, 0, root);
+                } else {
+                    put(avatarPart(new THREE.BoxGeometry(0.13, 0.32, 0.025), teacherPaper), 0, 0.80, 0.205, 0, 0, 0, root);
+                    put(avatarPart(new THREE.ConeGeometry(0.038, 0.23, 4), teacherBlue), 0, 0.78, 0.225, Math.PI, 0, 0, root);
+                }
+                const head = new THREE.Group(); put(head, 0, 1.28, 0, 0, 0, 0, root);
+                put(avatarPart(new THREE.SphereGeometry(0.225, 18, 14), hair), 0, 0.035, -0.025, 0, 0, 0, head);
+                put(avatarPart(new THREE.SphereGeometry(0.19, 18, 14), teacherSkin), 0, -0.012, 0.05, 0, 0, 0, head);
+                if (isDangdang) {
+                    for (const [dx, rz] of [[-0.12, -0.35], [0.02, 0.12], [0.14, 0.42]])
+                        put(avatarPart(new THREE.ConeGeometry(0.085, 0.20, 6), hair), dx, 0.22, 0.018, 0, 0, rz, head);
+                } else {
+                    put(avatarPart(new THREE.SphereGeometry(0.15, 12, 8), hair), 0, 0.15, -0.08, 0, 0, 0, head);
+                }
+                for (const dx of [-0.078, 0.078]) {
+                    put(new THREE.Mesh(new THREE.TorusGeometry(isDangdang ? 0.065 : 0.055, 0.009, 6, 18), teacherInk), dx, 0.013, 0.225, 0, 0, 0, head);
+                    put(new THREE.Mesh(new THREE.SphereGeometry(0.014, 8, 6), teacherInk), dx, 0.013, 0.235, 0, 0, 0, head);
+                }
+                put(new THREE.Line(geo([[-0.02, 0.012, 0.23], [0.02, 0.012, 0.23]]), avatarGlassMat), 0, 0, 0, 0, 0, 0, head);
+                put(new THREE.Mesh(new THREE.SphereGeometry(0.021, 8, 6), teacherSkin), 0, -0.057, 0.237, 0, 0, 0, head);
+                put(new THREE.Line(geo([[-0.033, -0.105, 0.215], [0, -0.116, 0.225], [0.033, -0.105, 0.215]]), avatarGlassMat), 0, 0, 0, 0, 0, 0, head);
+                if (isDangdang) {
+                    put(avatarPart(new THREE.CylinderGeometry(0.014, 0.014, 0.63, 8), teacherGold), 0.34, 0.70, 0.14, 0, 0, -0.32, root);
+                    put(avatarPart(new THREE.SphereGeometry(0.032, 10, 8), teacherGold), 0.44, 1.00, 0.14, 0, 0, 0, root);
+                } else {
+                    put(avatarPart(new THREE.BoxGeometry(0.22, 0.28, 0.045), teacherBook), -0.29, 0.61, 0.12, 0, 0, -0.12, root);
+                    put(avatarPart(new THREE.BoxGeometry(0.17, 0.23, 0.012), teacherPaper), -0.29, 0.61, 0.15, 0, 0, -0.12, root);
+                }
+                root.add(teacherNameSprite(name, isDangdang ? '#547083' : '#a0744e'));
+                root.scale.setScalar(0.88); return root;
+            }
+            makeTeacherModel('鲁老师', 3.40, 0.30, false);
+            makeTeacherModel('当当老师', 2.75, 1.45, true);
             const slimePet = { pos: new THREE.Vector3(-0.62, 0, 5.72), yaw: Math.PI, speed: 0, phase: 0 };
             let avatarWalkPhase = 0;
             avatarRoot.add(wandRoot);
@@ -9123,6 +9192,8 @@
                 { x1: -4.20, z1: -4.85, x2: 4.20, z2: -3.80 }, { x1: -4.20, z1: -4.85, x2: -3.80, z2: 4.85 },
                 { x1: 3.80, z1: -4.85, x2: 4.20, z2: 4.85 }, { x1: -3.98, z1: 0.45, x2: -2.72, z2: 2.55 },
                 { x1: -0.17, z1: -0.17, x2: 0.17, z2: 0.17 },
+                { x1: 3.16, z1: 0.06, x2: 3.64, z2: 0.54 }, // 鲁老师模型
+                { x1: 2.51, z1: 1.21, x2: 2.99, z2: 1.69 }, // 当当老师模型
                 { x1: -7.5, z1: 7.2, x2: -1.5, z2: 7.8 }, { x1: 1.5, z1: 7.2, x2: 7.5, z2: 7.8 },
                 { x1: 2.78, z1: 5.98, x2: 3.42, z2: 6.62 },
                 { x1: -6.18, z1: 5.82, x2: -5.42, z2: 6.58 },
