@@ -1262,7 +1262,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.09.23.3';
+            const PAGE_VERSION = '2026.09.23.4';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1524,6 +1524,22 @@
             const WALL_WOOD_DARK = LITMAT(0xcba983);
             const FLOOR_WOOD = LITMAT(0xcda679);
             const FLOOR_WOOD_UP = LITMAT(0xd7b58b);
+            const FURNITURE_WOOD = LITMAT(0x916743);
+            const FURNITURE_TOP = LITMAT(0xb68655);
+            const WINDOW_WOOD = LITMAT(0x805b42);
+            const STONE = LITMAT(0xa99d8b);
+            const ROOF_SLATE = LITMAT(0x82939a);
+            const ROOF_BEAM = LITMAT(0x665d56);
+            const IRON = LITMAT(0x4d5d60);
+            const CREAM = LITMAT(0xf0e3cb);
+            const BED_COVER = LITMAT(0x698b92);
+            const BRASS = LITMAT(0xc49b4d);
+            function paint(o, mat) {
+                o.traverse(part => { if (part.isMesh && part.material === FILL) part.material = mat; });
+                return o;
+            }
+            const woodBox = (w, h, d, top = false) => paint(box(w, h, d), top ? FURNITURE_TOP : FURNITURE_WOOD);
+            const woodLog = (len, r = 0.15) => paint(log(len, r), FURNITURE_WOOD);
             const wallLog = (len, row = 0) => edge(new THREE.CylinderGeometry(0.15, 0.15, len, 8), 1, null,
                 row % 2 ? WALL_WOOD_DARK : WALL_WOOD_LIGHT);
             function put(o, x, y, z, rx, ry, rz, parent) {
@@ -1594,15 +1610,15 @@
             const ridgeY = 6.6, eaveY = 4.4, eaveX = 4.4, roofSpan = 9.2;
             const roofAng = Math.atan2(ridgeY - eaveY, eaveX);
             const slopeLen = Math.hypot(eaveX, ridgeY - eaveY);
-            put(box(slopeLen, 0.08, roofSpan), -eaveX / 2, (eaveY + ridgeY) / 2 + 0.04, 0, 0, 0, roofAng);
-            put(log(roofSpan, 0.1), 0, ridgeY + 0.05, 0, Math.PI / 2, 0, 0);
-            for (let t = 0.14; t < 0.96; t += 0.145) { const px = -eaveX + t * eaveX, py = eaveY + t * (ridgeY - eaveY) + 0.13; put(log(roofSpan, 0.09), px, py, 0, Math.PI / 2, 0, 0); }
-            put(log(slopeLen + 0.15, 0.1), -eaveX / 2, (eaveY + ridgeY) / 2 + 0.02, 4.55, 0, 0, roofAng - Math.PI / 2);
+            put(paint(box(slopeLen, 0.08, roofSpan), ROOF_SLATE), -eaveX / 2, (eaveY + ridgeY) / 2 + 0.04, 0, 0, 0, roofAng);
+            put(paint(log(roofSpan, 0.1), ROOF_BEAM), 0, ridgeY + 0.05, 0, Math.PI / 2, 0, 0);
+            for (let t = 0.14; t < 0.96; t += 0.145) { const px = -eaveX + t * eaveX, py = eaveY + t * (ridgeY - eaveY) + 0.13; put(paint(log(roofSpan, 0.09), ROOF_BEAM), px, py, 0, Math.PI / 2, 0, 0); }
+            put(paint(log(slopeLen + 0.15, 0.1), ROOF_BEAM), -eaveX / 2, (eaveY + ridgeY) / 2 + 0.02, 4.55, 0, 0, roofAng - Math.PI / 2);
             put(line([[0, ridgeY + 0.05, -4.55], [-eaveX, eaveY, -4.55]]), 0, 0, 0);
-            put(log(9.1, 0.12), 0, eaveY - 0.12, 4.55, 0, 0, Math.PI / 2);
+            put(paint(log(9.1, 0.12), ROOF_BEAM), 0, eaveY - 0.12, 4.55, 0, 0, Math.PI / 2);
             put(edge(new THREE.CircleGeometry(0.1, 8)), 0, ridgeY + 0.05, -4.6, 0, Math.PI / 2, 0);
-            put(box(0.68, 0.045, 9.0), -4.12, 4.45, 0, 0, 0, roofAng);
-            for (const zs of [4.28, -4.28]) put(box(slopeLen - 0.1, 0.05, 0.6), -eaveX / 2, (eaveY + ridgeY) / 2 - 0.03, zs, 0, 0, roofAng);
+            put(paint(box(0.68, 0.045, 9.0), ROOF_SLATE), -4.12, 4.45, 0, 0, 0, roofAng);
+            for (const zs of [4.28, -4.28]) put(paint(box(slopeLen - 0.1, 0.05, 0.6), ROOF_SLATE), -eaveX / 2, (eaveY + ridgeY) / 2 - 0.03, zs, 0, 0, roofAng);
 
             const GABLE_TOP = ridgeY - 0.25;
             function logGable(z, openings, parent) {
@@ -1627,12 +1643,12 @@
             {
                 const WIN_R = { c: -1.5, hw: 0.52, y0: 1.1, y1: 2.1 }; const WIN_B = { c: 1.5, hw: 0.52, y0: 1.1, y1: 2.1 };
                 logWall('z', 4, D_HALF, [WIN_R], 0.18, fullHouseGroup); logWall('x', -4, D_HALF, [WIN_B], 0.18, fullHouseGroup); logGable(-4, [], fullHouseGroup);
-                put(box(slopeLen, 0.08, roofSpan), eaveX / 2, (eaveY + ridgeY) / 2 + 0.04, 0, 0, 0, -roofAng, fullHouseGroup);
-                for (let t = 0.14; t < 0.96; t += 0.145) { const px = eaveX - t * eaveX, py = eaveY + t * (ridgeY - eaveY) + 0.13; put(log(roofSpan, 0.09), px, py, 0, Math.PI / 2, 0, 0, fullHouseGroup); }
-                put(log(slopeLen + 0.15, 0.1), eaveX / 2, (eaveY + ridgeY) / 2 + 0.02, 4.55, 0, 0, -(roofAng - Math.PI / 2), fullHouseGroup);
+                put(paint(box(slopeLen, 0.08, roofSpan), ROOF_SLATE), eaveX / 2, (eaveY + ridgeY) / 2 + 0.04, 0, 0, 0, -roofAng, fullHouseGroup);
+                for (let t = 0.14; t < 0.96; t += 0.145) { const px = eaveX - t * eaveX, py = eaveY + t * (ridgeY - eaveY) + 0.13; put(paint(log(roofSpan, 0.09), ROOF_BEAM), px, py, 0, Math.PI / 2, 0, 0, fullHouseGroup); }
+                put(paint(log(slopeLen + 0.15, 0.1), ROOF_BEAM), eaveX / 2, (eaveY + ridgeY) / 2 + 0.02, 4.55, 0, 0, -(roofAng - Math.PI / 2), fullHouseGroup);
                 put(line([[0, ridgeY + 0.05, -4.55], [eaveX, eaveY, -4.55]]), 0, 0, 0, 0, 0, 0, fullHouseGroup);
-                put(box(0.68, 0.045, 9.0), 4.12, 4.45, 0, 0, 0, -roofAng, fullHouseGroup);
-                for (const zs of [4.28, -4.28]) put(box(slopeLen - 0.1, 0.05, 0.6), eaveX / 2, (eaveY + ridgeY) / 2 - 0.03, zs, 0, 0, -roofAng, fullHouseGroup);
+                put(paint(box(0.68, 0.045, 9.0), ROOF_SLATE), 4.12, 4.45, 0, 0, 0, -roofAng, fullHouseGroup);
+                for (const zs of [4.28, -4.28]) put(paint(box(slopeLen - 0.1, 0.05, 0.6), ROOF_SLATE), eaveX / 2, (eaveY + ridgeY) / 2 - 0.03, zs, 0, 0, -roofAng, fullHouseGroup);
             }
 
             const floorShape = new THREE.Shape();
@@ -1647,12 +1663,12 @@
             landingGeo.rotateX(Math.PI / 2); put(edge(landingGeo, 1, null, FLOOR_WOOD_UP), 0, FLOOR_TOP + 0.01, 0);
 
             const RAIL_R = 1.24, RAIL_H = 0.85, D2R = Math.PI / 180;
-            for (let deg = 60; deg <= 300; deg += 30) { const th = deg * D2R; put(edge(new THREE.CylinderGeometry(0.025, 0.025, RAIL_H, 6)), Math.sin(th) * RAIL_R, FLOOR_TOP + RAIL_H / 2, Math.cos(th) * RAIL_R, 0, 0, 0); }
+            for (let deg = 60; deg <= 300; deg += 30) { const th = deg * D2R; put(paint(edge(new THREE.CylinderGeometry(0.025, 0.025, RAIL_H, 6)), FURNITURE_WOOD), Math.sin(th) * RAIL_R, FLOOR_TOP + RAIL_H / 2, Math.cos(th) * RAIL_R, 0, 0, 0); }
             for (const hy of [RAIL_H, 0.45]) { const pts = []; for (let deg = 60; deg <= 300; deg += 5) { const th = deg * D2R; pts.push([Math.sin(th) * RAIL_R, FLOOR_TOP + hy, Math.cos(th) * RAIL_R]); } put(line(pts), 0, 0, 0); }
             const eX = Math.sin(60 * D2R), eZ = Math.cos(60 * D2R);
-            for (const r of [0.38, 0.8]) put(edge(new THREE.CylinderGeometry(0.025, 0.025, RAIL_H, 6)), eX * r, FLOOR_TOP + RAIL_H / 2, eZ * r, 0, 0, 0);
+            for (const r of [0.38, 0.8]) put(paint(edge(new THREE.CylinderGeometry(0.025, 0.025, RAIL_H, 6)), FURNITURE_WOOD), eX * r, FLOOR_TOP + RAIL_H / 2, eZ * r, 0, 0, 0);
             for (const hy of [RAIL_H, 0.45]) put(line([[eX * 0.15, FLOOR_TOP + hy, eZ * 0.15], [eX * RAIL_R, FLOOR_TOP + hy, eZ * RAIL_R]]), 0, 0, 0);
-            for (let z = -3.2; z <= 3.2; z += 0.9) { const avoidR = HOLE_R + 0.05; if (Math.abs(z) >= avoidR) { put(log(8, 0.07), 0, 2.86, z, 0, 0, Math.PI / 2); } else { const dx = Math.sqrt(avoidR * avoidR - z * z); put(log(4 - dx, 0.07), -(4 + dx) / 2, 2.86, z, 0, 0, Math.PI / 2); put(log(4 - dx, 0.07), (4 + dx) / 2, 2.86, z, 0, 0, Math.PI / 2); } }
+            for (let z = -3.2; z <= 3.2; z += 0.9) { const avoidR = HOLE_R + 0.05; if (Math.abs(z) >= avoidR) { put(woodLog(8, 0.07), 0, 2.86, z, 0, 0, Math.PI / 2); } else { const dx = Math.sqrt(avoidR * avoidR - z * z); put(woodLog(4 - dx, 0.07), -(4 + dx) / 2, 2.86, z, 0, 0, Math.PI / 2); put(woodLog(4 - dx, 0.07), (4 + dx) / 2, 2.86, z, 0, 0, Math.PI / 2); } }
 
             function interiorWallLines(along, fixed, openings, skipV) {
                 for (let y = 0.6; y < 4.4; y += 0.8) {
@@ -1697,6 +1713,7 @@
                 if (face === '-x') { g.userData.base = -Math.PI / 2; g.position.set(cx, cy, cz - w / 2); }
                 if (face === '+x') { g.userData.base = Math.PI / 2; g.position.set(cx, cy, cz + w / 2); }
                 if (face === '-z') { g.userData.base = Math.PI; g.position.set(cx + w / 2, cy, cz); }
+                paint(g, WINDOW_WOOD);
                 g.userData.delta = -1.35; P.add(g); registerHinge(g); return g;
             }
             const winFL = squareWindow(WIN_F_L.c, 1.6, 4.03, '+z', 0.95, 0.9, WIN_F_L.hw);
@@ -1706,13 +1723,13 @@
             const winR = squareWindow(4.03, 1.6, -1.5, '+x', 0.95, 0.9, 0.52, fullHouseGroup);
             const winB = squareWindow(1.5, 1.6, -4.03, '-z', 0.95, 0.9, 0.52, fullHouseGroup);
 
-            put(log(2.42, 0.1), -0.84, 1.21, 4.02, 0, 0, 0); put(log(2.42, 0.1), 0.84, 1.21, 4.02, 0, 0, 0); put(box(1.7, 0.1, 0.28), 0, 0.05, 4.12);
+            put(woodLog(2.42, 0.1), -0.84, 1.21, 4.02, 0, 0, 0); put(woodLog(2.42, 0.1), 0.84, 1.21, 4.02, 0, 0, 0); put(woodBox(1.7, 0.1, 0.28), 0, 0.05, 4.12);
             const doorGroup = new THREE.Group(); doorGroup.userData = { base: 0, delta: 1.9 };
             const doorShape = new THREE.Shape(); doorShape.moveTo(-0.72, 0); doorShape.lineTo(-0.72, 1.63); doorShape.absarc(0, 1.63, 0.72, Math.PI, 0, true); doorShape.lineTo(0.72, 0); doorShape.lineTo(-0.72, 0);
-            put(edge(new THREE.ExtrudeGeometry(doorShape, { depth: 0.07, bevelEnabled: false }).translate(0.72, 0, 0)), 0, 0, 0, 0, 0, 0, doorGroup);
+            put(paint(edge(new THREE.ExtrudeGeometry(doorShape, { depth: 0.07, bevelEnabled: false }).translate(0.72, 0, 0)), FURNITURE_WOOD), 0, 0, 0, 0, 0, 0, doorGroup);
             for (const px of [0.28, 0.54, 0.8, 1.06]) put(line([[px, 0.05, 0.09], [px, 1.63, 0.09]]), 0, 0, 0, doorGroup);
-            put(box(0.22, 0.07, 0.04), 0.13, 0.5, 0.09, 0, 0, 0, doorGroup);
-            put(edge(new THREE.TorusGeometry(0.07, 0.02, 6, 16)), 1.2, 1.05, 0.10, 0, 0, 0, doorGroup);
+            put(paint(box(0.22, 0.07, 0.04), BRASS), 0.13, 0.5, 0.09, 0, 0, 0, doorGroup);
+            put(paint(edge(new THREE.TorusGeometry(0.07, 0.02, 6, 16)), BRASS), 1.2, 1.05, 0.10, 0, 0, 0, doorGroup);
             doorGroup.position.set(-0.72, 0, 3.96); scene.add(doorGroup); registerHinge(doorGroup);
             doorGroup.userData.aimLabel = '打开 / 关上大门';
             winFL.userData.aimLabel = '开 / 关前左窗'; winFR.userData.aimLabel = '开 / 关前右窗'; winL.userData.aimLabel = '开 / 关左侧窗'; winG.userData.aimLabel = '开 / 关阁楼窗'; winR.userData.aimLabel = '开 / 关右侧窗'; winB.userData.aimLabel = '开 / 关后窗';
@@ -1721,7 +1738,7 @@
             FILL.uniforms.uFireCenter.value.set(FX, 0.55, FZ);
 
             const fireMeshes = []; let fireLit = true; let fireP = 1;
-            function regFire(o) { o.traverse(m => { if (m.isMesh) { m.userData.isFire = true; fireMeshes.push(m); } }); return o; }
+            function regFire(o) { paint(o, STONE); o.traverse(m => { if (m.isMesh) { m.userData.isFire = true; fireMeshes.push(m); } }); return o; }
             regFire(put(box(1.0, 0.12, 1.9), CHX, 0.06, CHZ)); regFire(put(box(0.08, 1.33, 1.8), CHX - 0.46, 0.785, CHZ)); regFire(put(box(0.94, 1.33, 0.35), CHX, 0.785, CHZ - 0.725)); regFire(put(box(0.94, 1.33, 0.35), CHX, 0.785, CHZ + 0.725));
             regFire(put(box(0.94, 0.25, 1.8), CHX, 1.325, CHZ)); regFire(put(box(1.05, 0.12, 2.2), CHX, 1.46, CHZ)); regFire(put(box(0.7, 0.08, 2.0), CHX + 0.8, 0.04, CHZ));
             const fwShape = new THREE.Shape(); fwShape.moveTo(-0.9, 0); fwShape.lineTo(0.9, 0); fwShape.lineTo(0.9, 1.52); fwShape.lineTo(-0.9, 1.52); fwShape.closePath();
@@ -1746,7 +1763,7 @@
             makeWavyFlame(FX, FZ, HEARTH + 0.02, 0.80, 0.30, fireOut, 0.0, 2.6); makeWavyFlame(FX + 0.01, FZ - 0.01, HEARTH + 0.04, 0.60, 0.20, fireMid, 2.3, 3.1); makeWavyFlame(FX - 0.01, FZ + 0.01, HEARTH + 0.06, 0.38, 0.11, fireIn, 4.1, 3.6); makeWavyFlame(FX - 0.14, FZ - 0.10, HEARTH + 0.02, 0.34, 0.11, fireOut, 1.2, 3.3); makeWavyFlame(FX + 0.15, FZ + 0.12, HEARTH + 0.02, 0.28, 0.10, fireOut, 3.4, 3.0);
             const sparks = [];
             for (let i = 0; i < 6; i++) { const sp = edge(new THREE.OctahedronGeometry(0.016)); sp.userData.phase = i / 6; sp.userData.drift = (Math.random() - 0.5) * 0.25; scene.add(sp); sparks.push(sp); }
-            put(box(0.85, 1.0, 1.6), CHX, 1.9, CHZ); put(box(0.7, 4.9, 0.7), CHX, 4.85, CHZ);
+            put(paint(box(0.85, 1.0, 1.6), STONE), CHX, 1.9, CHZ); put(paint(box(0.7, 4.9, 0.7), STONE), CHX, 4.85, CHZ);
             put(line([[CHX - 0.42, 3.13, CHZ - 0.42], [CHX + 0.42, 3.13, CHZ - 0.42], [CHX + 0.42, 3.13, CHZ + 0.42], [CHX - 0.42, 3.13, CHZ + 0.42], [CHX - 0.42, 3.13, CHZ - 0.42]]), 0, 0, 0);
             const smokePuffs = [];
             for (let i = 0; i < 5; i++) { const p = edge(new THREE.TorusGeometry(0.14, 0.035, 6, 20)); p.rotation.x = Math.PI / 2; p.userData.phase = i / 5; scene.add(p); smokePuffs.push(p); }
@@ -1757,10 +1774,10 @@
             const STAIR_N = 14;
             function buildStairs() {
                 const g = new THREE.Group(); const N = STAIR_N; const riseTotal = FLOOR_TOP; const stepH = riseTotal / (N + 1); const dTheta = 270 / N; const rI = 0.14, rO = 1.1; const railH = 0.85, rPost = rO - 0.07; const treadHalf = dTheta * 0.46; const thick = 0.06;
-                put(log(FLOOR_TOP + RAIL_H, 0.08), 0, (FLOOR_TOP + RAIL_H) / 2, 0, 0, 0, 0, g);
+                put(woodLog(FLOOR_TOP + RAIL_H, 0.08), 0, (FLOOR_TOP + RAIL_H) / 2, 0, 0, 0, 0, g);
                 function treadGeo(a0, a1) { const s = new THREE.Shape(); s.moveTo(rI * Math.sin(a0), rI * Math.cos(a0)); s.lineTo(rO * Math.sin(a0), rO * Math.cos(a0)); const nSeg = 5; for (let j = 1; j <= nSeg; j++) { const a = a0 + (a1 - a0) * j / nSeg; s.lineTo(rO * Math.sin(a), rO * Math.cos(a)); } s.lineTo(rI * Math.sin(a1), rI * Math.cos(a1)); s.closePath(); const gg = new THREE.ExtrudeGeometry(s, { depth: thick, bevelEnabled: false }); gg.rotateX(Math.PI / 2); gg.translate(0, thick, 0); return gg; }
                 const thetaEnd = -60 - dTheta / 2; const railPts = [];
-                for (let k = 0; k < N; k++) { const thDeg = thetaEnd - (N - 1 - k) * dTheta; const th = thDeg * D2R; const yTop = (k + 1) * stepH; const tread = edge(treadGeo(th - treadHalf * D2R, th + treadHalf * D2R), 1, null, FLOOR_WOOD_UP); tread.position.y = yTop - thick; g.add(tread); const norm = ((thDeg % 360) + 360) % 360; const underPlatform = (norm <= 60 || norm >= 300) && (yTop + railH > FLOOR_TOP - 0.1); if (!underPlatform) { put(edge(new THREE.CylinderGeometry(0.02, 0.02, railH, 6)), rPost * Math.sin(th), yTop + railH / 2, rPost * Math.cos(th), 0, 0, 0, g); } railPts.push(V(rPost * Math.sin(th), yTop + railH, rPost * Math.cos(th))); }
+                for (let k = 0; k < N; k++) { const thDeg = thetaEnd - (N - 1 - k) * dTheta; const th = thDeg * D2R; const yTop = (k + 1) * stepH; const tread = edge(treadGeo(th - treadHalf * D2R, th + treadHalf * D2R), 1, null, FLOOR_WOOD_UP); tread.position.y = yTop - thick; g.add(tread); const norm = ((thDeg % 360) + 360) % 360; const underPlatform = (norm <= 60 || norm >= 300) && (yTop + railH > FLOOR_TOP - 0.1); if (!underPlatform) { put(paint(edge(new THREE.CylinderGeometry(0.02, 0.02, railH, 6)), FURNITURE_WOOD), rPost * Math.sin(th), yTop + railH / 2, rPost * Math.cos(th), 0, 0, 0, g); } railPts.push(V(rPost * Math.sin(th), yTop + railH, rPost * Math.cos(th))); }
                 g.add(edge(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPts), 64, 0.03, 6, false))); return g;
             }
             scene.add(buildStairs());
@@ -2056,13 +2073,13 @@
             const MTX = 1.8, MTZ = 2.2, MTTOP = 0.78;
 
             // ---- 12.1 原木餐桌 ----
-            put(box(1.15, 0.06, 0.8), MTX, 0.75, MTZ);
-            put(box(1.27, 0.04, 0.92), MTX, 0.70, MTZ);
+            put(woodBox(1.15, 0.06, 0.8, true), MTX, 0.75, MTZ);
+            put(woodBox(1.27, 0.04, 0.92), MTX, 0.70, MTZ);
             for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
-                put(edge(new THREE.CylinderGeometry(0.035, 0.028, 0.7, 6)),
+                put(paint(edge(new THREE.CylinderGeometry(0.035, 0.028, 0.7, 6)), FURNITURE_WOOD),
                     MTX + sx * 0.47, 0.36, MTZ + sz * 0.28, 0, 0, 0);
-            put(log(0.94, 0.02), MTX, 0.28, MTZ - 0.28, 0, 0, Math.PI / 2);
-            put(log(0.94, 0.02), MTX, 0.28, MTZ + 0.28, 0, 0, Math.PI / 2);
+            put(woodLog(0.94, 0.02), MTX, 0.28, MTZ - 0.28, 0, 0, Math.PI / 2);
+            put(woodLog(0.94, 0.02), MTX, 0.28, MTZ + 0.28, 0, 0, Math.PI / 2);
 
             // ---- 12.2 星象仪 ----
             let orbOn = true, orbP = 1;
@@ -2419,16 +2436,17 @@
 
             /* ---- 12.9 左墙书架 + 可抽拉的书 ---- */
             const shelfBooks = [];
+            const BOOK_SPINES = [0x557a82, 0xa85f4c, 0xb39150, 0x735b78, 0x61836b].map(color => LITMAT(color));
             const SFX = -3.72, SFZ = -2.85, SFW = 1.3;
             {
-                put(box(0.3, 1.86, 0.05), SFX, 1.05, SFZ - SFW / 2);
-                put(box(0.3, 1.86, 0.05), SFX, 1.05, SFZ + SFW / 2);
-                put(box(0.02, 1.86, 1.3), SFX - 0.15, 1.05, SFZ);
-                for (const sy of [0.18, 0.78, 1.38, 1.95]) put(box(0.3, 0.05, 1.3), SFX, sy, SFZ);
+                put(woodBox(0.3, 1.86, 0.05), SFX, 1.05, SFZ - SFW / 2);
+                put(woodBox(0.3, 1.86, 0.05), SFX, 1.05, SFZ + SFW / 2);
+                put(woodBox(0.02, 1.86, 1.3), SFX - 0.15, 1.05, SFZ);
+                for (const sy of [0.18, 0.78, 1.38, 1.95]) put(woodBox(0.3, 0.05, 1.3, true), SFX, sy, SFZ);
 
                 function addBook(z, yBase, h, th) {
                     const g = new THREE.Group();
-                    put(box(0.18, h, th), 0, h / 2, 0, 0, 0, 0, g);
+                    put(paint(box(0.18, h, th), BOOK_SPINES[shelfBooks.length % BOOK_SPINES.length]), 0, h / 2, 0, 0, 0, 0, g);
                     put(line([[0.092, h * 0.55, -th * 0.3], [0.092, h * 0.55, th * 0.3]]), 0, 0, 0, 0, 0, 0, g);
                     g.position.set(SFX + 0.02, yBase, z);
                     g.userData = { out: false, cur: 0, vel: 0, bx: SFX + 0.02 };
@@ -2599,7 +2617,7 @@
                         let da = Math.abs(a - (-Math.PI / 2));
                         da = Math.min(da, Math.PI * 2 - da);
                         if (da < 0.30) continue;
-                        const b = box(0.28, 0.13, 0.17);
+                        const b = paint(box(0.28, 0.13, 0.17), STONE);
                         b.position.set(Math.cos(a) * BR, y, Math.sin(a) * BR);
                         b.rotation.y = -a + Math.PI / 2;
                         cauldronG.add(b);
@@ -2613,7 +2631,7 @@
                 const lathePts = [new THREE.Vector2(0.05, 0.08 + CAL_UP)];
                 for (const [yy, rr] of CPROF) lathePts.push(new THREE.Vector2(rr, yy + CAL_UP));
                 lathePts.push(new THREE.Vector2(0.38, 0.94 + CAL_UP));
-                cauldronG.add(new THREE.Mesh(new THREE.LatheGeometry(lathePts, 28), FILL));
+                cauldronG.add(new THREE.Mesh(new THREE.LatheGeometry(lathePts, 28), IRON));
                 for (const [yy, rr] of CPROF) {
                     const pts = [];
                     for (let i = 0; i <= 28; i++) { const a = i / 28 * Math.PI * 2; pts.push([Math.cos(a) * rr, yy + CAL_UP, Math.sin(a) * rr]); }
@@ -2623,7 +2641,7 @@
                     const c = Math.cos(ang), s = Math.sin(ang);
                     put(line(CPROF.map(([yy, rr]) => [c * rr, yy + CAL_UP, s * rr])), 0, 0, 0, 0, 0, 0, cauldronG);
                 }
-                const rim = edge(new THREE.TorusGeometry(0.42, 0.04, 6, 32));
+                const rim = paint(edge(new THREE.TorusGeometry(0.42, 0.04, 6, 32)), BRASS);
                 rim.rotation.x = Math.PI / 2;
                 put(rim, 0, 0.94 + CAL_UP, 0, 0, 0, 0, cauldronG);
                 const calLiqMat = new THREE.MeshBasicMaterial({
@@ -2843,10 +2861,10 @@
             /* ---- 12.9f 长餐桌 ---- */
             const DT_X = 1.6, DT_Z = -3.35;
             const DTOP = 0.77;
-            put(box(2.6, 0.06, 0.8), DT_X, 0.74, DT_Z);
-            put(box(2.72, 0.04, 0.92), DT_X, 0.69, DT_Z);
+            put(woodBox(2.6, 0.06, 0.8, true), DT_X, 0.74, DT_Z);
+            put(woodBox(2.72, 0.04, 0.92), DT_X, 0.69, DT_Z);
             for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
-                put(edge(new THREE.CylinderGeometry(0.032, 0.026, 0.68, 6)),
+                put(paint(edge(new THREE.CylinderGeometry(0.032, 0.026, 0.68, 6)), FURNITURE_WOOD),
                     DT_X + sx * 1.15, 0.35, DT_Z + sz * 0.32, 0, 0, 0);
 
             const plates = [];
@@ -3038,12 +3056,12 @@
             const chairs = [];
             function makeChair(x, z, ry, ax, az) {
                 const g = new THREE.Group();
-                put(box(0.42, 0.05, 0.42), 0, 0.45, 0, 0, 0, 0, g);
-                put(box(0.42, 0.52, 0.05), 0, 0.73, -0.185, 0, 0, 0, g);
-                put(box(0.36, 0.04, 0.03), 0, 0.90, -0.185, 0, 0, 0, g);
-                put(box(0.36, 0.04, 0.03), 0, 0.62, -0.185, 0, 0, 0, g);
+                put(woodBox(0.42, 0.05, 0.42), 0, 0.45, 0, 0, 0, 0, g);
+                put(woodBox(0.42, 0.52, 0.05), 0, 0.73, -0.185, 0, 0, 0, g);
+                put(woodBox(0.36, 0.04, 0.03), 0, 0.90, -0.185, 0, 0, 0, g);
+                put(woodBox(0.36, 0.04, 0.03), 0, 0.62, -0.185, 0, 0, 0, g);
                 for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
-                    put(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.44, 6)), sx * 0.17, 0.22, sz * 0.17, 0, 0, 0, g);
+                    put(paint(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.44, 6)), FURNITURE_WOOD), sx * 0.17, 0.22, sz * 0.17, 0, 0, 0, g);
                 g.position.set(x, 0, z);
                 g.rotation.y = ry;
                 g.userData = { bx: x, bz: z, ax, az, cur: 0, vel: 0, open: false };
@@ -3066,8 +3084,8 @@
             broomG.rotation.z = BROOM_REST.rz;
             scene.add(broomG);
             {
-                put(edge(new THREE.CylinderGeometry(0.022, 0.026, 1.45, 8)), 0, 0.865, 0, 0, 0, 0, broomG);
-                put(edge(new THREE.SphereGeometry(0.026, 8, 6)), 0, 1.59, 0, 0, 0, 0, broomG);
+                put(paint(edge(new THREE.CylinderGeometry(0.022, 0.026, 1.45, 8)), FURNITURE_WOOD), 0, 0.865, 0, 0, 0, 0, broomG);
+                put(paint(edge(new THREE.SphereGeometry(0.026, 8, 6)), BRASS), 0, 1.59, 0, 0, 0, 0, broomG);
                 put(line([[-0.026, 1.25, 0], [0.026, 1.25, 0]]), 0, 0, 0, 0, 0, 0, broomG);
                 put(line([[-0.026, 0.95, 0], [0.026, 0.95, 0]]), 0, 0, 0, 0, 0, 0, broomG);
 
@@ -3435,10 +3453,10 @@
                 topShape.closePath();
                 const topGeo = new THREE.ExtrudeGeometry(topShape, { depth: 0.055, bevelEnabled: false });
                 topGeo.rotateX(-Math.PI / 2);
-                put(edge(topGeo), 0, KTOP - 0.055, 0, 0, 0, 0, kotBody);
+                put(paint(edge(topGeo), FURNITURE_TOP), 0, KTOP - 0.055, 0, 0, 0, 0, kotBody);
 
                 for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
-                    put(box(0.07, 0.40, 0.07), sx * 0.42, 0.20, sz * 0.42, 0, 0, 0, kotBody);
+                    put(woodBox(0.07, 0.40, 0.07), sx * 0.42, 0.20, sz * 0.42, 0, 0, 0, kotBody);
 
                 const quiltMat = LITMAT(0xc4a484, { side: THREE.DoubleSide });
                 const trapShape = new THREE.Shape();
@@ -3804,19 +3822,19 @@
 
             /* ---- 18.1 大床 ---- */
             for (const sxsz of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-                put(edge(new THREE.CylinderGeometry(0.045, 0.035, 0.32, 8)), BEDX + sxsz[0] * 0.56, FY + 0.16, BEDZ + sxsz[1] * 1.02, 0, 0, 0);
+                put(paint(edge(new THREE.CylinderGeometry(0.045, 0.035, 0.32, 8)), FURNITURE_WOOD), BEDX + sxsz[0] * 0.56, FY + 0.16, BEDZ + sxsz[1] * 1.02, 0, 0, 0);
             }
-            put(box(1.32, 0.22, 2.24), BEDX, FY + 0.42, BEDZ);
-            put(rbox(1.36, 0.80, 0.10, 0.06), BEDX, FY + 0.78, BEDZ - 1.14);
-            put(rbox(1.32, 0.32, 2.24, 0.10), BEDX, FY + 0.69, BEDZ);
+            put(woodBox(1.32, 0.22, 2.24), BEDX, FY + 0.42, BEDZ);
+            put(paint(rbox(1.36, 0.80, 0.10, 0.06), FURNITURE_WOOD), BEDX, FY + 0.78, BEDZ - 1.14);
+            put(paint(rbox(1.32, 0.32, 2.24, 0.10), CREAM), BEDX, FY + 0.69, BEDZ);
             let pillowOpen = false, pillowT = 0;
             const pillowG = new THREE.Group();
             pillowG.position.set(BEDX, FY + 0.94, BEDZ - 0.76);
             scene.add(pillowG);
-            pillowG.add(rbox(0.66, 0.22, 0.44, 0.08));
+            pillowG.add(paint(rbox(0.66, 0.22, 0.44, 0.08), CREAM));
             regMagic(pillowG, () => { pillowOpen = !pillowOpen; });
             {
-                const bl = rbox(1.24, 0.20, 1.46, 0.08);
+                const bl = paint(rbox(1.24, 0.20, 1.46, 0.08), BED_COVER);
                 bl.position.set(BEDX, FY + 0.85, BEDZ + 0.40);
                 scene.add(bl);
                 for (const bx of [-0.18, 0.18]) {
@@ -3827,16 +3845,16 @@
             /* ---- 18.2 床头柜 + 可拉开抽屉 ---- */
             const NSX = -1.15, NSZ = -3.3;
             for (const sxsz of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-                put(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.16, 6)), NSX + sxsz[0] * 0.19, FY + 0.08, NSZ + sxsz[1] * 0.16, 0, 0, 0);
+                put(paint(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.16, 6)), FURNITURE_WOOD), NSX + sxsz[0] * 0.19, FY + 0.08, NSZ + sxsz[1] * 0.16, 0, 0, 0);
             }
-            put(box(0.50, 0.40, 0.42), NSX, FY + 0.36, NSZ);
-            put(box(0.56, 0.04, 0.48), NSX, FY + 0.58, NSZ);
+            put(woodBox(0.50, 0.40, 0.42), NSX, FY + 0.36, NSZ);
+            put(woodBox(0.56, 0.04, 0.48, true), NSX, FY + 0.58, NSZ);
             const drawerG = new THREE.Group();
             drawerG.position.set(NSX, FY + 0.40, NSZ + 0.20);
             scene.add(drawerG);
-            put(box(0.42, 0.14, 0.05), 0, 0, 0, 0, 0, 0, drawerG);
-            put(edge(new THREE.CylinderGeometry(0.017, 0.017, 0.028, 8)), 0, 0, 0.042, Math.PI / 2, 0, 0, drawerG);
-            put(box(0.36, 0.11, 0.26), 0, 0, -0.16, 0, 0, 0, drawerG);
+            put(woodBox(0.42, 0.14, 0.05), 0, 0, 0, 0, 0, 0, drawerG);
+            put(paint(edge(new THREE.CylinderGeometry(0.017, 0.017, 0.028, 8)), BRASS), 0, 0, 0.042, Math.PI / 2, 0, 0, drawerG);
+            put(woodBox(0.36, 0.11, 0.26), 0, 0, -0.16, 0, 0, 0, drawerG);
             regSlide(drawerG, 'z', 0.26);
             regMagic(drawerG, () => { drawerG.userData.slide.open = !drawerG.userData.slide.open; });
 
@@ -3873,11 +3891,11 @@
             const TBLX = 2.5, TBLZ = -2.5;
             const TBL_TOP = FY + 0.80;
             for (const sxsz of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-                put(edge(new THREE.CylinderGeometry(0.035, 0.028, 0.72, 8)), TBLX + sxsz[0] * 1.00, FY + 0.36, TBLZ + sxsz[1] * 0.45, 0, 0, 0);
+                put(paint(edge(new THREE.CylinderGeometry(0.035, 0.028, 0.72, 8)), FURNITURE_WOOD), TBLX + sxsz[0] * 1.00, FY + 0.36, TBLZ + sxsz[1] * 0.45, 0, 0, 0);
             }
-            put(box(2.4, 0.08, 1.1), TBLX, FY + 0.76, TBLZ);
-            put(box(2.0, 0.05, 0.05), TBLX, FY + 0.28, TBLZ + 0.45);
-            put(box(2.0, 0.05, 0.05), TBLX, FY + 0.28, TBLZ - 0.45);
+            put(woodBox(2.4, 0.08, 1.1, true), TBLX, FY + 0.76, TBLZ);
+            put(woodBox(2.0, 0.05, 0.05), TBLX, FY + 0.28, TBLZ + 0.45);
+            put(woodBox(2.0, 0.05, 0.05), TBLX, FY + 0.28, TBLZ - 0.45);
 
             /* —— 平行与垂直实验室：二楼后墙的便携尺规展示架 —— */
             const geometryG = new THREE.Group();
@@ -4001,10 +4019,10 @@
             chairG.position.set(2.6, FY, CHAIR_IN);
             scene.add(chairG);
             for (const szx of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-                put(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.44, 6)), szx[0] * 0.18, 0.22, szx[1] * 0.18, 0, 0, 0, chairG);
+                put(paint(edge(new THREE.CylinderGeometry(0.022, 0.018, 0.44, 6)), FURNITURE_WOOD), szx[0] * 0.18, 0.22, szx[1] * 0.18, 0, 0, 0, chairG);
             }
-            put(box(0.44, 0.05, 0.44), 0, 0.465, 0, 0, 0, 0, chairG);
-            put(box(0.44, 0.52, 0.045), 0, 0.72, -0.198, 0, 0, 0, chairG);
+            put(woodBox(0.44, 0.05, 0.44), 0, 0.465, 0, 0, 0, 0, chairG);
+            put(woodBox(0.44, 0.52, 0.045), 0, 0.72, -0.198, 0, 0, 0, chairG);
             let chairOpen = false, chairT = 0;
             regMagic(chairG, () => { chairOpen = !chairOpen; });
 
