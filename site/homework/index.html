@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>作业画廊 · 鲁老师 × 当当老师</title>
+  <style>
+    :root { --ink:#243b49; --wood:#886247; --accent:#bc684e; --paper:#fffaf0; --rule:#d8dfda; --grass:#e8efe5; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--grass); font-family:"Microsoft YaHei","PingFang SC",sans-serif; }
+    button, a { -webkit-tap-highlight-color:transparent; }
+    a { color:inherit; }
+    :focus-visible { outline:3px solid #bd6d47; outline-offset:4px; }
+    .page { max-width:1200px; margin:auto; padding:30px clamp(18px,4vw,50px) 70px; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .brand { font-size:14px; font-weight:800; letter-spacing:.1em; color:#627a79; }
+    .back { text-decoration:none; border:1px solid #bdc8bd; padding:10px 15px; border-radius:30px; background:#fffdf7; font-weight:700; }
+    .hero { margin-top:44px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:30px; align-items:end; border-bottom:3px solid var(--ink); padding-bottom:27px; }
+    .eyebrow { color:#7c6c56; font-size:13px; letter-spacing:.22em; font-weight:800; }
+    h1 { margin:10px 0 8px; font-size:clamp(42px,6.5vw,88px); line-height:1.08; letter-spacing:.06em; font-family:"STKaiti","KaiTi","Microsoft YaHei",serif; }
+    .hero p { margin:0; color:#566d71; font-size:16px; }
+    .heroMark { width:76px; height:76px; border:3px solid var(--accent); border-radius:50%; display:grid; place-items:center; color:var(--accent); font:700 35px/1 "KaiTi",serif; transform:rotate(-12deg); }
+    .layout { display:grid; grid-template-columns:250px minmax(0,1fr); gap:26px; margin-top:30px; align-items:start; }
+    .roster { background:#f9f4e8; border:1px solid #d9cfbb; padding:20px; box-shadow:5px 5px 0 #c8d2c4; }
+    .roster h2 { margin:0 0 15px; font-size:15px; letter-spacing:.12em; }
+    .studentLink { display:flex; align-items:center; justify-content:space-between; width:100%; padding:14px 12px; margin:4px 0; border:0; background:transparent; border-bottom:1px solid #dfd8c8; color:var(--ink); text-decoration:none; font-size:18px; font-weight:800; text-align:left; cursor:pointer; }
+    .studentLink:hover, .studentLink.active { background:#e5ede9; }
+    .studentLink span:last-child { font-size:12px; font-weight:600; color:#6d837d; }
+    .sheet { position:relative; min-height:470px; background:var(--paper); border:1px solid #e6ddca; box-shadow:10px 12px 0 #c5d4c8; padding:34px clamp(25px,5vw,70px) 55px; overflow:hidden; }
+    .sheet::before { content:""; position:absolute; top:0; bottom:0; left:38px; width:2px; background:#dca49c; opacity:.55; }
+    .sheet::after { content:""; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,rgba(137,165,163,.16) 36px); }
+    .sheet > * { position:relative; z-index:1; }
+    .sheetHead { display:flex; justify-content:space-between; align-items:baseline; gap:15px; flex-wrap:wrap; border-bottom:1px solid #c9c7ba; padding-bottom:18px; }
+    .sheet h2 { margin:0; font-size:clamp(28px,4vw,44px); font-family:"STKaiti","KaiTi",serif; }
+    .count { font-size:14px; font-weight:700; color:#71817c; }
+    .empty { margin:75px auto 40px; max-width:420px; text-align:center; }
+    .emptyIcon { width:104px; height:104px; margin:auto; display:grid; place-items:center; border:5px solid #9f7a57; background:#fffdf7; box-shadow:8px 8px 0 #dfc39b; font-size:44px; color:#bd684e; }
+    .empty h3 { margin:28px 0 8px; font-size:25px; }
+    .empty p { margin:0; color:#607675; line-height:1.8; }
+    .assignments { display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:22px; margin-top:28px; }
+    .assignment { width:100%; padding:0; border:1px solid #d3c8b1; background:#fffdf8; text-align:left; cursor:pointer; color:var(--ink); box-shadow:4px 5px 0 #c6d1c4; transition:transform .2s ease,box-shadow .2s ease; }
+    .assignment:hover { transform:translateY(-4px); box-shadow:6px 9px 0 #c6d1c4; }
+    .cover { width:100%; aspect-ratio:3/4; display:grid; place-items:center; background:#f1ebdc; overflow:hidden; color:#9b7557; font:700 25px/1 "KaiTi",serif; }
+    .cover img { width:100%; height:100%; object-fit:cover; object-position:top; }
+    .assignmentInfo { padding:13px 15px 16px; }
+    .assignmentInfo strong { display:block; font-size:17px; }
+    .assignmentInfo span { display:block; margin-top:5px; color:#71817c; font-size:13px; }
+    .viewer { position:fixed; inset:0; z-index:10; display:none; flex-direction:column; background:#172a32; color:#fff; }
+    .viewer.open { display:flex; }
+    .viewerBar { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:12px clamp(16px,3vw,35px); }
+    .viewerBar strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .viewerActions { display:flex; gap:12px; align-items:center; flex-shrink:0; }
+    .viewerActions a, .viewerActions button { color:#fff; background:transparent; border:1px solid #92a5a8; border-radius:6px; padding:8px 12px; text-decoration:none; font:inherit; cursor:pointer; }
+    .viewer iframe { width:100%; flex:1; border:0; background:#fff; }
+    .viewerHelp { margin:0; padding:6px 20px 10px; text-align:center; font-size:12px; color:#c9d6d4; }
+    .error { padding:30px 0; color:#9f5447; }
+    @media (max-width:720px) { .hero { margin-top:30px; } .heroMark { width:55px; height:55px; font-size:26px; } .layout { grid-template-columns:1fr; } .roster { display:flex; gap:6px; overflow-x:auto; padding:10px; } .roster h2 { display:none; } .studentLink { width:auto; white-space:nowrap; padding:10px 13px; margin:0; border-bottom:0; border-radius:20px; font-size:15px; } .studentLink span:last-child { display:none; } .sheet { min-height:380px; padding-left:35px; } .sheet::before { left:19px; } .viewerBar { flex-wrap:wrap; } }
+    @media (prefers-reduced-motion:reduce) { .assignment { transition:none; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top"><div class="brand">鲁老师 × 当当老师 · 小课堂</div><a class="back" href="../magic-24/">← 返回小屋</a></div>
+    <header class="hero"><div><div class="eyebrow">室外作业画廊</div><h1 id="pageTitle">孩子们的作业</h1><p>点开画板，翻看每一次认真完成的作品。</p></div><div class="heroMark" aria-hidden="true">作</div></header>
+    <div class="layout"><nav class="roster" id="roster" aria-label="选择孩子"><h2>五位小作者</h2></nav><section class="sheet" id="sheet" aria-live="polite"></section></div>
+  </main>
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="查看作业 PDF"><div class="viewerBar"><strong id="viewerTitle"></strong><div class="viewerActions"><a id="openPdf" target="_blank" rel="noopener noreferrer">单独打开 PDF ↗</a><button id="closeViewer" type="button">关闭</button></div></div><iframe id="pdfFrame" title="作业 PDF"></iframe><p class="viewerHelp">如果手机未显示预览，请点“单独打开 PDF”。</p></div>
+  <script>
+    const fallback = { students: [
+      {id:'ziqing',name:'梓晴',assignments:[]}, {id:'ruohan',name:'若涵',assignments:[]},
+      {id:'bingze',name:'秉泽',assignments:[]}, {id:'zeming',name:'泽铭',assignments:[]},
+      {id:'juncheng',name:'峻程',assignments:[]}
+    ]};
+    const roster = document.getElementById('roster');
+    const sheet = document.getElementById('sheet');
+    const viewer = document.getElementById('viewer');
+    const params = new URLSearchParams(location.search);
+    let data = fallback;
+    let selectedId = params.get('student') || fallback.students[0].id;
+    function safePath(path) { return typeof path === 'string' && !path.startsWith('/') && !path.includes('..') ? path : ''; }
+    function showPdf(item) {
+      const pdf = safePath(item.pdf); if (!pdf) return;
+      document.getElementById('viewerTitle').textContent = item.title || '作业';
+      document.getElementById('openPdf').href = pdf;
+      document.getElementById('pdfFrame').src = pdf + '#view=FitH';
+      viewer.classList.add('open'); document.body.style.overflow = 'hidden';
+      document.getElementById('closeViewer').focus();
+    }
+    function closePdf() { viewer.classList.remove('open'); document.getElementById('pdfFrame').removeAttribute('src'); document.body.style.overflow = ''; }
+    document.getElementById('closeViewer').addEventListener('click', closePdf);
+    addEventListener('keydown', e => { if (e.key === 'Escape' && viewer.classList.contains('open')) closePdf(); });
+    function selectStudent(id, updateUrl = true) {
+      const student = data.students.find(s => s.id === id) || data.students[0];
+      if (!student) return;
+      selectedId = student.id;
+      if (updateUrl) history.replaceState(null, '', '?student=' + encodeURIComponent(student.id));
+      document.title = student.name + '的作业 · 鲁老师 × 当当老师';
+      document.getElementById('pageTitle').textContent = student.name + '的作业';
+      roster.querySelectorAll('.studentLink').forEach(a => { a.classList.toggle('active', a.dataset.student === student.id); a.setAttribute('aria-current', a.dataset.student === student.id ? 'page' : 'false'); });
+      sheet.replaceChildren();
+      const head = document.createElement('div'); head.className = 'sheetHead';
+      const title = document.createElement('h2'); title.textContent = student.name + '的作业本';
+      const count = document.createElement('span'); count.className = 'count'; count.textContent = (student.assignments?.length || 0) + ' 次作业';
+      head.append(title, count); sheet.append(head);
+      if (!student.assignments?.length) {
+        const empty = document.createElement('div'); empty.className = 'empty';
+        empty.innerHTML = '<div class="emptyIcon" aria-hidden="true">✎</div><h3>画板还空着</h3><p>作业 PDF 暂未添加。收到作品后，这里会按次序展示。</p>';
+        sheet.append(empty); return;
+      }
+      const grid = document.createElement('div'); grid.className = 'assignments';
+      for (const item of student.assignments) {
+        if (!safePath(item.pdf)) continue;
+        const card = document.createElement('button'); card.type = 'button'; card.className = 'assignment';
+        const cover = document.createElement('div'); cover.className = 'cover';
+        if (safePath(item.cover)) { const img = document.createElement('img'); img.src = item.cover; img.alt = (item.title || '作业') + '的 PDF 首页'; cover.append(img); }
+        else cover.textContent = 'PDF 作业';
+        const info = document.createElement('div'); info.className = 'assignmentInfo';
+        const label = document.createElement('strong'); label.textContent = item.title || '作业';
+        const date = document.createElement('span'); date.textContent = item.date || '点击查看 PDF';
+        info.append(label, date); card.append(cover, info); card.addEventListener('click', () => showPdf(item)); grid.append(card);
+      }
+      sheet.append(grid);
+    }
+    function render() {
+      roster.querySelectorAll('.studentLink').forEach(el => el.remove());
+      for (const student of data.students) {
+        const link = document.createElement('a'); link.href = '?student=' + encodeURIComponent(student.id); link.className = 'studentLink'; link.dataset.student = student.id;
+        const name = document.createElement('span'); name.textContent = student.name;
+        const count = document.createElement('span'); count.textContent = (student.assignments?.length || 0) + ' 份';
+        link.append(name, count); link.addEventListener('click', e => { e.preventDefault(); selectStudent(student.id); }); roster.append(link);
+      }
+      selectStudent(selectedId, false);
+    }
+    render();
+    if (location.protocol !== 'file:') fetch('manifest.json', {cache:'no-store'}).then(r => {if (!r.ok) throw Error(); return r.json();}).then(result => {if (Array.isArray(result.students) && result.students.length) {data = result; render();}}).catch(() => {const note = document.createElement('p'); note.className = 'error'; note.textContent = '作业目录暂时无法加载，请稍后刷新页面。'; sheet.append(note);});
+  </script>
+</body>
+</html>

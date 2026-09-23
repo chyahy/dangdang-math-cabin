@@ -1,0 +1,9 @@
+{
+  "students": [
+    { "id": "ziqing", "name": "梓晴", "assignments": [] },
+    { "id": "ruohan", "name": "若涵", "assignments": [] },
+    { "id": "bingze", "name": "秉泽", "assignments": [] },
+    { "id": "zeming", "name": "泽铭", "assignments": [] },
+    { "id": "juncheng", "name": "峻程", "assignments": [] }
+  ]
+}
