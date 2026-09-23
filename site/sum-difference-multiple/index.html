@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173b57">
-  <title>和倍与差倍问题｜当当老师小课堂</title>
+  <title>和倍与差倍问题｜鲁老师×当当老师</title>
   <style id="edgeone-watermark-override">#edgeone-watermark{display:none!important}</style>
   <style>
     :root{--navy:#173b57;--blue:#287aa1;--red:#e46550;--gold:#efb747;--mint:#2d8f8b;--paper:#fffdf7;--cream:#f5eddd;--ink:#233445;--muted:#6d7880;--line:#d9cfbd;--shadow:0 18px 55px rgba(39,46,49,.13)}
@@ -12,7 +12,7 @@
     button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:4px solid rgba(239,183,71,.55);outline-offset:2px}
     .top{position:relative;overflow:hidden;background:var(--navy);color:#fff;padding:22px max(22px,calc((100vw - 1160px)/2));box-shadow:0 8px 26px rgba(23,59,87,.22)}
     .top:after{content:"";position:absolute;width:300px;height:300px;border:42px solid rgba(255,255,255,.055);border-radius:50%;right:-55px;top:-190px}
-    .brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}.brand-mark{width:58px;height:58px;background:var(--gold);border-radius:19px 19px 16px 16px;display:grid;place-items:center;color:var(--navy);font:900 25px/1 Georgia;transform:rotate(-3deg);box-shadow:inset 0 -5px rgba(0,0,0,.08)}
+    .brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}.brand-mark{width:58px;height:58px;background:var(--gold);border-radius:19px 19px 16px 16px;display:grid;place-items:center;color:var(--navy);font:900 16px/1 "Microsoft YaHei","PingFang SC",sans-serif;transform:rotate(-3deg);box-shadow:inset 0 -5px rgba(0,0,0,.08)}
     .brand-mark span{transform:rotate(3deg)}.brand small{display:block;opacity:.78;font-weight:700;letter-spacing:.13em}.brand strong{font-size:clamp(22px,3vw,34px);letter-spacing:.04em}.home-link{margin-left:auto;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:10px 16px;font-weight:700;white-space:nowrap}
     main{width:min(1160px,calc(100% - 28px));margin:24px auto 48px}.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;align-items:stretch}.paper{background:rgba(255,253,247,.96);border:1px solid rgba(23,59,87,.11);border-radius:26px;box-shadow:var(--shadow)}
     .intro{padding:clamp(23px,4vw,44px);position:relative;overflow:hidden}.eyebrow{color:var(--red);font-weight:900;letter-spacing:.12em}.intro h1{font-family:"STKaiti","KaiTi",serif;font-size:clamp(38px,7vw,72px);line-height:1;margin:12px 0 16px;color:var(--navy)}.intro p{font-size:clamp(16px,2vw,20px);line-height:1.85;margin:0;max-width:760px}
@@ -30,7 +30,7 @@
 </head>
 <body>
   <header class="top">
-    <div class="brand"><div class="brand-mark"><span>当</span></div><div><small>当当老师小课堂</small><strong>把数学画出来</strong></div><a class="home-link" href="../magic-24/"><span>返回</span> 数学小屋</a></div>
+    <div class="brand"><div class="brand-mark"><span>鲁×当</span></div><div><small>鲁老师×当当老师</small><strong>把数学画出来</strong></div><a class="home-link" href="../magic-24/"><span>返回</span> 数学小屋</a></div>
   </header>
   <main>
     <section class="hero">
@@ -44,7 +44,7 @@
     </section>
     <section class="paper practice" id="practice"><div class="practice-head"><div><div class="section-kicker">轮到你来画</div><h2 id="practiceTitle">和倍问题练习</h2></div><div class="progress" id="practiceProgress"></div></div><div class="practice-grid"><div><div class="practice-question" id="practiceQuestion"></div><div class="mini-bars"><div class="mini-line"><b id="pSmallName"></b><span class="mini-piece"></span></div><div class="mini-line large" id="pLargeBar"><b id="pLargeName"></b></div><div class="mini-difference hide" id="miniDifference"></div></div></div><div><div class="fields"><div class="field"><label id="smallLabel" for="smallAnswer"></label><input id="smallAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div><div class="field"><label id="largeLabel" for="largeAnswer"></label><input id="largeAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div></div><div class="check-row"><button class="primary" id="checkAnswer">检查答案</button><button class="secondary" id="showAnswer">看看答案</button><button class="secondary" id="clearAnswer">清空</button></div><div class="feedback" id="feedback" aria-live="polite"></div></div></div><div class="practice-nav"><button class="round" id="prevPractice">‹ 上一题</button><div class="dots" id="dots" aria-hidden="true"></div><button class="round" id="nextPractice">下一题 ›</button></div></section>
   </main>
-  <footer>当当老师小课堂 · 让每一份都看得见</footer>
+  <footer>鲁老师×当当老师 · 让每一份都看得见</footer>
   <script>
   (()=>{
     const data={
