@@ -1184,11 +1184,11 @@
             <div class="slot empty"></div>
         </div>
         <div class="sep"></div>
-        <div class="viewBtn on" id="viewFixedBtn">固定视角</div>
-        <div class="viewBtn" id="viewTpBtn">第三人称视角</div>
-        <div class="viewBtn" id="viewFpBtn">第一人称视角</div>
+        <div class="viewBtn on" id="viewFixedBtn">小屋全景</div>
+        <div class="viewBtn" id="viewTpBtn">跟随小人</div>
+        <div class="viewBtn" id="viewFpBtn">小人第一人称</div>
         <div class="sep"></div>
-        <div class="viewBtn" id="resetBtn">重置史莱姆位置</div>
+        <div class="viewBtn" id="resetBtn">重置小人和史莱姆</div>
         <div class="sep"></div>
         <div class="sub">关 于</div>
         <!-- ★ 当当老师小课堂 ★ -->
@@ -8861,9 +8861,9 @@
                 const casting = blast.active && blast.t < T_BOOM + 0.35;
                 wandAim += ((casting ? 1 : 0) - wandAim) * Math.min(1, dt * 6);
 
-                const px = casting ? 0.10 : 0.17;
-                const py = casting ? 0.44 : 0.30;
-                const pz = casting ? 0.26 : 0.10;
+                const px = casting ? 0.16 : 0.24;
+                const py = casting ? 0.94 : 0.82;
+                const pz = casting ? 0.28 : 0.12;
                 const kk = Math.min(1, dt * 7);
                 wandRoot.position.x += (px + lag * 0.06 - wandRoot.position.x) * kk;
                 wandRoot.position.y += (py + Math.sin(time * 2.1) * 0.008 - wandRoot.position.y) * kk;
@@ -9045,6 +9045,46 @@
             }
 
             const player = { pos: new THREE.Vector3(0, 0, 5.2), vy: 0, yaw: Math.PI, moveSpeed: 0, onGround: true, groundT: 0 };
+
+            /* ===== 可操控小人：线稿小屋风格，第一人称相机位于眼睛高度 ===== */
+            const avatarRoot = new THREE.Group();
+            const avatarVisual = new THREE.Group();
+            avatarRoot.add(avatarVisual); scene.add(avatarRoot);
+            const AV_SKIN = LITMAT(0xf1c3a1), AV_HAIR = LITMAT(0x25313b), AV_COAT = LITMAT(0x274c69);
+            const AV_SHIRT = LITMAT(0xf7f2e8), AV_PANTS = LITMAT(0x243442), AV_SHOE = LITMAT(0xf4eee3), AV_GOLD = LITMAT(0xe8b64e);
+            function avatarPart(g, mat) { const o = new THREE.Group(); o.add(new THREE.Mesh(g, mat)); o.add(new THREE.LineSegments(new THREE.EdgesGeometry(g, 18), MAT)); return o; }
+            const avatarShadow = new THREE.Mesh(new THREE.CircleGeometry(0.25, 24), new THREE.MeshBasicMaterial({ color: 0x172b38, transparent: true, opacity: 0.16, depthWrite: false }));
+            avatarShadow.rotation.x = -Math.PI / 2; avatarShadow.position.y = 0.012; avatarRoot.add(avatarShadow);
+            put(avatarPart(new THREE.CylinderGeometry(0.18, 0.23, 0.43, 9), AV_COAT), 0, 0.72, 0, 0, 0, 0, avatarVisual);
+            put(avatarPart(new THREE.BoxGeometry(0.13, 0.25, 0.025), AV_SHIRT), 0, 0.78, 0.205, 0, 0, 0, avatarVisual);
+            put(avatarPart(new THREE.ConeGeometry(0.035, 0.19, 4), AV_GOLD), 0, 0.77, 0.225, Math.PI, 0, 0, avatarVisual);
+            const avatarHead = new THREE.Group(); put(avatarHead, 0, 1.10, 0, 0, 0, 0, avatarVisual);
+            avatarHead.add(avatarPart(new THREE.SphereGeometry(0.205, 18, 14), AV_HAIR));
+            put(avatarPart(new THREE.SphereGeometry(0.174, 18, 14), AV_SKIN), 0, -0.01, 0.045, 0, 0, 0, avatarHead);
+            const avatarGlassMat = new THREE.LineBasicMaterial({ color: 0x182b38 });
+            for (const x of [-0.072, 0.072]) {
+                const lens = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.TorusGeometry(0.055, 0.009, 5, 16), 10), avatarGlassMat);
+                put(lens, x, 0.018, 0.205, 0, 0, 0, avatarHead);
+                put(new THREE.Mesh(new THREE.SphereGeometry(0.013, 8, 6), new THREE.MeshBasicMaterial({ color: 0x17232b })), x, 0.02, 0.214, 0, 0, 0, avatarHead);
+            }
+            put(new THREE.Line(geo([[-0.018, 0, 0], [0.018, 0, 0]]), avatarGlassMat), 0, 0.018, 0.207, 0, 0, 0, avatarHead);
+            const avatarLeftArm = new THREE.Group(), avatarRightArm = new THREE.Group();
+            put(avatarLeftArm, -0.22, 0.88, 0, 0, 0, 0, avatarVisual); put(avatarRightArm, 0.22, 0.88, 0, 0, 0, 0, avatarVisual);
+            for (const arm of [avatarLeftArm, avatarRightArm]) {
+                put(avatarPart(new THREE.CylinderGeometry(0.055, 0.047, 0.36, 7), AV_COAT), 0, -0.18, 0, 0, 0, 0, arm);
+                put(avatarPart(new THREE.SphereGeometry(0.06, 10, 8), AV_SKIN), 0, -0.39, 0, 0, 0, 0, arm);
+            }
+            const avatarLeftLeg = new THREE.Group(), avatarRightLeg = new THREE.Group();
+            put(avatarLeftLeg, -0.105, 0.52, 0, 0, 0, 0, avatarVisual); put(avatarRightLeg, 0.105, 0.52, 0, 0, 0, 0, avatarVisual);
+            for (const leg of [avatarLeftLeg, avatarRightLeg]) {
+                put(avatarPart(new THREE.CylinderGeometry(0.065, 0.055, 0.39, 7), AV_PANTS), 0, -0.19, 0, 0, 0, 0, leg);
+                put(avatarPart(new THREE.BoxGeometry(0.13, 0.09, 0.22), AV_SHOE), 0, -0.42, 0.045, 0, 0, 0, leg);
+            }
+            avatarRoot.scale.setScalar(0.92);
+            const slimePet = { pos: new THREE.Vector3(-0.62, 0, 5.72), yaw: Math.PI, speed: 0, phase: 0 };
+            let avatarWalkPhase = 0;
+            avatarRoot.add(wandRoot);
+            wandRoot.position.set(0.24, 0.82, 0.12);
             let camYaw = Math.PI, camPitch = 0.32, viewDist = 3.2, pendYaw = 0, pendPitch = 0;
             let viewMode = 'fixed';
             const FIX_LOOK = V(0, 2.2, 0); let fixYaw = Math.atan2(9.5, 11.5); let fixPitch = Math.asin(5.0 / Math.hypot(9.5, 5.0, 11.5)); let fixDist = Math.hypot(9.5, 5.0, 11.5);
@@ -9191,9 +9231,9 @@
             const menuPanel = document.getElementById('menuPanel'), houseToggle = document.getElementById('houseToggle'), viewFixedBtn = document.getElementById('viewFixedBtn'), viewTpBtn = document.getElementById('viewTpBtn'), viewFpBtn = document.getElementById('viewFpBtn'), resetBtn = document.getElementById('resetBtn');
             document.getElementById('menuDot').addEventListener('click', () => { SND.play('ui'); menuPanel.classList.toggle('open'); });
             houseToggle.addEventListener('click', () => { SND.play('ui'); fullHouse = !fullHouse; houseToggle.classList.toggle('on', fullHouse); fullHouseGroup.visible = fullHouse; dashedGroup.visible = !fullHouse; });
-            function resetSlime() { player.pos.set(0, 0, 5.2); player.vy = 0; player.yaw = Math.PI; player.moveSpeed = 0; player.onGround = true; camYaw = Math.PI; camPitch = 0.32; pendYaw = 0; pendPitch = 0; slime.squash = SLIME_FLAT; slime.squashV = 0; slime.wob = 0; slime.wobV = 0; }
-            resetBtn.addEventListener('click', () => { SND.play('ui'); resetSlime(); });
-            function setViewMode(m) { viewMode = m; viewFixedBtn.classList.toggle('on', m === 'fixed'); viewTpBtn.classList.toggle('on', m === 'tp'); viewFpBtn.classList.toggle('on', m === 'fp'); if (m === 'fixed') { if (document.pointerLockElement) document.exitPointerLock(); slimeRoot.visible = true; crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } else { slimeRoot.visible = (m !== 'fp'); if (m === 'fp') { if (IS_TOUCH) crosshairEl.classList.add('show'); else lockTipEl.classList.add('show'); } else { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } } }
+            function resetCharacters() { player.pos.set(0, 0, 5.2); player.vy = 0; player.yaw = Math.PI; player.moveSpeed = 0; player.onGround = true; slimePet.pos.set(-0.62, 0, 5.72); slimePet.yaw = Math.PI; slimePet.speed = 0; camYaw = Math.PI; camPitch = 0.18; pendYaw = 0; pendPitch = 0; slime.squash = SLIME_FLAT; slime.squashV = 0; slime.wob = 0; slime.wobV = 0; }
+            resetBtn.addEventListener('click', () => { SND.play('ui'); resetCharacters(); });
+            function setViewMode(m) { viewMode = m; viewFixedBtn.classList.toggle('on', m === 'fixed'); viewTpBtn.classList.toggle('on', m === 'tp'); viewFpBtn.classList.toggle('on', m === 'fp'); slimeRoot.visible = true; avatarRoot.visible = m !== 'fp'; if (m === 'fixed') { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } else if (m === 'fp') { if (IS_TOUCH) crosshairEl.classList.add('show'); else lockTipEl.classList.add('show'); } else { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } }
             viewFixedBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('fixed'); }); viewTpBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('tp'); }); viewFpBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('fp'); });
             const sfxToggle = document.getElementById('sfxToggle'), sfxSlider = document.getElementById('sfxSlider');
             sfxToggle.addEventListener('click', () => { const on = !SND.isEnabled(); SND.setEnabled(on); sfxToggle.classList.toggle('on', on); if (on) SND.play('ui'); });
@@ -9213,34 +9253,61 @@
                 const joyFull = Math.hypot(joyX, joyY) > 0.85; const running = !!(keys['ShiftLeft'] || keys['ShiftRight']) || sprintBtnDown || joyFull; const maxSpeed = running ? 3.2 : 1.6;
                 let tx = 0, tz = 0; if (ix !== 0 || iz !== 0) { const fx = Math.sin(camYaw), fz = Math.cos(camYaw); const rx = -Math.cos(camYaw), rz = Math.sin(camYaw); tx = (fx * iz + rx * ix) * maxSpeed; tz = (fz * iz + rz * ix) * maxSpeed; }
                 player.moveSpeed += (Math.hypot(tx, tz) - player.moveSpeed) * Math.min(1, dt * 10); const spd = player.moveSpeed; const moving = spd > 0.12;
-                if (moving) slime.pulse += dt * (2.6 + spd * 1.3);
-                const creep = moving ? 0.45 + 0.55 * Math.max(0, Math.sin(slime.pulse - 0.5)) : 1;
-                const ox = player.pos.x, oz = player.pos.z; let nx = player.pos.x + tx * dt * creep, nz = player.pos.z + tz * dt * creep;
+                const ox = player.pos.x, oz = player.pos.z; let nx = player.pos.x + tx * dt, nz = player.pos.z + tz * dt;
                 [nx, nz] = collideXZ(nx, nz, player.pos.y);[nx, nz] = railCollide(nx, nz, player.pos.y, ox, oz); player.pos.x = nx; player.pos.z = nz;
                 const ground = groundAt(player.pos.x, player.pos.z, player.pos.y);
                 if (player.pos.y <= ground + 0.001 && player.vy <= 0) { if (player.pos.y - ground > 0.5) player.vy = 0; else slimeLand(time); }
                 if (player.pos.y > ground + 0.001 || player.vy > 0) { player.vy -= 22 * dt; player.pos.y += player.vy * dt; const g2 = groundAt(player.pos.x, player.pos.z, player.pos.y); if (player.pos.y <= g2 && player.vy <= 0) slimeLand(time); else if (player.pos.y > g2) player.onGround = false; }
                 if (spd > 0.15) player.yaw = lerpAngle(player.yaw, Math.atan2(tx, tz), Math.min(1, dt * 9));
-                const breathe = 1 + Math.sin(time * 1.7) * 0.03; const pulseSq = moving ? 1 - 0.10 * Math.max(0, Math.sin(slime.pulse - 0.9)) : 1; let jumpSq = 1;
-                if (!player.onGround) jumpSq = player.vy > 2 ? 1.22 : (player.vy < -2 ? 1.12 : 1.07);
-                const targetS = SLIME_FLAT * breathe * pulseSq * jumpSq;
+
+                /* 小人步行动画 */
+                avatarWalkPhase += dt * (moving ? 5.2 + spd * 2.0 : 1.2);
+                const walkSwing = moving ? Math.sin(avatarWalkPhase) * Math.min(0.72, 0.28 + spd * 0.16) : 0;
+                avatarLeftLeg.rotation.x += (walkSwing - avatarLeftLeg.rotation.x) * Math.min(1, dt * 13);
+                avatarRightLeg.rotation.x += (-walkSwing - avatarRightLeg.rotation.x) * Math.min(1, dt * 13);
+                avatarLeftArm.rotation.x += (-walkSwing * 0.72 - avatarLeftArm.rotation.x) * Math.min(1, dt * 11);
+                avatarRightArm.rotation.x += (walkSwing * 0.72 - avatarRightArm.rotation.x) * Math.min(1, dt * 11);
+                avatarVisual.position.y = moving ? Math.abs(Math.sin(avatarWalkPhase)) * 0.025 : Math.sin(time * 1.8) * 0.008;
+                avatarHead.rotation.z = Math.sin(time * 1.4) * 0.015 + (moving ? Math.sin(avatarWalkPhase * 0.5) * 0.025 : 0);
+                avatarRoot.position.set(player.pos.x, player.pos.y, player.pos.z); avatarRoot.rotation.y = player.yaw;
+                avatarShadow.material.opacity = player.onGround ? 0.16 : Math.max(0.05, 0.16 - Math.abs(player.pos.y - ground) * 0.06);
+
+                /* 史莱姆作为独立伙伴跟随小人，不再充当玩家本体 */
+                const sideX = Math.cos(player.yaw) * 0.42, sideZ = -Math.sin(player.yaw) * 0.42;
+                const petTargetX = player.pos.x - Math.sin(player.yaw) * 0.68 + sideX;
+                const petTargetZ = player.pos.z - Math.cos(player.yaw) * 0.68 + sideZ;
+                let pdx = petTargetX - slimePet.pos.x, pdz = petTargetZ - slimePet.pos.z, petDist = Math.hypot(pdx, pdz);
+                if (petDist > 4.2 || Math.abs(player.pos.y - slimePet.pos.y) > 2.2) { slimePet.pos.set(petTargetX, player.pos.y, petTargetZ); pdx = 0; pdz = 0; petDist = 0; }
+                const petWant = Math.min(3.0, Math.max(0, (petDist - 0.34) * 4.0));
+                slimePet.speed += (petWant - slimePet.speed) * Math.min(1, dt * 8);
+                if (petDist > 0.001 && slimePet.speed > 0.02) {
+                    let pnx = slimePet.pos.x + pdx / petDist * slimePet.speed * dt, pnz = slimePet.pos.z + pdz / petDist * slimePet.speed * dt;
+                    [pnx, pnz] = collideXZ(pnx, pnz, slimePet.pos.y); slimePet.pos.x = pnx; slimePet.pos.z = pnz;
+                    slimePet.yaw = lerpAngle(slimePet.yaw, Math.atan2(pdx, pdz), Math.min(1, dt * 8));
+                }
+                const petGround = groundAt(slimePet.pos.x, slimePet.pos.z, slimePet.pos.y);
+                slimePet.pos.y += (petGround - slimePet.pos.y) * Math.min(1, dt * 9);
+                const petMoving = slimePet.speed > 0.1;
+                if (petMoving) slime.pulse += dt * (3.0 + slimePet.speed * 1.4);
+                const breathe = 1 + Math.sin(time * 1.7) * 0.03; const pulseSq = petMoving ? 1 - 0.10 * Math.max(0, Math.sin(slime.pulse - 0.9)) : 1;
+                const targetS = SLIME_FLAT * breathe * pulseSq;
                 slime.squashV += (targetS - slime.squash) * 165 * dt; slime.squashV *= Math.exp(-6.2 * dt); slime.squash += slime.squashV * dt;
                 const sy = Math.max(0.45, Math.min(1.5, slime.squash)); const sxz = (1 / Math.sqrt(sy)) * (1 + slime.wob * 0.10);
                 slime.wobV += (-slime.wob) * 55 * dt; slime.wobV *= Math.exp(-3.4 * dt); slime.wob += slime.wobV * dt; const wob = Math.max(-0.35, Math.min(0.35, slime.wob));
-                slimeRoot.position.set(player.pos.x, player.pos.y, player.pos.z); slimeRoot.rotation.y = player.yaw; slimeBody.scale.set(sxz, sy, sxz); slimeBody.position.y = SLIME_R * sy;
-                const leanT = Math.min(spd / 1.6, 1) * 0.15; slime.tiltV += (leanT - slime.tilt) * 130 * dt; slime.tiltV *= Math.exp(-5 * dt); slime.tilt += slime.tiltV * dt;
-                slimeBody.rotation.x = slime.tilt + wob * 0.35; slimeBody.rotation.z = Math.sin(time * 2.1) * 0.02 + Math.sin(slime.pulse * 0.5) * 0.035 * Math.min(spd / 1.6, 1) + wob * 0.55;
+                slimeRoot.position.copy(slimePet.pos); slimeRoot.rotation.y = slimePet.yaw; slimeBody.scale.set(sxz, sy, sxz); slimeBody.position.y = SLIME_R * sy;
+                const leanT = Math.min(slimePet.speed / 1.6, 1) * 0.15; slime.tiltV += (leanT - slime.tilt) * 130 * dt; slime.tiltV *= Math.exp(-5 * dt); slime.tilt += slime.tiltV * dt;
+                slimeBody.rotation.x = slime.tilt + wob * 0.35; slimeBody.rotation.z = Math.sin(time * 2.1) * 0.02 + Math.sin(slime.pulse * 0.5) * 0.035 * Math.min(slimePet.speed / 1.6, 1) + wob * 0.55;
                 const casting = blast.active && blast.t < T_BOOM;
                 if (casting) slime.pulse += dt * 3;
-                const wAmp = moving ? 0.013 + 0.007 * Math.min(spd / 1.6, 1) : (casting ? 0.016 : 0.005);
-                const wSpd = moving ? 7.5 : (casting ? 5 : 1.5);
+                const wAmp = petMoving ? 0.013 + 0.007 * Math.min(slimePet.speed / 1.6, 1) : (casting ? 0.016 : 0.005);
+                const wSpd = petMoving ? 7.5 : (casting ? 5 : 1.5);
                 deformSlime(time, wAmp, wSpd);
                 core.scale.setScalar(1 + 0.06 * Math.sin(time * 2.4 + slime.pulse) + (casting ? 0.15 : 0)); core.position.set(Math.sin(time * 1.3) * 0.012, 0.015 * Math.sin(time * 1.9), Math.sin(time * 1.1) * 0.010);
                 for (const b of bubbles) { const t = (time * 0.22 + b.userData.ph) % 1; const r2 = b.userData.rr * (1 - t * 0.45); b.position.set(Math.cos(b.userData.ang) * r2, -0.12 + t * 0.24, Math.sin(b.userData.ang) * r2); b.scale.setScalar(0.5 + 0.5 * Math.sin(t * Math.PI)); }
                 const shs = 1 / Math.sqrt(sy); slimeShadow.scale.set(shs, shs, 1); slimeShadow.material.opacity = 0.10 + 0.10 / sy;
                 if (viewMode === 'fixed') { const cp = Math.cos(fixPitch), sp = Math.sin(fixPitch); camera.position.set(FIX_LOOK.x + Math.sin(fixYaw) * cp * fixDist, FIX_LOOK.y + sp * fixDist, FIX_LOOK.z + Math.cos(fixYaw) * cp * fixDist); camera.lookAt(FIX_LOOK); }
-                else if (viewMode === 'fp') { camera.position.set(player.pos.x, player.pos.y + 0.30, player.pos.z); camera.lookAt(player.pos.x + Math.sin(camYaw) * Math.cos(camPitch) * 10, player.pos.y + 0.30 + Math.sin(camPitch) * 10, player.pos.z + Math.cos(camYaw) * Math.cos(camPitch) * 10); }
-                else { const cp = Math.cos(camPitch), sp = Math.sin(camPitch); const px = player.pos.x - Math.sin(camYaw) * cp * viewDist, py = player.pos.y + 0.34 + sp * viewDist, pz = player.pos.z - Math.cos(camYaw) * cp * viewDist; camera.position.set(px, Math.max(py, 0.25), pz); camera.lookAt(player.pos.x, player.pos.y + 0.25, player.pos.z); }
+                else if (viewMode === 'fp') { camera.position.set(player.pos.x, player.pos.y + 1.04, player.pos.z); camera.lookAt(player.pos.x + Math.sin(camYaw) * Math.cos(camPitch) * 10, player.pos.y + 1.04 + Math.sin(camPitch) * 10, player.pos.z + Math.cos(camYaw) * Math.cos(camPitch) * 10); }
+                else { const cp = Math.cos(camPitch), sp = Math.sin(camPitch); const px = player.pos.x - Math.sin(camYaw) * cp * viewDist, py = player.pos.y + 0.72 + sp * viewDist, pz = player.pos.z - Math.cos(camYaw) * cp * viewDist; camera.position.set(px, Math.max(py, 0.55), pz); camera.lookAt(player.pos.x, player.pos.y + 0.68, player.pos.z); }
             }
 
             /* ==================== 天空·时间·天气系统 ==================== */

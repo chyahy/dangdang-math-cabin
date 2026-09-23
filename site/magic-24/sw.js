@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'dangdang-magic-24-2026.09.21.2';
+const CACHE_VERSION = 'dangdang-magic-24-2026.09.23.1';
 
 self.addEventListener('install', () => {
     self.skipWaiting();
