@@ -8,6 +8,7 @@
 {
   "title": "第 1 次作业",
   "date": "2026-09-23",
+  "pages": 3,
   "pdf": "pdf/ziqing-2026-09-23.pdf",
   "cover": "covers/ziqing-2026-09-23.jpg"
 }

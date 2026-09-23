@@ -1,6 +1,8 @@
 {
   "students": [
-    { "id": "ziqing", "name": "梓晴", "assignments": [] },
+    { "id": "ziqing", "name": "梓晴", "assignments": [
+      { "title": "第 1 次作业 · 数图形", "pages": 3, "pdf": "pdf/ziqing-01.pdf", "cover": "covers/ziqing-01.jpg" }
+    ] },
     { "id": "ruohan", "name": "若涵", "assignments": [] },
     { "id": "bingze", "name": "秉泽", "assignments": [] },
     { "id": "zeming", "name": "泽铭", "assignments": [] },

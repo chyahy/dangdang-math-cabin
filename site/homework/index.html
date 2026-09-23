@@ -117,7 +117,7 @@
         else cover.textContent = 'PDF 作业';
         const info = document.createElement('div'); info.className = 'assignmentInfo';
         const label = document.createElement('strong'); label.textContent = item.title || '作业';
-        const date = document.createElement('span'); date.textContent = item.date || '点击查看 PDF';
+        const date = document.createElement('span'); date.textContent = [item.date, item.pages ? item.pages + ' 页' : ''].filter(Boolean).join(' · ') || '点击查看 PDF';
         info.append(label, date); card.append(cover, info); card.addEventListener('click', () => showPdf(item)); grid.append(card);
       }
       sheet.append(grid);
