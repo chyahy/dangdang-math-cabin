@@ -1262,7 +1262,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.09.21.2';
+            const PAGE_VERSION = '2026.09.23.2';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1272,6 +1272,8 @@
                     const latest = await response.json();
                     if (latest.version && latest.version !== PAGE_VERSION) {
                         const freshUrl = new URL(location.href);
+                        // 已尝试加载这个版本时停止重试，避免缓存延迟造成刷新循环。
+                        if (freshUrl.searchParams.get('version') === latest.version) return;
                         freshUrl.searchParams.set('version', latest.version);
                         location.replace(freshUrl.href);
                     }
