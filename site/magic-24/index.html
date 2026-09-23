@@ -1262,7 +1262,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.09.23.5';
+            const PAGE_VERSION = '2026.09.23.6';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1534,6 +1534,7 @@
             const CREAM = LITMAT(0xf0e3cb);
             const BED_COVER = LITMAT(0x698b92);
             const BRASS = LITMAT(0xc49b4d);
+            const MEADOW = LITMAT(0xe4eadd);
             function paint(o, mat) {
                 o.traverse(part => { if (part.isMesh && part.material === FILL) part.material = mat; });
                 return o;
@@ -1551,7 +1552,7 @@
                 L.quaternion.setFromUnitVectors(V(0, 1, 0), v.normalize()); (parent || scene).add(L); return L;
             }
 
-            put(new THREE.Mesh(new THREE.PlaneGeometry(130, 130), FILL), 0, -0.01, 0, -Math.PI / 2, 0, 0);
+            put(new THREE.Mesh(new THREE.PlaneGeometry(130, 130), MEADOW), 0, -0.01, 0, -Math.PI / 2, 0, 0);
             for (let z = -9; z <= 9; z += 1.5) put(line([[-10, 0.01, z], [10, 0.01, z]]), 0, 0, 0);
             put(new THREE.Mesh(new THREE.PlaneGeometry(7.96, 7.96), FLOOR_WOOD), 0, 0.014, 0, -Math.PI / 2, 0, 0);
             for (let z = -3.6; z <= 3.61; z += 0.8) {
@@ -1593,6 +1594,7 @@
             const D_HALF = 4;
             logWall('x', 4, D_HALF, [DOOR_HOLE, WIN_F_L, WIN_F_R], 0.18);
             logWall('z', -4, D_HALF, [WIN_LEFT], 0);
+            put(paint(log(8.2, 0.08), WALL_WOOD_DARK), 0, 4.39, 4, 0, 0, Math.PI / 2);
 
             const dashedGroup = new THREE.Group(); scene.add(dashedGroup);
             const WX = 4.18;
@@ -1643,6 +1645,7 @@
             {
                 const WIN_R = { c: -1.5, hw: 0.52, y0: 1.1, y1: 2.1 }; const WIN_B = { c: 1.5, hw: 0.52, y0: 1.1, y1: 2.1 };
                 logWall('z', 4, D_HALF, [WIN_R], 0.18, fullHouseGroup); logWall('x', -4, D_HALF, [WIN_B], 0.18, fullHouseGroup); logGable(-4, [], fullHouseGroup);
+                put(paint(log(8.2, 0.08), WALL_WOOD_DARK), 0, 4.39, -4, 0, 0, Math.PI / 2, fullHouseGroup);
                 put(paint(box(slopeLen, 0.08, roofSpan), ROOF_SLATE), eaveX / 2, (eaveY + ridgeY) / 2 + 0.04, 0, 0, 0, -roofAng, fullHouseGroup);
                 for (let t = 0.14; t < 0.96; t += 0.145) { const px = eaveX - t * eaveX, py = eaveY + t * (ridgeY - eaveY) + 0.13; put(paint(log(roofSpan, 0.09), ROOF_BEAM), px, py, 0, Math.PI / 2, 0, 0, fullHouseGroup); }
                 put(paint(log(slopeLen + 0.15, 0.1), ROOF_BEAM), eaveX / 2, (eaveY + ridgeY) / 2 + 0.02, 4.55, 0, 0, -(roofAng - Math.PI / 2), fullHouseGroup);
@@ -1782,43 +1785,50 @@
             }
             scene.add(buildStairs());
 
-            put(box(1.25, 0.06, 1.0), -0.58, 2.98, 4.55, 0, 0, 0.35); put(box(1.25, 0.06, 1.0), 0.58, 2.98, 4.55, 0, 0, -0.35);
-            put(log(2.78, 0.06), -1.15, 1.39, 4.95, 0, 0, 0.03); put(log(2.78, 0.06), 1.15, 1.39, 4.95, 0, 0, -0.03);
-            put(line([[-1.15, 2.5, 4.95], [-0.7, 2.92, 4.55]]), 0, 0, 0); put(line([[1.15, 2.5, 4.95], [0.7, 2.92, 4.55]]), 0, 0, 0); put(box(1.4, 0.03, 0.6), 0, 0.02, 4.45);
-            for (let i = 0; i < 4; i++) put(box(0.7, 0.05, 0.5), (i % 2) * 0.25 - 0.1, 0.025, 5.1 + i * 0.85);
+            put(paint(box(1.25, 0.06, 1.0), ROOF_SLATE), -0.58, 2.98, 4.55, 0, 0, 0.35); put(paint(box(1.25, 0.06, 1.0), ROOF_SLATE), 0.58, 2.98, 4.55, 0, 0, -0.35);
+            put(woodLog(2.78, 0.06), -1.15, 1.39, 4.95, 0, 0, 0.03); put(woodLog(2.78, 0.06), 1.15, 1.39, 4.95, 0, 0, -0.03);
+            put(line([[-1.15, 2.5, 4.95], [-0.7, 2.92, 4.55]]), 0, 0, 0); put(line([[1.15, 2.5, 4.95], [0.7, 2.92, 4.55]]), 0, 0, 0); put(paint(box(1.4, 0.03, 0.6), STONE), 0, 0.02, 4.45);
+            for (let i = 0; i < 4; i++) put(paint(box(0.7, 0.05, 0.5), STONE), (i % 2) * 0.25 - 0.1, 0.025, 5.1 + i * 0.85);
 
             const signG = new THREE.Group(); signG.position.set(3.1, 0, 6.3); signG.rotation.y = -0.45; scene.add(signG);
-            put(edge(new THREE.CylinderGeometry(0.035, 0.05, 1.5, 8)), 0, 0.75, 0, 0.04, 0, 0.05, signG);
+            put(paint(edge(new THREE.CylinderGeometry(0.035, 0.05, 1.5, 8)), FURNITURE_WOOD), 0, 0.75, 0, 0.04, 0, 0.05, signG);
             const signCanvas = document.createElement('canvas'); signCanvas.width = 256; signCanvas.height = 128; const sctx = signCanvas.getContext('2d');
             const signTexture = new THREE.CanvasTexture(signCanvas); let signText = '当当老师小课堂';
             function drawSign(text) { const n = Math.max(text.length, 1); const size = n <= 4 ? 46 : n <= 6 ? 36 : n <= 8 ? 28 : 22; sctx.fillStyle = '#ffffff'; sctx.fillRect(0, 0, 256, 128); sctx.strokeStyle = '#111111'; sctx.lineWidth = 5; sctx.strokeRect(5, 5, 246, 118); sctx.lineWidth = 1.5; sctx.strokeRect(14, 14, 228, 100); sctx.fillStyle = '#111111'; sctx.font = 'bold ' + size + 'px "Microsoft YaHei", monospace'; sctx.textAlign = 'center'; sctx.textBaseline = 'middle'; sctx.fillText(text, 128, 66); signTexture.needsUpdate = true; }
             drawSign(signText);
-            const signSideMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); const signFaceMat = new THREE.MeshBasicMaterial({ map: signTexture });
+            const signSideMat = new THREE.MeshBasicMaterial({ color: 0x946d49 }); const signFaceMat = new THREE.MeshBasicMaterial({ map: signTexture });
             const signBoardG = new THREE.Group(); signBoardG.position.set(0, 1.5, 0.10); signBoardG.rotation.z = 0.07; signBoardG.rotation.x = 0.03; signG.add(signBoardG);
-            { const boardMesh = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.48, 0.045), [signSideMat, signSideMat, signSideMat, signSideMat, signFaceMat, signSideMat]); signBoardG.add(boardMesh); signBoardG.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.85, 0.48, 0.045)), MAT)); for (const [nx, ny] of [[-0.36, 0.19], [0.36, 0.19], [-0.36, -0.19], [0.36, -0.19]]) put(edge(new THREE.CylinderGeometry(0.008, 0.008, 0.014, 6)), nx, ny, 0.028, 0, 0, 0, signBoardG); }
+            { const boardMesh = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.48, 0.045), [signSideMat, signSideMat, signSideMat, signSideMat, signFaceMat, signSideMat]); signBoardG.add(boardMesh); signBoardG.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(0.85, 0.48, 0.045)), MAT)); for (const [nx, ny] of [[-0.36, 0.19], [0.36, 0.19], [-0.36, -0.19], [0.36, -0.19]]) put(paint(edge(new THREE.CylinderGeometry(0.008, 0.008, 0.014, 6)), BRASS), nx, ny, 0.028, 0, 0, 0, signBoardG); }
             function openSignEditor() { if (document.pointerLockElement) document.exitPointerLock(); const ed = document.getElementById('signEditor'); const inp = document.getElementById('signInput'); inp.value = signText; ed.classList.add('show'); inp.focus(); inp.select(); }
             signG.userData.aimLabel = '编辑路牌文字'; regMagic(signG, openSignEditor);
 
             put(edge(new THREE.CylinderGeometry(0.02, 0.02, 0.7, 6)), 0, ridgeY + 0.4, 0); put(edge(new THREE.CylinderGeometry(0.015, 0.015, 0.5, 6)), 0, ridgeY + 0.55, 0, 0, 0, Math.PI / 2); put(edge(new THREE.ConeGeometry(0.06, 0.16, 6)), 0.3, ridgeY + 0.55, 0, 0, 0, -Math.PI / 2); put(edge(new THREE.ConeGeometry(0.06, 0.14, 4)), -0.28, ridgeY + 0.55, 0, 0, 0, Math.PI / 2);
 
             const GATE_L = -1.4, GATE_R = 1.4;
-            for (let x = -7; x <= 7; x += 0.8) { if (x > GATE_L - 0.1 && x < GATE_R + 0.1) continue; const picket = new THREE.Group(); put(box(0.12, 0.9, 0.06), 0, 0.45, 0, 0, 0, 0, picket); put(edge(new THREE.ConeGeometry(0.09, 0.22, 4)), 0, 1.0, 0, 0, 0, 0, picket); put(picket, x, 0, 7.5); }
-            for (const cy of [0.75, 0.35]) { const len = 7 - GATE_R; put(log(len, 0.04), (GATE_L - 7) / 2, cy, 7.5, 0, 0, Math.PI / 2); put(log(len, 0.04), (GATE_R + 7) / 2, cy, 7.5, 0, 0, Math.PI / 2); }
-            for (const gx of [GATE_L - 0.08, GATE_R + 0.08]) { put(box(0.14, 1.15, 0.1), gx, 0.575, 7.5); put(edge(new THREE.ConeGeometry(0.1, 0.2, 4)), gx, 1.25, 7.5); }
-            function mushroom(x, z, s) { const g = new THREE.Group(); put(edge(new THREE.CylinderGeometry(0.05 * s, 0.08 * s, 0.3 * s, 8)), 0, 0.15 * s, 0, 0, 0, 0, g); put(edge(new THREE.SphereGeometry(0.22 * s, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2)), 0, 0.28 * s, 0, 0, 0, 0, g); put(g, x, 0, z); }
+            for (let x = -7; x <= 7; x += 0.8) { if (x > GATE_L - 0.1 && x < GATE_R + 0.1) continue; const picket = new THREE.Group(); put(woodBox(0.12, 0.9, 0.06), 0, 0.45, 0, 0, 0, 0, picket); put(paint(edge(new THREE.ConeGeometry(0.09, 0.22, 4)), FURNITURE_WOOD), 0, 1.0, 0, 0, 0, 0, picket); put(picket, x, 0, 7.5); }
+            for (const cy of [0.75, 0.35]) { const len = 7 - GATE_R; put(woodLog(len, 0.04), (GATE_L - 7) / 2, cy, 7.5, 0, 0, Math.PI / 2); put(woodLog(len, 0.04), (GATE_R + 7) / 2, cy, 7.5, 0, 0, Math.PI / 2); }
+            for (const gx of [GATE_L - 0.08, GATE_R + 0.08]) { put(woodBox(0.14, 1.15, 0.1), gx, 0.575, 7.5); put(paint(edge(new THREE.ConeGeometry(0.1, 0.2, 4)), FURNITURE_WOOD), gx, 1.25, 7.5); }
+            const MUSHROOM_RED = LITMAT(0xb96259);
+            function mushroom(x, z, s) { const g = new THREE.Group(); put(paint(edge(new THREE.CylinderGeometry(0.05 * s, 0.08 * s, 0.3 * s, 8)), CREAM), 0, 0.15 * s, 0, 0, 0, 0, g); put(paint(edge(new THREE.SphereGeometry(0.22 * s, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2)), MUSHROOM_RED), 0, 0.28 * s, 0, 0, 0, 0, g); put(g, x, 0, z); }
             mushroom(-5.8, 6.2, 1.2); mushroom(-5.2, 6.8, 0.8); mushroom(5.6, 6.5, 1.0);
 
             /* ========================================================== */
             /* ============ 室外场景：森林 · 草地 · 石头 · 花 · 萤火虫 ============ */
             /* ========================================================== */
-            const staticFillGeoms = [], staticEdgeGeoms = [];
-            function addStatic(g, x, y, z, rx, ry, rz, sx, sy, sz) {
+            const staticFillGeoms = new Map(), staticEdgeGeoms = [];
+            const STATIC_MATS = {
+                trunk: LITMAT(0x836648), pineLow: LITMAT(0x567e68), pineMid: LITMAT(0x628a73),
+                pineHigh: LITMAT(0x73977d), grass: LITMAT(0x82a477), stone: LITMAT(0xa5a7a0),
+                stump: LITMAT(0x967253), path: LITMAT(0xc4af91), stem: LITMAT(0x6e9874)
+            };
+            function addStatic(g, x, y, z, rx, ry, rz, sx, sy, sz, colorKey = 'stone') {
                 const m = new THREE.Matrix4();
                 const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx || 0, ry || 0, rz || 0));
                 const s = (sx === undefined) ? 1 : sx;
                 m.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s, (sy === undefined) ? s : sy, (sz === undefined) ? s : sz));
                 const g2 = g.clone().applyMatrix4(m);
-                staticFillGeoms.push(g2);
+                if (!staticFillGeoms.has(colorKey)) staticFillGeoms.set(colorKey, []);
+                staticFillGeoms.get(colorKey).push(g2);
                 staticEdgeGeoms.push(new THREE.EdgesGeometry(g2, 1));
             }
 
@@ -1850,11 +1860,11 @@
                         if (Math.abs(tx) < 2.4 && tz > 14) continue;
                         const s = 1.2 + ((rr - 20.8) / 13.7) * 0.5 + Math.random() * 0.75;
                         const ry = Math.random() * Math.PI * 2;
-                        addStatic(TREE_TRUNK, tx, 0.65 * s, tz, 0, ry, 0, s, s, s);
-                        addStatic(TREE_C1, tx, 1.78 * s, tz, 0, ry, 0, s, s, s);
-                        addStatic(TREE_C2, tx, 2.30 * s, tz, 0, ry, 0, s, s, s);
-                        addStatic(TREE_C3, tx, 2.82 * s, tz, 0, ry, 0, s, s, s);
-                        addStatic(TREE_C4, tx, 3.35 * s, tz, 0, ry, 0, s, s, s);
+                        addStatic(TREE_TRUNK, tx, 0.65 * s, tz, 0, ry, 0, s, s, s, 'trunk');
+                        addStatic(TREE_C1, tx, 1.78 * s, tz, 0, ry, 0, s, s, s, 'pineLow');
+                        addStatic(TREE_C2, tx, 2.30 * s, tz, 0, ry, 0, s, s, s, 'pineMid');
+                        addStatic(TREE_C3, tx, 2.82 * s, tz, 0, ry, 0, s, s, s, 'pineLow');
+                        addStatic(TREE_C4, tx, 3.35 * s, tz, 0, ry, 0, s, s, s, 'pineHigh');
                     }
                 }
             }
@@ -1869,7 +1879,7 @@
                     const lean = 0.18 + Math.random() * 0.22;
                     addStatic(GRASS_BLADE, x + bx, h * 0.5 - 0.01, z + bz,
                         Math.cos(ang) * lean, Math.random() * Math.PI, Math.sin(ang) * lean,
-                        1, h, 1);
+                        1, h, 1, 'grass');
                 }
             }
 
@@ -1892,13 +1902,13 @@
                 g.computeVertexNormals();
                 addStatic(g, x, s * 0.35, z,
                     (Math.random() - 0.5) * 0.6, Math.random() * Math.PI, (Math.random() - 0.5) * 0.6,
-                    s * (0.85 + Math.random() * 0.5), s * (0.6 + Math.random() * 0.5), s * (0.85 + Math.random() * 0.5));
+                    s * (0.85 + Math.random() * 0.5), s * (0.6 + Math.random() * 0.5), s * (0.85 + Math.random() * 0.5), 'stone');
             }
 
             const STUMP_G = new THREE.CylinderGeometry(0.24, 0.3, 0.55, 9);
-            for (const [sx, sz] of STUMPS) addStatic(STUMP_G, sx, 0.26, sz, 0, Math.random() * Math.PI, 0, 1, 1, 1);
+            for (const [sx, sz] of STUMPS) addStatic(STUMP_G, sx, 0.26, sz, 0, Math.random() * Math.PI, 0, 1, 1, 1, 'stump');
             for (const [px, pz] of [[0, 5.55], [0.34, 6.15], [-0.18, 6.75], [0.22, 7.32]]) {
-                addStatic(new THREE.BoxGeometry(0.62, 0.05, 0.46), px, 0.028, pz, 0, (Math.random() - 0.5) * 0.35, 0, 1, 1, 1);
+                addStatic(new THREE.BoxGeometry(0.62, 0.05, 0.46), px, 0.028, pz, 0, (Math.random() - 0.5) * 0.35, 0, 1, 1, 1, 'path');
             }
 
             {
@@ -1927,7 +1937,7 @@
                     const x = (Math.random() - 0.5) * 30, z = (Math.random() - 0.5) * 30;
                     if (Math.abs(x) > 15 || Math.abs(z) > 15) continue;
                     if (!yardSpotFree(x, z)) continue;
-                    addStatic(new THREE.CylinderGeometry(0.012, 0.018, 0.24, 5), x, 0.12, z, 0, 0, 0, 1, 1, 1);
+                    addStatic(new THREE.CylinderGeometry(0.012, 0.018, 0.24, 5), x, 0.12, z, 0, 0, 0, 1, 1, 1, 'stem');
                     const hex = FLOWER_COLORS[fN % FLOWER_COLORS.length];
                     const mat = new THREE.MeshBasicMaterial({ color: hex });
                     flowerMats.push({ mat, base: new THREE.Color(hex) });
@@ -1940,24 +1950,26 @@
             }
 
             (function mergeStatic() {
-                let vTotal = 0, iTotal = 0;
-                for (const g of staticFillGeoms) { vTotal += g.attributes.position.count; iTotal += g.index ? g.index.count : g.attributes.position.count; }
-                const pos = new Float32Array(vTotal * 3), nor = new Float32Array(vTotal * 3);
-                const idx = new Uint32Array(iTotal);
-                let vo = 0, io = 0;
-                for (const g of staticFillGeoms) {
-                    pos.set(g.attributes.position.array, vo * 3);
-                    if (g.attributes.normal) nor.set(g.attributes.normal.array, vo * 3);
-                    const vc = g.attributes.position.count;
-                    if (g.index) { const ia = g.index.array; for (let i = 0; i < ia.length; i++) idx[io + i] = ia[i] + vo; io += ia.length; }
-                    else { for (let i = 0; i < vc; i++) idx[io + i] = i + vo; io += vc; }
-                    vo += vc;
+                for (const [colorKey, geoms] of staticFillGeoms) {
+                    let vTotal = 0, iTotal = 0;
+                    for (const g of geoms) { vTotal += g.attributes.position.count; iTotal += g.index ? g.index.count : g.attributes.position.count; }
+                    const pos = new Float32Array(vTotal * 3), nor = new Float32Array(vTotal * 3);
+                    const idx = new Uint32Array(iTotal);
+                    let vo = 0, io = 0;
+                    for (const g of geoms) {
+                        pos.set(g.attributes.position.array, vo * 3);
+                        if (g.attributes.normal) nor.set(g.attributes.normal.array, vo * 3);
+                        const vc = g.attributes.position.count;
+                        if (g.index) { const ia = g.index.array; for (let i = 0; i < ia.length; i++) idx[io + i] = ia[i] + vo; io += ia.length; }
+                        else { for (let i = 0; i < vc; i++) idx[io + i] = i + vo; io += vc; }
+                        vo += vc;
+                    }
+                    const fillGeo = new THREE.BufferGeometry();
+                    fillGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                    fillGeo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+                    fillGeo.setIndex(new THREE.BufferAttribute(idx, 1));
+                    scene.add(new THREE.Mesh(fillGeo, STATIC_MATS[colorKey]));
                 }
-                const fillGeo = new THREE.BufferGeometry();
-                fillGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-                fillGeo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
-                fillGeo.setIndex(new THREE.BufferAttribute(idx, 1));
-                scene.add(new THREE.Mesh(fillGeo, FILL));
                 let eTotal = 0;
                 for (const g of staticEdgeGeoms) eTotal += g.attributes.position.count;
                 const epos = new Float32Array(eTotal * 3);
@@ -3899,7 +3911,8 @@
 
             /* —— 平行与垂直实验室：二楼后墙的便携尺规展示架 —— */
             const geometryG = new THREE.Group();
-            const GEOMETRY_HOME = V(0.45, FY + 1.48, -3.92),GEOMETRY_ROT_X=Math.PI/2;
+            // 后墙圆木内表面约为 z=-3.85，教具背面留出间隙，完整房屋模式也不穿墙。
+            const GEOMETRY_HOME = V(0.45, FY + 0.95, -3.74),GEOMETRY_ROT_X=Math.PI/2;
             geometryG.position.copy(GEOMETRY_HOME);
             geometryG.rotation.x=GEOMETRY_ROT_X;
             scene.add(geometryG);
@@ -3993,7 +4006,7 @@
 
             /* —— 和倍差倍课堂：二楼后墙的份数图卷轴 —— */
             const multipleG = new THREE.Group();
-            const MULTIPLE_HOME = V(-0.72, FY + 1.52, -3.92), MULTIPLE_ROT_X = Math.PI / 2;
+            const MULTIPLE_HOME = V(-0.72, FY + 0.97, -3.74), MULTIPLE_ROT_X = Math.PI / 2;
             multipleG.position.copy(MULTIPLE_HOME);multipleG.rotation.x=MULTIPLE_ROT_X;scene.add(multipleG);
             const multiplePaper = new THREE.Mesh(new THREE.BoxGeometry(.86,.035,.56),LITMAT(0xfff4d5));
             multiplePaper.add(new THREE.LineSegments(new THREE.EdgesGeometry(multiplePaper.geometry),new THREE.LineBasicMaterial({color:0x9b4d3a})));
@@ -7283,7 +7296,7 @@
             /* 18.13 前墙挂画（镜子旁，点击编辑链接，支持 gif 动图） */
             /* ========================================================== */
             const picG = new THREE.Group();
-            picG.position.set(1.45, FY + 1.55, 3.82);
+            picG.position.set(1.45, FY + 1.55, 3.74);
             picG.rotation.y = Math.PI;
             scene.add(picG);
             {
@@ -9892,6 +9905,17 @@
                     if (menuPanel.classList.contains('open') && !draggingTime) timeSlider.value = hour;
                 }
             }
+
+            // 纸张、陶器与浅色木饰等仍使用默认白色的静态小物件，统一落到暖象牙色；
+            // 已有专属材质的玻璃、金属、彩色教具和角色不受影响。
+            scene.updateMatrixWorld(true);
+            const remainingPos = new THREE.Vector3();
+            scene.traverse(part => {
+                if (!part.isMesh || part.material !== FILL) return;
+                part.getWorldPosition(remainingPos);
+                if (Math.abs(remainingPos.x) < 5.5 && Math.abs(remainingPos.z) < 5.5 && remainingPos.y < 8)
+                    part.material = CREAM;
+            });
 
             let lastT = 0;
             let ptLantern = 1, ptKot = 1, ptMc = 0, ptCb = 0, ptPlant = 0;
