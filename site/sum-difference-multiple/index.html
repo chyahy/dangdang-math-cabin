@@ -26,9 +26,46 @@
     @media(max-width:820px){.hero,.lesson,.practice-grid{grid-template-columns:1fr}.stamp-card{padding:18px;gap:18px}.teacher-photo{width:104px;height:104px;flex-basis:104px;border-width:4px;border-radius:20px}.stamp{width:116px;padding:11px;font-size:13px}.lesson-copy{border-right:0;border-bottom:1px solid var(--line)}.problem{min-height:auto}.board{min-height:430px}.steps{grid-template-columns:1fr}.step{padding:10px 13px}.top{padding:16px}.brand-mark{width:48px;height:48px}.home-link{font-size:13px;padding:8px 10px}.bar-row{grid-template-columns:62px 1fr}.brace{margin-left:74px}}
     @media(max-width:480px){main{width:min(100% - 18px,1160px);margin-top:12px}.intro,.lesson-copy,.board,.practice{padding:20px}.intro h1{font-size:42px}.tabs{gap:8px}.tab{padding:14px 8px;font-size:17px}.segments{--bar-gap:3px}.segment{height:46px;font-size:13px}.segments.has-difference:before{top:-35px;font-size:12px}.fields{grid-template-columns:1fr}.practice-head{display:block}.brand strong{font-size:20px}.brand small{font-size:11px}.home-link span{display:none}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+    body.assessment-locked .top,body.assessment-locked main,body.assessment-locked footer{display:none}
+    #assessmentGate{display:none;min-height:100vh;padding:clamp(18px,4vw,48px);place-items:center}
+    body.assessment-locked #assessmentGate{display:grid}
+    .assessment-card{width:min(900px,100%);display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:clamp(20px,4vw,44px);align-items:center;background:var(--paper);border:2px solid var(--navy);border-radius:25px;padding:clamp(24px,4vw,48px);box-shadow:10px 12px 0 rgba(23,59,87,.12)}
+    .assessment-kicker{font-size:14px;letter-spacing:.18em;font-weight:900;color:var(--mint)}
+    .assessment-card h1{font:900 clamp(34px,5vw,58px)/1.18 "STKaiti","KaiTi",serif;color:var(--navy);margin:14px 0 18px}
+    .assessment-card p{line-height:1.8;color:#4a5961;margin:0 0 22px}
+    .assessment-card ol{margin:0 0 25px;padding-left:1.5em;line-height:1.9;font-weight:700}
+    .assessment-card li::marker{color:var(--red);font-weight:900}
+    .assessment-link{display:inline-block;padding:10px 15px;background:#e3f1ee;border-radius:10px;color:#116b68;text-decoration:none;font-weight:900;margin-bottom:25px}
+    .assessment-form label{display:block;font-weight:900;margin-bottom:8px}
+    .assessment-form-row{display:flex;gap:10px}
+    .assessment-form input{width:min(220px,100%);min-width:0;padding:12px 14px;font-size:23px;letter-spacing:.22em;border:2px solid #b7c4c8;border-radius:12px;color:var(--navy);background:#fff}
+    .assessment-form button{border:0;border-radius:12px;background:var(--red);color:#fff;padding:12px 22px;font-weight:900;white-space:nowrap}
+    #assessmentError{min-height:1.6em;color:#a8372e;font-weight:700;margin-top:8px}
+    .assessment-qr{border:1px solid #d6cbb7;border-radius:18px;background:#fff;padding:15px;text-align:center;box-shadow:5px 6px 0 #eadfca}
+    .assessment-qr-window{width:100%;aspect-ratio:1.08;overflow:hidden}
+    .assessment-qr img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+    .assessment-qr figcaption{font-weight:900;color:var(--navy);padding-top:8px}
+    @media(max-width:700px){.assessment-card{grid-template-columns:1fr}.assessment-qr{grid-row:1;width:min(280px,100%);justify-self:center}.assessment-card h1{font-size:38px}.assessment-form-row{flex-wrap:wrap}.assessment-form input{flex:1}.assessment-form button{flex:1}}
   </style>
 </head>
-<body>
+<body class="assessment-locked">
+  <section id="assessmentGate" aria-labelledby="assessmentTitle">
+    <div class="assessment-card">
+      <div>
+        <div class="assessment-kicker">鲁老师 × 当当老师 · 课前测评</div>
+        <h1 id="assessmentTitle">先测一测，再学和倍差倍</h1>
+        <p>请完成测评后，输入提交成功页显示的通关码，才能打开课堂。</p>
+        <ol><li>用手机扫描右侧二维码；手机上可直接点“打开测评”。</li><li>填写并提交测评，记下成功页的 6 位通关码。</li><li>回到这里输入通关码，进入课程。</li></ol>
+        <a class="assessment-link" href="https://qr61.cn/obbym4/qoN3f6f" target="_blank" rel="noopener noreferrer">打开测评 ↗</a>
+        <form class="assessment-form" id="assessmentForm">
+          <label for="assessmentCode">提交后获得的通关码</label>
+          <div class="assessment-form-row"><input id="assessmentCode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="输入 6 位数字" required><button type="submit">进入课堂</button></div>
+          <div id="assessmentError" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+      <figure class="assessment-qr"><div class="assessment-qr-window"><img src="assessment-qr.png" alt="课前测评二维码"></div><figcaption>扫码完成课前测评</figcaption></figure>
+    </div>
+  </section>
   <header class="top">
     <div class="brand"><div class="brand-mark"><span>鲁×当</span></div><div><small>鲁老师×当当老师</small><strong>把数学画出来</strong></div><a class="home-link" href="../magic-24/"><span>返回</span> 数学小屋</a></div>
   </header>
@@ -45,6 +82,29 @@
     <section class="paper practice" id="practice"><div class="practice-head"><div><div class="section-kicker">轮到你来画</div><h2 id="practiceTitle">和倍问题练习</h2></div><div class="progress" id="practiceProgress"></div></div><div class="practice-grid"><div><div class="practice-question" id="practiceQuestion"></div><div class="mini-bars"><div class="mini-line"><b id="pSmallName"></b><span class="mini-piece"></span></div><div class="mini-line large" id="pLargeBar"><b id="pLargeName"></b></div><div class="mini-difference hide" id="miniDifference"></div></div></div><div><div class="fields"><div class="field"><label id="smallLabel" for="smallAnswer"></label><input id="smallAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div><div class="field"><label id="largeLabel" for="largeAnswer"></label><input id="largeAnswer" inputmode="numeric" autocomplete="off" placeholder="填数字"></div></div><div class="check-row"><button class="primary" id="checkAnswer">检查答案</button><button class="secondary" id="showAnswer">看看答案</button><button class="secondary" id="clearAnswer">清空</button></div><div class="feedback" id="feedback" aria-live="polite"></div></div></div><div class="practice-nav"><button class="round" id="prevPractice">‹ 上一题</button><div class="dots" id="dots" aria-hidden="true"></div><button class="round" id="nextPractice">下一题 ›</button></div></section>
   </main>
   <footer>鲁老师×当当老师 · 让每一份都看得见</footer>
+  <script>
+    (() => {
+      const ACCESS_CODE_SHA256 = '882b620e040c3b9e0fadd33f11fb7e20c626671c6f9877d9b9f850ec23c218a3';
+      const SESSION_KEY = 'sum-difference-assessment-B-2026-09';
+      const form = document.getElementById('assessmentForm');
+      const input = document.getElementById('assessmentCode');
+      const error = document.getElementById('assessmentError');
+      const unlock = () => { document.body.classList.remove('assessment-locked'); document.querySelector('main').removeAttribute('aria-hidden'); window.scrollTo(0, 0); };
+      document.querySelector('main').setAttribute('aria-hidden', 'true');
+      try { if (sessionStorage.getItem(SESSION_KEY) === ACCESS_CODE_SHA256) unlock(); } catch (_) {}
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const value = input.value.trim();
+        if (!/^\d{6}$/.test(value)) { error.textContent = '请输入提交成功页显示的 6 位数字。'; return; }
+        if (!window.crypto?.subtle) { error.textContent = '此浏览器无法验证通关码，请用线上链接打开。'; return; }
+        const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+        const hash = Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, '0')).join('');
+        if (hash !== ACCESS_CODE_SHA256) { error.textContent = '通关码不对，请查看测评提交成功页。'; input.select(); return; }
+        try { sessionStorage.setItem(SESSION_KEY, hash); } catch (_) {}
+        error.textContent = ''; unlock();
+      });
+    })();
+  </script>
   <script>
   (()=>{
     const data={
