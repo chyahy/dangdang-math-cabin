@@ -1306,7 +1306,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.10.10.1';
+            const PAGE_VERSION = '2026.10.10.2';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -9467,7 +9467,8 @@
             btnCast.addEventListener('pointerup', () => btnCast.classList.remove('pressed')); btnCast.addEventListener('pointercancel', () => btnCast.classList.remove('pressed'));
             document.getElementById('slot1').addEventListener('click', () => selectSlot(1));
             document.getElementById('slot2').addEventListener('click', () => selectSlot(2));
-            let dragInfo = null; const ptrs = new Map(); let pinchMode = false, pinchD = 0, didPinch = false;
+            const viewPan = V(0, 0, 0), panRight = V(0, 0, 0), panUp = V(0, 0, 0);
+            let dragInfo = null; const ptrs = new Map(); let pinchMode = false, pinchD = 0, pinchX = 0, pinchY = 0, didPinch = false;
             function endViewDrag(e) {
                 ptrs.delete(e.pointerId);
                 if (ptrs.size < 2) pinchMode = false;
@@ -9482,13 +9483,36 @@
                 else if (viewMode === 'fp') { camera.fov = Math.max(30, Math.min(85, camera.fov * ratio)); camera.updateProjectionMatrix(); }
                 else viewDist = Math.max(1.4, Math.min(7, viewDist * ratio));
             }
+            function panView(dx, dy) {
+                const distance = viewMode === 'fixed' ? fixDist : viewMode === 'tp' ? viewDist : 3;
+                const scale = 2 * distance * Math.tan(camera.fov * Math.PI / 360) / Math.max(1, renderer.domElement.clientHeight);
+                camera.updateMatrixWorld();
+                panRight.setFromMatrixColumn(camera.matrixWorld, 0);
+                panUp.setFromMatrixColumn(camera.matrixWorld, 1);
+                viewPan.addScaledVector(panRight, -dx * scale).addScaledVector(panUp, dy * scale);
+            }
             renderer.domElement.addEventListener('pointerdown', e => {
                 if (e.button === 2) { tryCast(); return; }
                 if (e.pointerType === 'mouse' && e.button !== 0) return;
                 renderer.domElement.setPointerCapture(e.pointerId);
-                ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinchD = Math.hypot(a.x - b.x, a.y - b.y); pinchMode = true; didPinch = true; dragInfo = null; } else if (ptrs.size === 1) { dragInfo = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; didPinch = false; }
+                ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinchD = Math.hypot(a.x - b.x, a.y - b.y); pinchX = (a.x + b.x) / 2; pinchY = (a.y + b.y) / 2; pinchMode = true; didPinch = true; dragInfo = null; pendYaw = 0; pendPitch = 0; } else if (ptrs.size === 1) { dragInfo = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; didPinch = false; }
             });
-            renderer.domElement.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endViewDrag(e); return; } if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pinchMode && ptrs.size >= 2) { const [a, b] = [...ptrs.values()]; const nd = Math.hypot(a.x - b.x, a.y - b.y); if (nd > 0 && pinchD > 0) zoomView(pinchD / nd); pinchD = nd; return; } if (!dragInfo || dragInfo.id !== e.pointerId) return; if (viewMode === 'fp' && isLocked()) return; const dx = e.clientX - dragInfo.x, dy = e.clientY - dragInfo.y; dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy); pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1); });
+            renderer.domElement.addEventListener('pointermove', e => {
+                if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endViewDrag(e); return; }
+                if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                if (pinchMode && ptrs.size >= 2) {
+                    const [a, b] = [...ptrs.values()];
+                    const nd = Math.hypot(a.x - b.x, a.y - b.y), nx = (a.x + b.x) / 2, ny = (a.y + b.y) / 2;
+                    panView(nx - pinchX, ny - pinchY);
+                    if (nd > 0 && pinchD > 0) zoomView(pinchD / nd);
+                    pinchD = nd; pinchX = nx; pinchY = ny; return;
+                }
+                if (!dragInfo || dragInfo.id !== e.pointerId) return;
+                if (viewMode === 'fp' && isLocked()) return;
+                const dx = e.clientX - dragInfo.x, dy = e.clientY - dragInfo.y;
+                dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy);
+                pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1);
+            });
             renderer.domElement.addEventListener('pointerup', e => { const wasClick = dragInfo?.id === e.pointerId && dragInfo.moved < 6 && !didPinch; endViewDrag(e); if (!wasClick) return; if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (viewMode === 'fp' && !IS_TOUCH && !isLocked()) { renderer.domElement.requestPointerLock(); return; } mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1; raycaster.setFromCamera(mouse, camera); const hits = raycaster.intersectObjects(hingeMeshes, false).filter(h => ancestorVisible(h.object)); if (hits.length) { toggleSpring(hits[0].object.userData.hingeGroup); return; } const mh = raycaster.intersectObjects(magicMeshes, false).filter(h => ancestorVisible(h.object)); if (mh.length) { fireMagic(mh[0].object.userData.magicRoot); return; } const fh = raycaster.intersectObjects(fireMeshes, false).filter(h => ancestorVisible(h.object)); if (fh.length) toggleFire(); });
             renderer.domElement.addEventListener('pointercancel', endViewDrag);
             renderer.domElement.addEventListener('lostpointercapture', endViewDrag);
@@ -9504,9 +9528,9 @@
             document.getElementById('menuDot').addEventListener('click', () => { SND.play('ui'); menuPanel.classList.toggle('open'); });
             houseToggle.addEventListener('click', () => { SND.play('ui'); fullHouse = !fullHouse; houseToggle.classList.toggle('on', fullHouse); fullHouseGroup.visible = fullHouse; dashedGroup.visible = !fullHouse; });
             function resetCharacters() { player.pos.set(0, 0, 5.2); player.vy = 0; player.yaw = Math.PI; player.moveSpeed = 0; player.onGround = true; slimePet.pos.set(-0.62, 0, 5.72); slimePet.yaw = Math.PI; slimePet.speed = 0; camYaw = Math.PI; camPitch = 0.18; pendYaw = 0; pendPitch = 0; slime.squash = SLIME_FLAT; slime.squashV = 0; slime.wob = 0; slime.wobV = 0; }
-            resetBtn.addEventListener('click', () => { SND.play('ui'); resetCharacters(); });
+            resetBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); resetCharacters(); });
             function setViewMode(m) { viewMode = m; viewFixedBtn.classList.toggle('on', m === 'fixed'); viewTpBtn.classList.toggle('on', m === 'tp'); viewFpBtn.classList.toggle('on', m === 'fp'); slimeRoot.visible = true; avatarRoot.visible = m !== 'fp'; if (m === 'fixed') { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } else if (m === 'fp') { if (IS_TOUCH) crosshairEl.classList.add('show'); else lockTipEl.classList.add('show'); } else { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } }
-            viewFixedBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('fixed'); }); viewTpBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('tp'); }); viewFpBtn.addEventListener('click', () => { SND.play('ui'); setViewMode('fp'); });
+            viewFixedBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('fixed'); }); viewTpBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('tp'); }); viewFpBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('fp'); });
             const sfxToggle = document.getElementById('sfxToggle'), sfxSlider = document.getElementById('sfxSlider');
             sfxToggle.addEventListener('click', () => { const on = !SND.isEnabled(); SND.setEnabled(on); sfxToggle.classList.toggle('on', on); if (on) SND.play('ui'); });
             sfxSlider.addEventListener('input', () => SND.setVolume(parseFloat(sfxSlider.value)));
@@ -9580,6 +9604,7 @@
                 if (viewMode === 'fixed') { const cp = Math.cos(fixPitch), sp = Math.sin(fixPitch); camera.position.set(FIX_LOOK.x + Math.sin(fixYaw) * cp * fixDist, FIX_LOOK.y + sp * fixDist, FIX_LOOK.z + Math.cos(fixYaw) * cp * fixDist); camera.lookAt(FIX_LOOK); }
                 else if (viewMode === 'fp') { camera.position.set(player.pos.x, player.pos.y + 1.04, player.pos.z); camera.lookAt(player.pos.x + Math.sin(camYaw) * Math.cos(camPitch) * 10, player.pos.y + 1.04 + Math.sin(camPitch) * 10, player.pos.z + Math.cos(camYaw) * Math.cos(camPitch) * 10); }
                 else { const cp = Math.cos(camPitch), sp = Math.sin(camPitch); const px = player.pos.x - Math.sin(camYaw) * cp * viewDist, py = player.pos.y + 0.72 + sp * viewDist, pz = player.pos.z - Math.cos(camYaw) * cp * viewDist; camera.position.set(px, Math.max(py, 0.55), pz); camera.lookAt(player.pos.x, player.pos.y + 0.68, player.pos.z); }
+                camera.position.add(viewPan);
             }
 
             /* ==================== 天空·时间·天气系统 ==================== */
