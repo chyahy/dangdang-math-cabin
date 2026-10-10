@@ -563,10 +563,10 @@
 
         #joyZone {
             position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 45vw;
-            height: 60vh;
+            left: calc(18px + env(safe-area-inset-left, 0px));
+            bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+            width: 120px;
+            height: 120px;
             z-index: 4;
             display: none;
             touch-action: none
@@ -577,14 +577,16 @@
         }
 
         #joyBase {
-            position: fixed;
+            position: absolute;
             width: 116px;
             height: 116px;
+            left: 50%;
+            top: 50%;
             border-radius: 50%;
             border: 2px solid rgba(46, 150, 100, .55);
             background: rgba(255, 255, 255, .22);
             z-index: 4;
-            display: none;
+            display: block;
             pointer-events: none;
             transform: translate(-50%, -50%)
         }
@@ -657,6 +659,22 @@
 
         body.touch #hint {
             bottom: 185px
+        }
+
+        body.touch #menuDot { top: calc(14px + env(safe-area-inset-top, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); }
+        body.touch #btnJump, body.touch #btnAct { right: calc(20px + env(safe-area-inset-right, 0px)); }
+        body.touch #btnSprint, body.touch #btnCast { right: calc(104px + env(safe-area-inset-right, 0px)); }
+        body.touch #btnAct, body.touch #btnSprint { bottom: calc(38px + env(safe-area-inset-bottom, 0px)); }
+        body.touch #btnJump, body.touch #btnCast { bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+        @media (orientation: landscape) and (max-height: 540px) {
+            body.touch #joyZone { width: 100px; height: 100px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+            body.touch #joyBase { width: 96px; height: 96px; }
+            body.touch #joyKnob { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+            body.touch .touchBtn { width: 46px; height: 46px; font-size: 12px; }
+            body.touch #btnAct, body.touch #btnSprint { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+            body.touch #btnJump, body.touch #btnCast { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+            body.touch #btnSprint, body.touch #btnCast { right: calc(78px + env(safe-area-inset-right, 0px)); }
+            body.touch #hint { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 300px); font-size: 11px; }
         }
 
         body.touch #signInput {
@@ -1238,9 +1256,8 @@
     <div id="crosshair"></div>
     <div id="lockTip">点击画面锁定鼠标 · Esc 退出</div>
     <div id="flashOverlay"></div>
-    <div id="joyZone"></div>
-    <div id="joyBase">
-        <div id="joyKnob"></div>
+    <div id="joyZone" aria-label="移动摇杆">
+        <div id="joyBase"><div id="joyKnob"></div></div>
     </div>
     <div class="touchBtn" id="btnSprint">疾跑</div>
     <div class="touchBtn" id="btnJump">跳</div>
@@ -1289,7 +1306,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.10.08.1';
+            const PAGE_VERSION = '2026.10.10.1';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -9416,12 +9433,27 @@
             });
             addEventListener('keyup', e => { keys[e.code] = false; if (e.code === 'Space' && player.vy > 2.6) player.vy = 2.6; });
             const joyZone = document.getElementById('joyZone'), joyBase = document.getElementById('joyBase'), joyKnob = document.getElementById('joyKnob');
-            const JOY_R = 44; let joyId = null, joyCx = 0, joyCy = 0;
+            let joyRadius = 44, joyId = null, joyCx = 0, joyCy = 0;
             function setKnob(dx, dy) { joyKnob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; }
-            joyZone.addEventListener('pointerdown', e => { if (joyId !== null) return; joyId = e.pointerId; joyCx = e.clientX; joyCy = e.clientY; joyBase.style.display = 'block'; joyBase.style.left = joyCx + 'px'; joyBase.style.top = joyCy + 'px'; setKnob(0, 0); joyZone.setPointerCapture(e.pointerId); e.preventDefault(); });
-            joyZone.addEventListener('pointermove', e => { if (e.pointerId !== joyId) return; let dx = e.clientX - joyCx, dy = e.clientY - joyCy; const m = Math.hypot(dx, dy); if (m > JOY_R) { dx = dx / m * JOY_R; dy = dy / m * JOY_R; } setKnob(dx, dy); joyX = dx / JOY_R; joyY = dy / JOY_R; e.preventDefault(); });
-            function joyEnd(e) { if (e.pointerId !== joyId) return; joyId = null; joyX = 0; joyY = 0; joyBase.style.display = 'none'; setKnob(0, 0); }
-            joyZone.addEventListener('pointerup', joyEnd); joyZone.addEventListener('pointercancel', joyEnd);
+            function moveJoystick(e) {
+                let dx = e.clientX - joyCx, dy = e.clientY - joyCy;
+                const length = Math.hypot(dx, dy);
+                if (length > joyRadius) { dx *= joyRadius / length; dy *= joyRadius / length; }
+                setKnob(dx, dy); joyX = dx / joyRadius; joyY = dy / joyRadius;
+            }
+            function resetJoystick() { const id = joyId; joyId = null; joyX = 0; joyY = 0; setKnob(0, 0); if (id !== null && joyZone.hasPointerCapture(id)) joyZone.releasePointerCapture(id); }
+            joyZone.addEventListener('pointerdown', e => {
+                if (joyId !== null) return;
+                const box = joyZone.getBoundingClientRect();
+                joyCx = box.left + box.width / 2; joyCy = box.top + box.height / 2;
+                joyRadius = Math.min(box.width, box.height) * 0.36;
+                joyId = e.pointerId; joyZone.setPointerCapture(e.pointerId); moveJoystick(e); e.preventDefault();
+            });
+            joyZone.addEventListener('pointermove', e => { if (e.pointerId !== joyId) return; moveJoystick(e); e.preventDefault(); });
+            function joyEnd(e) { if (e.pointerId === joyId) resetJoystick(); }
+            joyZone.addEventListener('pointerup', joyEnd); joyZone.addEventListener('pointercancel', joyEnd); joyZone.addEventListener('lostpointercapture', joyEnd);
+            addEventListener('blur', resetJoystick); addEventListener('resize', resetJoystick);
+            document.addEventListener('visibilitychange', () => { if (document.hidden) resetJoystick(); });
             const btnSprint = document.getElementById('btnSprint'), btnJump = document.getElementById('btnJump'), btnAct = document.getElementById('btnAct'), btnCast = document.getElementById('btnCast');
             btnSprint.addEventListener('pointerdown', e => { sprintBtnDown = true; btnSprint.classList.add('pressed'); e.preventDefault(); });
             function sprintEnd() { sprintBtnDown = false; btnSprint.classList.remove('pressed'); }
@@ -9440,6 +9472,15 @@
                 ptrs.delete(e.pointerId);
                 if (ptrs.size < 2) pinchMode = false;
                 if (dragInfo && dragInfo.id === e.pointerId) dragInfo = null;
+                if (!dragInfo && ptrs.size === 1) {
+                    const [id, point] = [...ptrs.entries()][0];
+                    dragInfo = { id, x: point.x, y: point.y, moved: 6 };
+                }
+            }
+            function zoomView(ratio) {
+                if (viewMode === 'fixed') fixDist = Math.max(4, Math.min(40, fixDist * ratio));
+                else if (viewMode === 'fp') { camera.fov = Math.max(30, Math.min(85, camera.fov * ratio)); camera.updateProjectionMatrix(); }
+                else viewDist = Math.max(1.4, Math.min(7, viewDist * ratio));
             }
             renderer.domElement.addEventListener('pointerdown', e => {
                 if (e.button === 2) { tryCast(); return; }
@@ -9447,12 +9488,13 @@
                 renderer.domElement.setPointerCapture(e.pointerId);
                 ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinchD = Math.hypot(a.x - b.x, a.y - b.y); pinchMode = true; didPinch = true; dragInfo = null; } else if (ptrs.size === 1) { dragInfo = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; didPinch = false; }
             });
-            renderer.domElement.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endViewDrag(e); return; } if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pinchMode && ptrs.size >= 2) { const [a, b] = [...ptrs.values()]; const nd = Math.hypot(a.x - b.x, a.y - b.y); const diff = pinchD - nd; if (viewMode === 'fixed') fixDist = Math.max(4, Math.min(40, fixDist + diff * 0.02)); else viewDist = Math.max(1.4, Math.min(7.0, viewDist + diff * 0.006)); pinchD = nd; return; } if (!dragInfo || dragInfo.id !== e.pointerId) return; if (viewMode === 'fp' && isLocked()) return; const dx = e.clientX - dragInfo.x, dy = e.clientY - dragInfo.y; dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy); pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1); });
+            renderer.domElement.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endViewDrag(e); return; } if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pinchMode && ptrs.size >= 2) { const [a, b] = [...ptrs.values()]; const nd = Math.hypot(a.x - b.x, a.y - b.y); if (nd > 0 && pinchD > 0) zoomView(pinchD / nd); pinchD = nd; return; } if (!dragInfo || dragInfo.id !== e.pointerId) return; if (viewMode === 'fp' && isLocked()) return; const dx = e.clientX - dragInfo.x, dy = e.clientY - dragInfo.y; dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy); pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1); });
             renderer.domElement.addEventListener('pointerup', e => { const wasClick = dragInfo?.id === e.pointerId && dragInfo.moved < 6 && !didPinch; endViewDrag(e); if (!wasClick) return; if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (viewMode === 'fp' && !IS_TOUCH && !isLocked()) { renderer.domElement.requestPointerLock(); return; } mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1; raycaster.setFromCamera(mouse, camera); const hits = raycaster.intersectObjects(hingeMeshes, false).filter(h => ancestorVisible(h.object)); if (hits.length) { toggleSpring(hits[0].object.userData.hingeGroup); return; } const mh = raycaster.intersectObjects(magicMeshes, false).filter(h => ancestorVisible(h.object)); if (mh.length) { fireMagic(mh[0].object.userData.magicRoot); return; } const fh = raycaster.intersectObjects(fireMeshes, false).filter(h => ancestorVisible(h.object)); if (fh.length) toggleFire(); });
             renderer.domElement.addEventListener('pointercancel', endViewDrag);
             renderer.domElement.addEventListener('lostpointercapture', endViewDrag);
             addEventListener('pointerup', endViewDrag);
-            addEventListener('blur', () => { ptrs.clear(); pinchMode = false; dragInfo = null; });
+            function resetViewGesture() { ptrs.clear(); pinchMode = false; dragInfo = null; didPinch = false; pendYaw = 0; pendPitch = 0; }
+            addEventListener('blur', resetViewGesture); addEventListener('resize', resetViewGesture);
             document.addEventListener('mousemove', e => { if (isLocked() && viewMode === 'fp') { camYaw -= e.movementX * 0.0026; camPitch -= e.movementY * 0.0022; camPitch = Math.max(-1.2, Math.min(1.2, camPitch)); } });
             document.addEventListener('pointerlockchange', () => { const locked = isLocked(); crosshairEl.classList.toggle('show', viewMode === 'fp' && (locked || IS_TOUCH)); lockTipEl.classList.toggle('show', viewMode === 'fp' && !locked && !IS_TOUCH); });
             renderer.domElement.addEventListener('wheel', e => { if (viewMode === 'fixed') fixDist = Math.max(4, Math.min(40, fixDist + e.deltaY * 0.012)); else viewDist = Math.max(1.4, Math.min(7.0, viewDist + e.deltaY * 0.0025)); }, { passive: true });
