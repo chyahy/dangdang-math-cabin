@@ -8,6 +8,7 @@ import {
   type Expr,
   type Op,
 } from "./engine";
+import { validateMerge } from "./mergeValidation";
 export type Module = "mixed" | "merge" | "split";
 export type Question = {
   id: string;
@@ -72,26 +73,45 @@ export function generate(
     try {
       let e: Expr;
       if (module === "merge") {
+        const sum = () => combine(leaf(), leaf(), ["+", "-"]);
+        const product = () => combine(leaf(), leaf(), ["*"]);
+        const variant = int(0, 2);
         if (level === 1)
-          e = combine(combine(leaf(), leaf(), ["+", "-"]), leaf(), ["*"]);
+          e =
+            variant === 0
+              ? combine(sum(), leaf(), ["*"])
+              : variant === 1
+                ? combine(product(), leaf(), ["+", "-"])
+                : combine(leaf(), product(), ["+"]);
         else if (level === 2)
-          e = combine(division(combine(leaf(), leaf(), ["+", "-"])), leaf(), [
-            "+",
-            "-",
-          ]);
+          e =
+            variant === 0
+              ? combine(combine(sum(), leaf(), ["*"]), leaf(), ["+", "-"])
+              : variant === 1
+                ? combine(combine(product(), leaf(), ["+"]), leaf(), ["*"])
+                : combine(product(), sum(), ["+"]);
         else if (level === 3)
-          e = combine(num(max), combine(leaf(), leaf(), ["+", "-"]), ["-"]);
-        else if (level === 4) e = division(combine(leaf(), leaf(), ["+", "-"]));
+          e =
+            variant === 0
+              ? combine(num(max), sum(), ["-"])
+              : variant === 1
+                ? combine(product(), leaf(), ["-"])
+                : combine(combine(num(max), sum(), ["-"]), leaf(), ["+"]);
+        else if (level === 4)
+          e =
+            variant === 0
+              ? division(sum())
+              : variant === 1
+                ? combine(division(leaf()), leaf(), ["+"])
+                : combine(division(sum()), leaf(), ["+"]);
         else
-          e = combine(
-            combine(
-              combine(leaf(), leaf(), ["+", "-"]),
-              combine(leaf(), leaf(), ["+", "-"]),
-              ["*", "/"],
-            ),
-            leaf(),
-            ["+", "-"],
-          );
+          e =
+            variant === 0
+              ? combine(combine(sum(), sum(), ["*", "/"]), leaf(), ["+", "-"])
+              : variant === 1
+                ? combine(combine(product(), leaf(), ["+"]), sum(), ["*"])
+                : combine(division(sum()), product(), ["+"]);
+        if (validateMerge(e, max * 12).length) continue;
       } else {
         if (level === 1)
           e =
@@ -128,6 +148,8 @@ export function generate(
       if (bracketDepth(e) > 2) continue;
       if (recent.includes(`${module}:${text}`) && trial < 1450) continue;
       const original = parse(text);
+      if (module === "merge" && validateMerge(original, max * 12).length)
+        continue;
       recent.push(`${module}:${text}`);
       if (recent.length > 60) recent.shift();
       return {

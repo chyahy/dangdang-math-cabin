@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   checkMerge,
+  bracketDecision,
   errorNames,
   explanation,
   find,
@@ -13,7 +14,6 @@ import {
   parse,
   reduce,
   replace,
-  smartBrackets,
   sources,
   substitute,
   value,
@@ -21,7 +21,7 @@ import {
   type Expr,
 } from "./engine";
 import { lessonNames } from "./generator";
-import type { Session, Snapshot } from "./storage";
+import type { MergeAction, Session, Snapshot } from "./storage";
 import { Expression } from "./Expression";
 import { SourceBricks } from "./SourceBricks";
 type Props = {
@@ -40,19 +40,18 @@ export function Training({
   nextLevel,
   motion,
 }: Props) {
-  const merge = s.question.module === "merge",
-    smart = s.config.smartBrackets !== false;
+  const merge = s.question.module === "merge";
+  const pending = s.pendingBracket;
   const [feedback, setFeedback] = useState({
-    text: merge
-      ? "把上面的算式积木拖到下方对应的数字上。也可以先点积木，再点数字。"
-      : "点击你想先算的运算符，再填写结果。",
+    text: pending
+      ? "上次展开的积木已保留，请继续判断高亮部分是否需要括号。"
+      : merge
+        ? "把上面的算式积木拖到下方对应的数字上。也可以先点积木，再点数字。"
+        : "点击你想先算的运算符，再填写结果。",
     good: true,
   });
   const [activeSource, setActiveSource] = useState(""),
-    [hoverTarget, setHoverTarget] = useState(""),
-    [pending, setPending] = useState<{ source: string; target: string } | null>(
-      null,
-    );
+    [hoverTarget, setHoverTarget] = useState("");
   const [flying, setFlying] = useState(false),
     [showAnswer, setShowAnswer] = useState(false),
     [highlighted, setHighlighted] = useState<string[]>([]),
@@ -65,17 +64,36 @@ export function Training({
     },
     [],
   );
+  useEffect(() => {
+    if (!pending) return;
+    const frame = requestAnimationFrame(() => {
+      const choice = document.querySelector<HTMLElement>(".bracket-choice");
+      choice?.scrollIntoView({ block: "nearest", behavior: "instant" });
+      choice
+        ?.querySelector<HTMLButtonElement>("button")
+        ?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pending?.insertedId]);
   const steps = makeSteps(s.question.original),
     selected = find(s.tree, s.selected),
     legal = getLegalNextSteps(s.tree),
     expected = legal[0];
-  const tree = merge && smart ? smartBrackets(s.tree) : s.tree;
+  const tree = s.tree;
   function patch(p: Partial<Session>) {
     update({ ...s, ...p });
   }
-  const snapshot = (): Snapshot => ({ tree: s.tree, history: s.history });
+  const snapshot = (): Snapshot => ({
+    tree: s.tree,
+    history: s.history,
+    pendingBracket: pending,
+  });
+  const action = (type: MergeAction["type"], stepId: string): MergeAction => ({
+    type,
+    stepId,
+    at: Date.now(),
+  });
   function clearSelection() {
-    setPending(null);
     setActiveSource("");
     setHoverTarget("");
     setHighlighted([]);
@@ -83,8 +101,9 @@ export function Training({
   }
   function completeIfReady(candidate: Session) {
     const done = merge
-      ? !sources(candidate.tree).length &&
-        (smart || checkMerge(candidate.tree, candidate.question.original).ok)
+      ? !candidate.pendingBracket &&
+        !sources(candidate.tree).length &&
+        checkMerge(candidate.tree, candidate.question.original).ok
       : candidate.tree.kind === "num";
     if (done) {
       const result = merge
@@ -98,21 +117,22 @@ export function Training({
     }
     update(candidate);
   }
-  function error(type: ErrorType, text?: string) {
+  function error(type: ErrorType, text?: string, event?: MergeAction) {
     const count = s.errors.filter((e) => e.type === type).length + 1;
     let message = text || explanation(type, count, expected);
     if (type === "structure" && count >= 3)
-      message = `正确合成为：${format(s.question.original)}＝${s.question.answer}。选中替换的积木，补改括号，再检查。`;
+      message = `正确合成为：${format(s.question.original)}＝${s.question.answer}。请重新判断替换积木的括号。`;
     patch({
       errors: [
         ...s.errors,
-        { type, step: format(tree, !merge || smart), at: Date.now() },
+        { type, step: format(tree, !merge), at: Date.now() },
       ],
+      ...(event ? { actions: [...(s.actions || []), event] } : {}),
     });
     setFeedback({ text: message, good: false });
   }
   function select(id: string) {
-    if (flying || s.done) return;
+    if (flying || s.done || pending) return;
     if (merge) {
       const target = find(s.tree, id);
       if (target?.kind === "num" && target.ref && activeSource) {
@@ -120,12 +140,11 @@ export function Training({
         return;
       }
       patch({ selected: id });
-      setPending(null);
       setFeedback({
         text:
           target?.kind === "num"
             ? "目标已选好，点击它对应的来源积木也能放入。"
-            : "已选中这块算式，可以补改括号。",
+            : "先把来源积木放到对应数字，再判断括号。",
         good: true,
       });
       return;
@@ -235,6 +254,13 @@ export function Training({
         good: true,
       });
     } else if (merge) {
+      if (pending) {
+        setFeedback({
+          text: bracketDecision(tree, pending.insertedId).reason,
+          good: true,
+        });
+        return;
+      }
       const target = sources(s.tree)[0],
         source = target && steps.find((t) => t.id === target.ref);
       if (source) {
@@ -243,7 +269,7 @@ export function Training({
           text:
             hints === 1
               ? "找一张卡片，让它右边的结果和蓝色数字的来源编号对应。"
-              : `把积木${source.index}“${format(source.expression)}＝${source.result}”拖到来源${source.index}的${source.result}上。${smart ? "需要的括号会自动出现。" : "进阶模式下，还要判断括号。"}`,
+              : `把积木${source.index}“${format(source.expression)}＝${source.result}”拖到来源${source.index}的${source.result}上，再判断这一整块是否需要括号。`,
           good: true,
         });
       } else
@@ -254,13 +280,12 @@ export function Training({
     }
   }
   function chooseSource(id: string) {
-    if (s.done || flying) return;
+    if (s.done || flying || pending) return;
     if (selected?.kind === "num" && selected.ref === id) {
       requestInsert(id, selected.id);
       return;
     }
     setActiveSource(id);
-    setPending(null);
     patch({ selected: "" });
     setFeedback({
       text: "积木已选好，点击蓝色高亮的目标数字就能放入。",
@@ -268,33 +293,23 @@ export function Training({
     });
   }
   function requestInsert(source: string, target: string) {
-    if (s.done || busy.current) return;
+    if (s.done || busy.current || pending) return;
     const number = find(s.tree, target);
     if (number?.kind !== "num" || number.ref !== source) {
       error(
         "source",
         "这不是这张积木的来源位置。结果即使相同，也要看来源编号。",
+        action("source-wrong", source),
       );
       return;
     }
-    if (!smart) {
-      setPending({ source, target });
-      patch({ selected: target });
-      setActiveSource(source);
-      setFeedback({
-        text: "来源找对了。进阶挑战：这一整块需要括号吗？",
-        good: true,
-      });
-      return;
-    }
-    void insert(source, target, false);
+    void insert(source, target);
   }
-  async function insert(source: string, target: string, brackets: boolean) {
+  async function insert(source: string, target: string) {
     if (busy.current || s.done) return;
     const step = steps.find((t) => t.id === source);
     if (!step) return;
-    const updated = substitute(s.tree, target, step, brackets);
-    const nextTree = smart ? smartBrackets(updated) : updated;
+    const nextTree = substitute(s.tree, target, step, false);
     busy.current = true;
     setFlying(true);
     const card = document.querySelector(`[data-card="${source}"]`),
@@ -344,12 +359,10 @@ export function Training({
     clearSelection();
     setInserted(step.id);
     setFeedback({
-      text: smart
-        ? "✓ 积木已展开，需要的括号已经自动补好。继续拼下一块！"
-        : "✓ 已放入，继续展开剩余来源。",
+      text: "✓ 来源找对了！高亮的整块已经展开。这里需要加括号吗？",
       good: true,
     });
-    completeIfReady({
+    update({
       ...s,
       tree: nextTree,
       undo: [...s.undo, snapshot()],
@@ -357,25 +370,54 @@ export function Training({
       selected: "",
       input: "",
       nextLine: "",
+      pendingBracket: { insertedId: step.id },
+      actions: [...(s.actions || []), action("source-correct", source)],
     });
   }
-  function toggleBracket() {
-    if (selected?.kind !== "bin" || s.done) return;
-    patch({
-      tree: replace(s.tree, selected.id, {
-        ...selected,
-        bracket: !selected.bracket,
-      }),
-      undo: [...s.undo, snapshot()],
-      redo: [],
+  function chooseBracket(add: boolean) {
+    if (!pending || s.done || flying) return;
+    const { required, reason } = bracketDecision(tree, pending.insertedId);
+    if (required && !add) {
+      error(
+        "missing-bracket",
+        `再想一想！不加括号会改变原来的运算顺序。${reason}请你重新选择。`,
+        action("bracket-missing", pending.insertedId),
+      );
+      return;
+    }
+    const part = find(tree, pending.insertedId)!;
+    if (part.kind !== "bin") return;
+    const confirmed = replace(tree, part.id, { ...part, bracket: add });
+    clearSelection();
+    setInserted(part.id);
+    const message = required
+      ? `判断正确！${reason}`
+      : add
+        ? "这样也对，不过这里的括号可以省略，不写更简洁！这不是数学错误，不扣星。"
+        : `判断正确！这里不需要括号。${reason}`;
+    setFeedback({ text: message, good: true });
+    completeIfReady({
+      ...s,
+      tree: confirmed,
+      pendingBracket: undefined,
+      history: [
+        ...s.history,
+        `${format(confirmed, false)}＝${s.question.answer}`,
+      ],
+      actions: [
+        ...(s.actions || []),
+        action(
+          required
+            ? "bracket-required"
+            : add
+              ? "bracket-extra"
+              : "bracket-omitted",
+          part.id,
+        ),
+      ],
     });
-  }
-  function check() {
-    const result = checkMerge(s.tree, s.question.original);
-    if (result.ok) {
-      setFeedback({ text: result.message, good: true });
-      finish(s);
-    } else error("structure", result.message);
+    // Completion must not erase the educational feedback (especially optional brackets).
+    setFeedback({ text: message, good: true });
   }
   function travel(direction: "undo" | "redo") {
     if (flying) return;
@@ -387,6 +429,7 @@ export function Training({
       ...s,
       tree: frame.tree,
       history: frame.history,
+      pendingBracket: frame.pendingBracket,
       selected: "",
       input: "",
       nextLine: "",
@@ -419,6 +462,7 @@ export function Training({
       undo: [...s.undo, snapshot()],
       redo: [],
       history: [],
+      pendingBracket: undefined,
       selected: "",
       input: "",
       nextLine: "",
@@ -435,7 +479,7 @@ export function Training({
   useEffect(() => {
     if (
       merge &&
-      smart &&
+      !pending &&
       !s.done &&
       !sources(s.tree).length &&
       checkMerge(tree, s.question.original).ok
@@ -449,9 +493,7 @@ export function Training({
           <span className="eyebrow">
             第{s.question.level}关 ·{" "}
             {merge
-              ? smart
-                ? "智能括号"
-                : "进阶括号挑战"
+              ? "自己判断括号"
               : s.config.mode === "guided"
                 ? "引导训练"
                 : "独立训练"}
@@ -473,7 +515,7 @@ export function Training({
       {merge && (
         <SourceBricks
           steps={steps}
-          disabled={s.done || flying}
+          disabled={s.done || flying || !!pending}
           active={activeSource}
           onSelect={chooseSource}
           onHover={(source, target) => {
@@ -494,7 +536,9 @@ export function Training({
           <span>{merge ? "综合算式拼装区" : "我的计算台"}</span>
           <span>
             {merge
-              ? `还有${sources(s.tree).length}块等待展开`
+              ? pending
+                ? "请先确认这一块的括号"
+                : `还有${sources(s.tree).length}块等待展开`
               : `${s.history.length}步已完成`}
           </span>
         </div>
@@ -507,17 +551,18 @@ export function Training({
             selected={s.selected}
             onSelect={select}
             merge={merge}
-            automatic={!merge || smart}
+            automatic={!merge}
             steps={steps}
-            highlighted={highlighted}
+            highlighted={pending ? [pending.insertedId] : highlighted}
             activeSource={activeSource}
             hoverTarget={hoverTarget}
-            interactiveOperators={!merge || !smart}
+            interactiveOperators={!merge}
             inserted={inserted}
           />
-          {merge && (
+          {merge && !pending && (
             <span className="answer-suffix">＝{s.question.answer}</span>
           )}
+          {pending && <span className="pending-badge">待确认</span>}
         </div>
         {!s.done && !merge && selected?.kind === "bin" && (
           <form className="answer-form" onSubmit={compute}>
@@ -554,46 +599,21 @@ export function Training({
             </button>
           </form>
         )}
-        {!s.done && merge && !smart && (
+        {!s.done && merge && pending && (
           <div className="merge-tools">
-            {pending ? (
-              <div className="bracket-choice">
-                <strong>这一块需要括号吗？</strong>
-                <button
-                  className="primary"
-                  onClick={() =>
-                    void insert(pending.source, pending.target, true)
-                  }
-                  disabled={flying}
-                >
-                  加上括号再放入
-                </button>
-                <button
-                  onClick={() =>
-                    void insert(pending.source, pending.target, false)
-                  }
-                  disabled={flying}
-                >
-                  不用括号，直接放入
-                </button>
-              </div>
-            ) : (
-              <>
-                <button
-                  onClick={toggleBracket}
-                  disabled={selected?.kind !== "bin"}
-                >
-                  给选中积木
-                  {selected?.kind === "bin" && selected.bracket
-                    ? "去掉"
-                    : "加上"}
-                  括号
-                </button>
-                <button className="primary" onClick={check}>
-                  检查综合算式 ✓
-                </button>
-              </>
-            )}
+            <div className="bracket-choice">
+              <strong>这里需要加括号吗？</strong>
+              <button
+                className="primary"
+                onClick={() => chooseBracket(true)}
+                disabled={flying}
+              >
+                需要加括号
+              </button>
+              <button onClick={() => chooseBracket(false)} disabled={flying}>
+                不需要括号
+              </button>
+            </div>
           </div>
         )}
       </div>

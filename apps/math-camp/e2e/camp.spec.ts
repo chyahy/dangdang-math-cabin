@@ -18,11 +18,9 @@ async function state(page: Page): Promise<Session> {
 async function launch(
   page: Page,
   name: "开始闯关" | "开始合成" | "反过来练：把综合算式拆开 ↗" = "开始闯关",
-  advanced = false,
 ) {
   await page.goto("/");
   await page.getByRole("button", { name }).click();
-  if (advanced) await page.getByLabel(/进阶括号挑战/).check();
   await page.getByRole("button", { name: "选择关卡 →" }).click();
   await page.getByRole("button", { name: /运算新手村/ }).click();
 }
@@ -65,25 +63,26 @@ test("guided mixed calculation, errors, resume, rewards and real report", async 
   ).toBe(1);
   expect(errors).toEqual([]);
 });
-test("merge: select source, animate substitution, repair brackets, undo and finish", async ({
+test("merge: expand first, restore pending choice with undo/redo, then auto-finish", async ({
   page,
 }) => {
-  await launch(page, "开始合成", true);
+  await launch(page, "开始合成");
   const s = await state(page),
     target = sources(s.tree)[0],
     step = makeSteps(s.question.original).find((x) => x.id === target.ref)!;
   await page.locator(`[data-target="${target.id}"]`).click();
   await page.locator(`[data-card="${step.id}"]`).click();
-  await page.getByRole("button", { name: "不用括号，直接放入" }).click();
   await expect(
-    page.getByRole("button", { name: "检查综合算式 ✓" }),
+    page.getByText("这里需要加括号吗？", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "检查综合算式 ✓" }).click();
-  await expect(page.getByRole("status").first()).toContainText("括号");
+  expect((await state(page)).done).toBe(false);
+  await expect(page.locator(".answer-suffix")).toHaveCount(0);
   await page.getByRole("button", { name: "↶ 撤销上一步" }).click();
-  await page.locator(`[data-target="${target.id}"]`).click();
-  await page.locator(`[data-card="${step.id}"]`).click();
-  await page.getByRole("button", { name: "加上括号再放入" }).click();
+  await page.getByRole("button", { name: "↷ 重做上一步" }).click();
+  await expect(
+    page.getByText("这里需要加括号吗？", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "需要加括号", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "又解开一道数学机关！" }),
   ).toBeVisible();
@@ -121,6 +120,14 @@ test("mobile touch drag to source target, click alternative and responsive layou
   await expect(
     page.getByRole("button", { name: "检查综合算式 ✓" }),
   ).toHaveCount(0);
+  await expect(
+    page.getByText("这里需要加括号吗？", { exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "test-results/mobile-bracket-choice.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "需要加括号", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "又解开一道数学机关！" }),
   ).toBeVisible();

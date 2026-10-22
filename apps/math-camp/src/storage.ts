@@ -1,4 +1,4 @@
-import { format, type ErrorType, type Expr } from "./engine";
+import { format, smartBrackets, type ErrorType, type Expr } from "./engine";
 import type { Module, Question } from "./generator";
 export type Config = {
   module: Module;
@@ -9,6 +9,17 @@ export type Config = {
   smartBrackets?: boolean;
 };
 export type Mistake = { type: ErrorType; step: string; at: number };
+export type MergeAction = {
+  type:
+    | "source-correct"
+    | "source-wrong"
+    | "bracket-required"
+    | "bracket-omitted"
+    | "bracket-extra"
+    | "bracket-missing";
+  stepId: string;
+  at: number;
+};
 export type RecordItem = {
   id: string;
   module: Module;
@@ -21,6 +32,7 @@ export type RecordItem = {
   duration: number;
   endedAt: number;
   question: Question;
+  actions?: MergeAction[];
 };
 export type Session = {
   question: Question;
@@ -38,8 +50,15 @@ export type Session = {
   done: boolean;
   stars: number;
   saved: boolean;
+  pendingBracket?: { insertedId: string };
+  actions?: MergeAction[];
+  mergeFlow?: number;
 };
-export type Snapshot = { tree: Expr; history: string[] };
+export type Snapshot = {
+  tree: Expr;
+  history: string[];
+  pendingBracket?: { insertedId: string };
+};
 export type Saved = {
   records: RecordItem[];
   current: Session | null;
@@ -53,7 +72,7 @@ export const defaultConfig: Config = {
   mode: "guided",
   max: 100,
   preserve: false,
-  smartBrackets: true,
+  smartBrackets: false, // Legacy preference retained for compatibility; merge now always asks.
 };
 const KEY = "dangdang-math-camp-v1";
 export function load(): Saved {
@@ -74,11 +93,22 @@ export function load(): Saved {
       ...q,
       text: format(q.original),
     });
-    const migrateFrame = (f: Expr | Snapshot): Snapshot =>
-      "tree" in f ? f : { tree: f, history: [] };
+    const legacyMerge =
+      s.current?.question.module === "merge" &&
+      !s.current.pendingBracket &&
+      s.current.mergeFlow !== 2;
+    const migrateFrame = (f: Expr | Snapshot): Snapshot => {
+      const frame = "tree" in f ? f : { tree: f, history: [] };
+      return legacyMerge
+        ? { ...frame, tree: smartBrackets(frame.tree) }
+        : frame;
+    };
     const current = s.current
       ? {
           ...s.current,
+          // Upgrade only legacy merge sessions. New pending previews must survive reload literally.
+          tree: legacyMerge ? smartBrackets(s.current.tree) : s.current.tree,
+          mergeFlow: 2,
           question: migrateQuestion(s.current.question),
           config: { ...defaultConfig, ...s.current.config },
           undo: (s.current.undo || []).map(migrateFrame),
@@ -124,6 +154,23 @@ export function stats(records: RecordItem[]) {
     correct: records.filter((r) => r.correct).length,
     streak,
     stars: records.reduce((s, r) => s + r.stars, 0),
+  };
+}
+export function mergeStats(records: RecordItem[]) {
+  const actions = records
+    .filter((r) => r.module === "merge")
+    .flatMap((r) => r.actions || []);
+  const count = (type: MergeAction["type"]) =>
+    actions.filter((a) => a.type === type).length;
+  return {
+    sourceCorrect: count("source-correct"),
+    sourceWrong: count("source-wrong"),
+    bracketCorrect:
+      count("bracket-required") +
+      count("bracket-omitted") +
+      count("bracket-extra"),
+    bracketMissing: count("bracket-missing"),
+    optionalExtra: count("bracket-extra"),
   };
 }
 export function beep(enabled: boolean) {

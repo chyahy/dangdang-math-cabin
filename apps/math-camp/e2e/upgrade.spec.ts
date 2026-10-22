@@ -157,6 +157,8 @@ test("three-step mouse dragging shows legal targets, rejects wrong source, snaps
     animations: "disabled",
   });
   await page.mouse.up();
+  await expect(page.getByLabel("当前算式")).toHaveText("20来源1×3－15待确认");
+  await page.getByRole("button", { name: "不需要括号", exact: true }).click();
   await expect(page.getByLabel("当前算式")).toHaveText("20来源1×3－15＝45");
   expect((await current(page)).done).toBe(false);
   await page.getByRole("button", { name: "↶ 撤销上一步" }).click();
@@ -168,6 +170,7 @@ test("three-step mouse dragging shows legal targets, rejects wrong source, snaps
   source = steps.find((t) => t.id === ref.ref)!;
   await page.locator(`[data-card="${source.id}"]`).click();
   await page.locator(`[data-target="${ref.id}"]`).press("Enter");
+  await page.getByRole("button", { name: "需要加括号", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "又解开一道数学机关！" }),
   ).toBeVisible();
@@ -207,7 +210,7 @@ test("equal numeric results cannot be replaced from the wrong source", async ({
     animations: "disabled",
   });
 });
-test("auto-parentheses after subtraction and division via keyboard alternative", async ({
+test("student chooses parentheses after subtraction and division via keyboard alternative", async ({
   page,
 }) => {
   for (const [text, expected] of [
@@ -219,6 +222,10 @@ test("auto-parentheses after subtraction and division via keyboard alternative",
       source = makeSteps(s.question.original).find((t) => t.id === ref.ref)!;
     await page.locator(`[data-card="${source.id}"]`).press("Enter");
     await page.locator(`[data-target="${ref.id}"]`).press("Enter");
+    await expect(page.locator(".answer-suffix")).toHaveCount(0);
+    await page
+      .getByRole("button", { name: "需要加括号", exact: true })
+      .press("Enter");
     await expect(
       page.getByRole("heading", { name: "又解开一道数学机关！" }),
     ).toBeVisible();
@@ -275,5 +282,111 @@ test("short phone screens auto-scroll during a four-card touch drag", async ({
     .poll(async () => sources((await current(page)).tree).length)
     .toBe(2);
   expect((await current(page)).errors).toHaveLength(0);
+  await page.getByRole("button", { name: "不需要括号", exact: true }).click();
+  expect((await current(page)).pendingBracket).toBeUndefined();
   await context.close();
+});
+
+test("missing necessary brackets stays expanded for retry, including after reload", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const s = await seed(page, "(15+19)*11", "merge"),
+    ref = sources(s.tree)[0];
+  await page.locator(`[data-card="${ref.ref}"]`).click();
+  await page.locator(`[data-target="${ref.id}"]`).click();
+  await expect(page.getByLabel("当前算式")).toHaveText("15＋19×11待确认");
+  await expect(page.locator(".hint-legal")).toHaveText("15＋19");
+  await page.getByRole("button", { name: "不需要括号", exact: true }).click();
+  await expect(page.getByLabel("当前算式")).toHaveText("15＋19×11待确认");
+  await expect(page.getByRole("status").first()).toContainText("运算顺序");
+  expect((await current(page)).errors[0].type).toBe("missing-bracket");
+  await page.reload();
+  await page.getByRole("button", { name: "继续上次训练 →" }).click();
+  await expect(page.getByLabel("当前算式")).toHaveText("15＋19×11待确认");
+  await page.screenshot({
+    path: "test-results/required-bracket-pending.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "需要加括号", exact: true }).click();
+  await expect(page.getByLabel("当前算式")).toHaveText("(15＋19)×11＝374");
+  expect((await current(page)).stars).toBe(2);
+  expect((await current(page)).actions?.map((a) => a.type)).toEqual([
+    "source-correct",
+    "bracket-missing",
+    "bracket-required",
+  ]);
+  expect(errors).toEqual([]);
+});
+
+for (const add of [true, false])
+  test(`optional brackets ${add ? "added" : "omitted"}: correct, 3 stars and honest report`, async ({
+    page,
+  }) => {
+    const s = await seed(page, "12*3+5", "merge"),
+      ref = sources(s.tree)[0];
+    await page.locator(`[data-card="${ref.ref}"]`).press("Enter");
+    await page.locator(`[data-target="${ref.id}"]`).press("Enter");
+    await expect(page.getByLabel("当前算式")).toHaveText("12×3＋5待确认");
+    await page
+      .getByRole("button", {
+        name: add ? "需要加括号" : "不需要括号",
+        exact: true,
+      })
+      .click();
+    await expect(page.getByLabel("当前算式")).toHaveText(
+      add ? "(12×3)＋5＝41" : "12×3＋5＝41",
+    );
+    if (add)
+      await expect(page.getByRole("status").first()).toContainText("不扣星");
+    const done = await current(page);
+    expect(done.done).toBe(true);
+    expect(done.stars).toBe(3);
+    expect(done.errors).toEqual([]);
+    expect(done.hints).toBe(0);
+    await page.getByRole("button", { name: "学习报告", exact: true }).click();
+    await expect(page.locator(".merge-report")).toContainText(
+      "放对1次，放错0次",
+    );
+    await expect(page.locator(".merge-report")).toContainText(
+      "正确1次，遗漏必要括号0次",
+    );
+    await expect(page.locator(".merge-report")).toContainText(
+      `可省略括号多写了${add ? 1 : 0}次`,
+    );
+  });
+
+test("four-card two-branch merge uses optional then required brackets, reset and dynamic square groups", async ({
+  page,
+}) => {
+  await seed(page, "(8+16)*(9-4)+3", "merge");
+  for (let i = 0; i < 3; i++) {
+    const s = await current(page),
+      target = sources(s.tree).at(-1)!;
+    await page.locator(`[data-card="${target.ref}"]`).click();
+    await page.locator(`[data-target="${target.id}"]`).click();
+    await page.getByRole("button", { name: "需要加括号", exact: true }).click();
+  }
+  await expect(page.getByLabel("当前算式")).toHaveText(
+    "[(8＋16)×(9－4)]＋3＝123",
+  );
+  const done = await current(page);
+  expect(done.stars).toBe(3);
+  expect(done.actions?.map((a) => a.type)).toEqual([
+    "source-correct",
+    "bracket-extra",
+    "source-correct",
+    "bracket-required",
+    "source-correct",
+    "bracket-required",
+  ]);
+  await page.getByRole("button", { name: "↶ 撤销上一步" }).click();
+  expect((await current(page)).done).toBe(false);
+  await page.getByRole("button", { name: "↷ 重做上一步" }).click();
+  expect((await current(page)).stars).toBe(3);
+  expect((await current(page)).actions).toHaveLength(6);
+  await page.getByRole("button", { name: "重新开始", exact: true }).click();
+  await expect(page.getByLabel("当前算式")).toHaveText("120来源3＋3＝123");
+  expect((await current(page)).pendingBracket).toBeUndefined();
 });

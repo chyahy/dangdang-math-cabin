@@ -282,7 +282,7 @@ describe("generated questions and legacy progress", () => {
     vi.stubGlobal("localStorage", { getItem: () => JSON.stringify(legacy) });
     const saved = load();
     expect(saved.current?.input).toBe("6");
-    expect(saved.current?.config.smartBrackets).toBe(true);
+    expect(saved.current?.config.smartBrackets).toBe(false);
     expect(saved.records).toHaveLength(1);
     expect(normalize(saved.current!.tree)).toBe(normalize(original));
     expect(saved.current?.undo[0].tree).toEqual(original);

@@ -17,14 +17,16 @@ export type ErrorType =
   | "calculation"
   | "retention"
   | "source"
+  | "missing-bracket"
   | "structure";
 export const errorNames: Record<ErrorType, string> = {
-  order: "先乘除后加减",
+  order: "运算顺序理解：先乘除后加减",
   parentheses: "括号优先",
   "left-to-right": "同级从左到右",
   calculation: "基本计算",
   retention: "保留其余算式",
   source: "中间结果来源",
+  "missing-bracket": "遗漏必要括号（运算顺序）",
   structure: "综合算式结构",
 };
 let serial = 0;
@@ -287,6 +289,10 @@ export function explanation(
       "这个数字是哪一步的结果？看看数字旁边的小编号。",
       "卡片结果的编号，要和蓝色数字旁的来源编号一致。",
     ],
+    "missing-bracket": [
+      "先想想这张积木里的运算，是否需要在外面的运算之前完成。",
+      "不加括号会改变原来分步算式的运算顺序，请重新判断。",
+    ],
     structure: [
       "结果相同还不够，要保留原来每一步的计算关系。",
       "检查替换进去的加减算式，遇到乘除或减号时是否要加括号。",
@@ -348,6 +354,37 @@ export function substitute(
     bracket: brackets,
   });
 }
+// Judge the inserted AST's position, never a coincidentally equal numeric result.
+// Same-precedence right subtrees stay grouped to retain the given step dependency.
+export function bracketDecision(root: Expr, insertedId: string) {
+  let required = false;
+  let reason = "这里按先乘除、后加减，同级从左往右，已经能保持原来的计算关系。";
+  let found = false;
+  function walk(e: Expr, parent?: Bin, right = false) {
+    if (e.id === insertedId && e.kind === "bin") {
+      found = true;
+      required = needsBracket(e, parent, right);
+      if (required && parent) {
+        reason =
+          right && parent.op === "-"
+            ? "减号后要先算这一整块，再减去它的结果，所以必须加括号。"
+            : right && parent.op === "/"
+              ? "除号后要先算这一整块，把它的结果作为除数，所以必须加括号。"
+              : precedence(e.op) < precedence(parent.op)
+                ? `要先算${format(e, false)}，再${parent.op === "*" ? "乘" : "除"}，所以必须加括号。`
+                : "要先完成右边这张积木，再参与外面的同级运算，必须用括号保留原来的分步关系。";
+      }
+      return;
+    }
+    if (e.kind === "bin") {
+      walk(e.left, e);
+      walk(e.right, e, true);
+    }
+  }
+  walk(root);
+  if (!found) throw new Error("待判断的积木不存在");
+  return { required, reason };
+}
 export function checkMerge(
   root: Expr,
   original: Expr,
@@ -362,8 +399,7 @@ export function checkMerge(
     if (normalize(written) !== normalize(original))
       return {
         ok: false,
-        message:
-          "还没合好：括号改变了原来分步算式的关系。选中替换积木的运算符，试着补上或去掉括号。",
+        message: "还没合好：括号没有保持原来分步算式的运算关系，请重新判断。",
       };
     if (value(written) !== value(original))
       return { ok: false, message: "结果不同，再检查括号。" };

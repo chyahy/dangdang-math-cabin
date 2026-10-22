@@ -12,6 +12,7 @@ import {
   load,
   persist,
   stats,
+  mergeStats,
   type Config,
   type RecordItem,
   type Saved,
@@ -90,6 +91,8 @@ export function App() {
       done: false,
       stars: 0,
       saved: false,
+      mergeFlow: 2,
+      actions: [],
     };
     setSaved((v) => ({ ...v, config: c, current: session }));
     go("train");
@@ -121,6 +124,7 @@ export function App() {
       ),
       endedAt: Date.now(),
       question: session.question,
+      actions: session.actions,
     };
     setSaved((v) => ({
       ...v,
@@ -146,6 +150,7 @@ export function App() {
       r.errors.length &&
       (filter === "all" || r.errors.some((e) => e.type === filter)),
   );
+  const mergeSummary = mergeStats(saved.records);
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -354,16 +359,10 @@ export function App() {
             </div>
             <div className="settings-row">
               {config.module === "merge" && (
-                <label className="check-label">
-                  <input
-                    type="checkbox"
-                    checked={config.smartBrackets === false}
-                    onChange={(e) =>
-                      changeConfig({ smartBrackets: !e.target.checked })
-                    }
-                  />
-                  进阶括号挑战：自己判断括号（默认自动补好）
-                </label>
+                <p className="merge-mode-note">
+                  拖动积木 → 展开数字 →
+                  自己判断括号。可省略的括号多写了也不扣星。
+                </p>
               )}
               <label>
                 原始数字上限
@@ -592,6 +591,24 @@ export function App() {
               ))}
             </div>
             <div className="report-columns">
+              <article className="report-card merge-report">
+                <h2>积木替换与括号判断</h2>
+                <p>
+                  积木来源：放对{mergeSummary.sourceCorrect}次，放错
+                  {mergeSummary.sourceWrong}次。
+                </p>
+                <p>
+                  括号判断：正确{mergeSummary.bracketCorrect}次，遗漏必要括号
+                  {mergeSummary.bracketMissing}次。
+                </p>
+                <p>
+                  其中，可省略括号多写了{mergeSummary.optionalExtra}
+                  次：只提醒书写简洁，不计数学错误、不扣星。
+                </p>
+                <small>
+                  只统计已完成题目的真实操作；撤销、重做不虚增次数。旧版没有记录的操作不作推算。遗漏必要括号单独记录，运算顺序类错误见下方。
+                </small>
+              </article>
               <article className="report-card">
                 <h2>哪些地方还可以再练？</h2>
                 {grouped.map((g) => (
