@@ -18,9 +18,11 @@ async function state(page: Page): Promise<Session> {
 async function launch(
   page: Page,
   name: "开始闯关" | "开始合成" | "反过来练：把综合算式拆开 ↗" = "开始闯关",
+  advanced = false,
 ) {
   await page.goto("/");
   await page.getByRole("button", { name }).click();
+  if (advanced) await page.getByLabel(/进阶括号挑战/).check();
   await page.getByRole("button", { name: "选择关卡 →" }).click();
   await page.getByRole("button", { name: /运算新手村/ }).click();
 }
@@ -66,7 +68,7 @@ test("guided mixed calculation, errors, resume, rewards and real report", async 
 test("merge: select source, animate substitution, repair brackets, undo and finish", async ({
   page,
 }) => {
-  await launch(page, "开始合成");
+  await launch(page, "开始合成", true);
   const s = await state(page),
     target = sources(s.tree)[0],
     step = makeSteps(s.question.original).find((x) => x.id === target.ref)!;
@@ -82,7 +84,6 @@ test("merge: select source, animate substitution, repair brackets, undo and fini
   await page.locator(`[data-target="${target.id}"]`).click();
   await page.locator(`[data-card="${step.id}"]`).click();
   await page.getByRole("button", { name: "加上括号再放入" }).click();
-  await page.getByRole("button", { name: "检查综合算式 ✓" }).click();
   await expect(
     page.getByRole("heading", { name: "又解开一道数学机关！" }),
   ).toBeVisible();
@@ -118,10 +119,8 @@ test("mobile touch drag to source target, click alternative and responsive layou
     touchPoints: [],
   });
   await expect(
-    page.getByRole("button", { name: "加上括号再放入" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "加上括号再放入" }).click();
-  await page.getByRole("button", { name: "检查综合算式 ✓" }).click();
+    page.getByRole("button", { name: "检查综合算式 ✓" }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "又解开一道数学机关！" }),
   ).toBeVisible();
@@ -133,6 +132,7 @@ test("mobile touch drag to source target, click alternative and responsive layou
   await page.screenshot({
     path: "test-results/mobile-camp.png",
     fullPage: true,
+    animations: "disabled",
   });
   await context.close();
 });

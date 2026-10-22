@@ -117,7 +117,55 @@ export function parse(input: string): Expr {
   value(out);
   return out;
 }
-// Literal mode reflects the child's chosen parentheses; automatic mode is for generated questions.
+// Keep right-hand same-precedence subtrees grouped to preserve the given step dependency.
+export function needsBracket(e: Expr, parent?: Bin, right = false): boolean {
+  return (
+    e.kind === "bin" &&
+    !!parent &&
+    (precedence(e.op) < precedence(parent.op) ||
+      (right && precedence(e.op) === precedence(parent.op)))
+  );
+}
+function grouped(e: Bin, automatic: boolean, parent?: Bin, right = false) {
+  return !!e.bracket || (automatic && needsBracket(e, parent, right));
+}
+export function bracketDepth(
+  e: Expr,
+  automatic = true,
+  parent?: Bin,
+  right = false,
+): number {
+  if (e.kind === "num") return 0;
+  return (
+    Math.max(
+      bracketDepth(e.left, automatic, e),
+      bracketDepth(e.right, automatic, e, true),
+    ) + (grouped(e, automatic, parent, right) ? 1 : 0)
+  );
+}
+// Text and interactive rendering share this AST-based layout; no string replacement.
+export function bracketSymbols(
+  e: Expr,
+  automatic = true,
+  parent?: Bin,
+  right = false,
+): [string, string] {
+  if (e.kind === "num" || !grouped(e, automatic, parent, right))
+    return ["", ""];
+  return bracketDepth(e, automatic, parent, right) > 1
+    ? ["[", "]"]
+    : ["(", ")"];
+}
+export function smartBrackets(e: Expr, parent?: Bin, right = false): Expr {
+  if (e.kind === "num") return e;
+  return {
+    ...e,
+    bracket: needsBracket(e, parent, right),
+    left: smartBrackets(e.left, e),
+    right: smartBrackets(e.right, e, true),
+  };
+}
+// Literal mode reflects a child's explicit groups; automatic mode preserves the tree.
 export function format(
   e: Expr,
   automatic = true,
@@ -129,17 +177,8 @@ export function format(
     format(e.left, automatic, e) +
     symbol(e.op) +
     format(e.right, automatic, e, true);
-  const needs =
-    automatic &&
-    parent &&
-    (precedence(e.op) < precedence(parent.op) ||
-      (right &&
-        precedence(e.op) === precedence(parent.op) &&
-        (parent.op === "-" ||
-          parent.op === "/" ||
-          (parent.op === "*" && e.op === "/"))));
-  if (e.bracket || needs) content = "(" + content + ")";
-  return content;
+  const [open, close] = bracketSymbols(e, automatic, parent, right);
+  return open + content + close;
 }
 export function visit(e: Expr, fn: (e: Expr) => void) {
   fn(e);
@@ -169,44 +208,53 @@ export function normalize(e: Expr): string {
   if ((e.op === "+" || e.op === "*") && a > b) [a, b] = [b, a];
   return `(${e.op}:${a}:${b})`;
 }
-export function nextStep(e: Expr): Bin | null {
-  if (e.kind === "num") return null;
-  const ready: { node: Bin; depth: number; order: number }[] = [];
-  let index = 0;
-  function walk(n: Expr, depth: number) {
+function activeScopes(e: Expr): Bin[] {
+  if (e.kind === "num") return [];
+  const children = [...activeScopes(e.left), ...activeScopes(e.right)];
+  return children.length ? children : e.bracket ? [e] : [];
+}
+function firstInScope(e: Expr): Bin | null {
+  const ready: Bin[] = [];
+  function walk(n: Expr) {
     if (n.kind === "num") return;
-    const d = depth + (n.bracket ? 1 : 0);
-    walk(n.left, d);
-    const order = index++;
-    walk(n.right, d);
-    if (n.left.kind === "num" && n.right.kind === "num")
-      ready.push({ node: n, depth: d, order });
+    walk(n.left);
+    if (n.left.kind === "num" && n.right.kind === "num") ready.push(n);
+    walk(n.right);
   }
-  walk(e, 0);
-  ready.sort(
-    (a, b) =>
-      b.depth - a.depth ||
-      precedence(b.node.op) - precedence(a.node.op) ||
-      a.order - b.order,
-  );
-  return ready[0]?.node ?? null;
+  walk(e);
+  // An AST already encodes left associativity. In an ungrouped chain, choose
+  // the first available high-precedence operation, then the first low one.
+  return ready.find((n) => precedence(n.op) === 2) || ready[0] || null;
+}
+export function getLegalNextSteps(e: Expr): Bin[] {
+  const scopes = activeScopes(e);
+  return (scopes.length ? scopes : [e])
+    .map(firstInScope)
+    .filter((n): n is Bin => !!n);
+}
+export function isLegalStep(e: Expr, id: string): boolean {
+  return getLegalNextSteps(e).some((n) => n.id === id);
+}
+// One example path for solution generation only; grading uses the full set.
+export function nextStep(e: Expr): Bin | null {
+  return getLegalNextSteps(e)[0] || null;
 }
 export function reduce(e: Expr, id: string): Expr {
   const n = find(e, id);
   if (!n || n.kind !== "bin") throw new Error("请选择运算部分");
+  if (!isLegalStep(e, id)) throw new Error("这一部分还不能先算");
   return replace(e, id, { kind: "num", id: n.id, value: value(n) });
 }
 export function orderError(e: Expr, selectedId: string): ErrorType {
   const expected = nextStep(e),
     chosen = find(e, selectedId);
   if (!expected || chosen?.kind !== "bin") return "order";
-  let inBrackets = false;
-  visit(e, (n) => {
-    if (n.kind === "bin" && n.bracket && find(n, expected.id))
-      inBrackets = true;
-  });
-  if (inBrackets) return "parentheses";
-  if (precedence(chosen.op) === precedence(expected.op)) return "left-to-right";
+  const scopes = activeScopes(e);
+  const scope = scopes.find((n) => !!find(n, selectedId));
+  if (scopes.length && !scope) return "parentheses";
+  const localExpected = scope ? firstInScope(scope)! : expected;
+  if (precedence(chosen.op) === precedence(localExpected.op))
+    return "left-to-right";
   return "order";
 }
 export function explanation(

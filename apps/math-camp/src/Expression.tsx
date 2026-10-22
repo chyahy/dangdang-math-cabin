@@ -1,5 +1,5 @@
 import type { Expr } from "./engine";
-import { symbol, precedence } from "./engine";
+import { symbol, bracketSymbols, format } from "./engine";
 import type { Step } from "./engine";
 type Props = {
   node: Expr;
@@ -10,7 +10,11 @@ type Props = {
   automatic?: boolean;
   parent?: Expr;
   right?: boolean;
-  onDropCard?: (target: string, step: string) => void;
+  highlighted?: string[];
+  activeSource?: string;
+  hoverTarget?: string;
+  interactiveOperators?: boolean;
+  inserted?: string;
 };
 export function Expression(p: Props) {
   const {
@@ -22,6 +26,8 @@ export function Expression(p: Props) {
     automatic = true,
     parent,
     right,
+    activeSource,
+    hoverTarget,
   } = p;
   if (n.kind === "num") {
     const step = steps.find((s) => s.id === n.ref);
@@ -29,8 +35,10 @@ export function Expression(p: Props) {
       return (
         <button
           data-target={n.id}
-          className={`number-target ${selected === n.id ? "selected" : ""}`}
+          data-source={n.ref}
+          className={`number-target ${selected === n.id ? "selected" : ""} ${activeSource === n.ref ? "drop-legal" : ""} ${hoverTarget === n.id ? (activeSource === n.ref ? "drop-hover" : "drop-invalid") : ""}`}
           onClick={() => onSelect?.(n.id)}
+          aria-pressed={selected === n.id}
           aria-label={`替换${n.value}，来自第${step?.index}步`}
         >
           {n.value}
@@ -46,34 +54,34 @@ export function Expression(p: Props) {
       </span>
     );
   }
-  const needs =
-    automatic &&
-    parent?.kind === "bin" &&
-    (precedence(n.op) < precedence(parent.op) ||
-      (right &&
-        precedence(n.op) === precedence(parent.op) &&
-        (parent.op === "-" ||
-          parent.op === "/" ||
-          (parent.op === "*" && n.op === "/"))));
-  const bracket = n.bracket || needs;
+  const [open, close] = bracketSymbols(
+    n,
+    automatic,
+    parent?.kind === "bin" ? parent : undefined,
+    right,
+  );
   return (
     <span
       data-block={n.id}
-      className={`expr-group ${selected === n.id ? "chosen-group" : ""}`}
+      className={`expr-group ${selected === n.id ? "chosen-group" : ""} ${p.highlighted?.includes(n.id) ? "hint-legal" : ""} ${p.inserted === n.id ? "inserted-brick" : ""}`}
     >
-      {bracket && <span className="bracket">(</span>}
+      {open && <span className="bracket">{open}</span>}
       <Expression {...p} node={n.left} parent={n} right={false} />
-      <button
-        type="button"
-        className={`operator ${selected === n.id ? "selected" : ""}`}
-        aria-label={`${merge ? "选择积木" : "计算"}${n.id}`}
-        data-op={n.id}
-        onClick={() => onSelect?.(n.id)}
-      >
-        {symbol(n.op)}
-      </button>
+      {p.interactiveOperators === false ? (
+        <span className="operator-static">{symbol(n.op)}</span>
+      ) : (
+        <button
+          type="button"
+          className={`operator ${selected === n.id ? "selected" : ""}`}
+          aria-label={`${merge ? "选择积木" : "计算"}${format(n)}`}
+          data-op={n.id}
+          onClick={() => onSelect?.(n.id)}
+        >
+          {symbol(n.op)}
+        </button>
+      )}
       <Expression {...p} node={n.right} parent={n} right />
-      {bracket && <span className="bracket">)</span>}
+      {close && <span className="bracket">{close}</span>}
     </span>
   );
 }

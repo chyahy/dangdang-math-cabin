@@ -79,6 +79,7 @@ export function App() {
           ? initialMerge(q.original)
           : structuredClone(q.original),
       undo: [],
+      redo: [],
       history: [],
       errors: [],
       hints: 0,
@@ -124,7 +125,9 @@ export function App() {
     setSaved((v) => ({
       ...v,
       current: { ...session, done: true, stars, saved: true },
-      records: [...v.records, r],
+      records: v.records.some((item) => item.id === r.id)
+        ? v.records.map((item) => (item.id === r.id ? r : item))
+        : [...v.records, r],
     }));
     beep(saved.sound);
   }
@@ -156,7 +159,7 @@ export function App() {
           </span>
           <span>
             <strong>数学思维训练营</strong>
-            <small>鲁老师 × 当当老师</small>
+            <small>当当老师小课堂</small>
           </span>
         </button>
         <nav aria-label="主导航">
@@ -350,6 +353,18 @@ export function App() {
               ))}
             </div>
             <div className="settings-row">
+              {config.module === "merge" && (
+                <label className="check-label">
+                  <input
+                    type="checkbox"
+                    checked={config.smartBrackets === false}
+                    onChange={(e) =>
+                      changeConfig({ smartBrackets: !e.target.checked })
+                    }
+                  />
+                  进阶括号挑战：自己判断括号（默认自动补好）
+                </label>
+              )}
               <label>
                 原始数字上限
                 <input
@@ -459,6 +474,12 @@ export function App() {
               update={(current) => setSaved((v) => ({ ...v, current }))}
               finish={finish}
               next={() => start(undefined, s.config)}
+              nextLevel={() =>
+                start(undefined, {
+                  ...s.config,
+                  level: Math.min(5, s.config.level + 1),
+                })
+              }
               motion={saved.motion}
             />
           </>
@@ -626,7 +647,7 @@ export function App() {
         )}
       </main>
       <footer>
-        <span>鲁老师 × 当当老师 · 让每一次思考都有迹可循</span>
+        <span>当当老师 · 让每一次思考都有迹可循</span>
         <div>
           <label>
             <input

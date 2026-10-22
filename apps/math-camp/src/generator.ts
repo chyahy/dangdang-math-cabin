@@ -1,4 +1,13 @@
-import { bin, num, value, format, parse, type Expr, type Op } from "./engine";
+import {
+  bin,
+  num,
+  value,
+  format,
+  parse,
+  bracketDepth,
+  type Expr,
+  type Op,
+} from "./engine";
 export type Module = "mixed" | "merge" | "split";
 export type Question = {
   id: string;
@@ -116,6 +125,7 @@ export function generate(
       }
       // Parsing the displayed expression guarantees the same order is used in training and judging.
       const text = format(e);
+      if (bracketDepth(e) > 2) continue;
       if (recent.includes(`${module}:${text}`) && trial < 1450) continue;
       const original = parse(text);
       recent.push(`${module}:${text}`);

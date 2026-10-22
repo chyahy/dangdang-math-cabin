@@ -1,4 +1,4 @@
-import type { ErrorType, Expr } from "./engine";
+import { format, type ErrorType, type Expr } from "./engine";
 import type { Module, Question } from "./generator";
 export type Config = {
   module: Module;
@@ -6,6 +6,7 @@ export type Config = {
   mode: "guided" | "independent";
   max: number;
   preserve: boolean;
+  smartBrackets?: boolean;
 };
 export type Mistake = { type: ErrorType; step: string; at: number };
 export type RecordItem = {
@@ -25,7 +26,8 @@ export type Session = {
   question: Question;
   config: Config;
   tree: Expr;
-  undo: Expr[];
+  undo: Snapshot[];
+  redo?: Snapshot[];
   history: string[];
   errors: Mistake[];
   hints: number;
@@ -37,6 +39,7 @@ export type Session = {
   stars: number;
   saved: boolean;
 };
+export type Snapshot = { tree: Expr; history: string[] };
 export type Saved = {
   records: RecordItem[];
   current: Session | null;
@@ -50,6 +53,7 @@ export const defaultConfig: Config = {
   mode: "guided",
   max: 100,
   preserve: false,
+  smartBrackets: true,
 };
 const KEY = "dangdang-math-camp-v1";
 export function load(): Saved {
@@ -65,7 +69,33 @@ export function load(): Saved {
     if (!raw) return empty;
     const s = JSON.parse(raw);
     if (!Array.isArray(s.records)) return empty;
-    return { ...empty, ...s, config: { ...defaultConfig, ...s.config } };
+    // Keep the same storage key and migrate in place: never discard prior progress.
+    const migrateQuestion = (q: Question) => ({
+      ...q,
+      text: format(q.original),
+    });
+    const migrateFrame = (f: Expr | Snapshot): Snapshot =>
+      "tree" in f ? f : { tree: f, history: [] };
+    const current = s.current
+      ? {
+          ...s.current,
+          question: migrateQuestion(s.current.question),
+          config: { ...defaultConfig, ...s.current.config },
+          undo: (s.current.undo || []).map(migrateFrame),
+          redo: (s.current.redo || []).map(migrateFrame),
+        }
+      : null;
+    return {
+      ...empty,
+      ...s,
+      current,
+      records: s.records.map((r: RecordItem) => ({
+        ...r,
+        text: format(r.question.original),
+        question: migrateQuestion(r.question),
+      })),
+      config: { ...defaultConfig, ...s.config },
+    };
   } catch {
     return empty;
   }
