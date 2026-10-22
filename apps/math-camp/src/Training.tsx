@@ -53,7 +53,15 @@ export function Training({ session: s, update, finish, next, motion }: Props) {
   }
   function error(type: ErrorType, text?: string) {
     const count = s.errors.filter((e) => e.type === type).length + 1;
-    const message = text || explanation(type, count, expected || undefined);
+    let message = text || explanation(type, count, expected || undefined);
+    if (merge && type === "structure" && count >= 3) {
+      message = `对照原来的分步关系，正确合成为：${format(s.question.original)}＝${s.question.answer}。替换进去的整块加减算式，参加乘除或放在减号后时，要用括号保护它的运算顺序。请你选中对应积木补改括号，再检查。`;
+    }
+    if (merge && type === "source" && count >= 3) {
+      const target = find(s.tree, s.selected);
+      const source = target?.kind === "num" && steps.find(t => t.id === target.ref);
+      if (source) message = `${source.result}旁的来源编号是${source.index}：应当用第${source.index}张卡片“${format(source.expression)}＝${source.result}”来替换。即使另一张卡片的结果相同，也要按原来的来源编号来拼。`;
+    }
     patch({
       errors: [
         ...s.errors,
