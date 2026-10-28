@@ -777,7 +777,8 @@
         #rubikPrompt,
         #geometryPrompt,
         #multiplePrompt,
-        #campPrompt {
+        #campPrompt,
+        #rotationBoardPrompt {
             position: fixed;
             left: 0;
             top: 0;
@@ -804,7 +805,8 @@
         #rubikPrompt.visible,
         #geometryPrompt.visible,
         #multiplePrompt.visible,
-        #campPrompt.visible {
+        #campPrompt.visible,
+        #rotationBoardPrompt.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -820,7 +822,9 @@
         #multiplePrompt:hover,
         #multiplePrompt:focus-visible,
         #campPrompt:hover,
-        #campPrompt:focus-visible {
+        #campPrompt:focus-visible,
+        #rotationBoardPrompt:hover,
+        #rotationBoardPrompt:focus-visible {
             background: #fff3cf;
             transform: translate(-50%, calc(-100% - 20px));
             outline: none;
@@ -1032,12 +1036,16 @@
         .gameShelfLink:nth-child(4) .gameShelfIcon { background: #1f7180; }
         .gameShelfLink:nth-child(5) .gameShelfIcon { background: #9b4d3a; }
         .gameShelfGo { color: #8b4f35; font-size: 18px; }
+        #rotationBoardPrompt { background:rgba(237,247,255,.97); border-color:#2861ce; color:#194a83; }
+        #rotationBoardPrompt:hover,#rotationBoardPrompt:focus-visible { background:#dbf1ef; }
+        .gameShelfLink[href="geometry-board/"] .gameShelfIcon { background:#008780; }
 
         #deckPrompt::after,
         #factorPrompt::after,
         #rubikPrompt::after,
         #geometryPrompt::after,
-        #multiplePrompt::after {
+        #multiplePrompt::after,
+        #rotationBoardPrompt::after {
             content: "";
             position: absolute;
             left: 50%;
@@ -1167,7 +1175,7 @@
         #homeworkPortal.hasCover .homeworkPortalPaper > div { display: none; }
 
         @media (max-width: 560px) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
             #gameShelf { top: 66px; width: min(286px, 88vw); transform: translateX(calc(100% - 46px)); }
             #gameShelf.open { transform: translateX(0); }
             .gameShelfPanel { width: calc(100% - 46px); }
@@ -1179,7 +1187,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
             .portalRing, #gamePortal.show .portalCard { animation-duration: .01ms; animation-iteration-count: 1; }
         }
     </style>
@@ -1274,6 +1282,7 @@
     <button id="geometryPrompt" type="button" aria-label="点击二楼墙上的尺规工具，进入平行与垂直实验室"><span class="geometryIcon">∟</span>展开尺规工具 · 进入实验室</button>
     <button id="multiplePrompt" type="button" aria-label="点击二楼墙上的份数图卷轴，进入和倍差倍课堂"><span class="multipleIcon">1份</span>展开份数图 · 和倍差倍课堂</button>
     <button id="campPrompt" type="button" aria-label="点击二楼算式积木板，进入数学思维训练营">▦ 算式积木 · 数学思维训练营</button>
+    <button id="rotationBoardPrompt" type="button" aria-label="点击二楼地毯旁的旋转画板，进入交互几何画板">△ 旋转画板 · 自由绘图与旋转</button>
     <aside id="gameShelf" aria-label="课堂游戏快捷入口">
         <button id="gameShelfToggle" type="button" aria-expanded="false" aria-controls="gameShelfList"><span class="shelfArrow" aria-hidden="true">‹</span>游<br>戏</button>
         <div class="gameShelfPanel">
@@ -1285,6 +1294,7 @@
                 <a class="gameShelfLink" href="geometry-lab/" data-live="https://chyahy.github.io/software-picks/geometry-lab/"><span class="gameShelfIcon">∟</span><span>平行与垂直</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="sum-difference-multiple/free/"><span class="gameShelfIcon">1份</span><span>和倍与差倍</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="math-camp/"><span class="gameShelfIcon">＋×</span><span>数学思维训练营</span><span class="gameShelfGo">›</span></a>
+                <a class="gameShelfLink" href="geometry-board/"><span class="gameShelfIcon">△↻</span><span>交互几何画板</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="homework/"><span class="gameShelfIcon">画</span><span>学生作业画廊</span><span class="gameShelfGo">›</span></a>
             </nav>
         </div>
@@ -1312,7 +1322,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.10.22.1';
+            const PAGE_VERSION = '2026.10.28.2';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -4173,6 +4183,52 @@
             regMagic(campG,()=>openMathCamp(false));campPrompt.addEventListener('click',()=>openMathCamp(true));
             addEventListener('pageshow',()=>{campLaunching=false;campLaunch=0;campG.position.copy(CAMP_HOME);campG.scale.setScalar(1)});
             function updateMathCamp(dt,time){campLaunch+=((campLaunching?1:0)-campLaunch)*Math.min(1,dt*7);campG.position.z=CAMP_HOME.z+campLaunch*.35;campG.scale.setScalar(1+campLaunch*.18);campTiles.forEach((tile,i)=>{tile.position.x=(i-1)*(.35-campLaunch*.055);tile.position.y=.065+Math.sin(time*2+i)*.004+campLaunch*.08});if(fullHouse||campLaunching){campPrompt.classList.remove('visible');return}campG.getWorldPosition(campScreenPos);campScreenPos.y+=.45;campScreenPos.project(camera);campPrompt.style.left=((campScreenPos.x*.5+.5)*innerWidth)+'px';campPrompt.style.top=((-campScreenPos.y*.5+.5)*innerHeight)+'px';campPrompt.classList.toggle('visible',campScreenPos.z>-1&&campScreenPos.z<1&&Math.abs(campScreenPos.x)<1.04&&Math.abs(campScreenPos.y)<1.04)}
+
+            /* —— 二楼地毯旁立式旋转画板：不占桌面，独立于外墙，完整房屋模式不会穿墙 —— */
+            const rotationBoardG = new THREE.Group(), ROTATION_BOARD_HOME = V(2.45,FY,.95);
+            rotationBoardG.name='geometry-board-entrance';rotationBoardG.position.copy(ROTATION_BOARD_HOME);rotationBoardG.rotation.y=.48;scene.add(rotationBoardG);
+            const rotationBoardTilt = new THREE.Group();rotationBoardG.add(rotationBoardTilt);
+            for(const x of [-.44,.44]){
+                const leg=new THREE.Mesh(new THREE.BoxGeometry(.055,1.45,.055),LITMAT(0x9b7049));leg.position.set(x,.72,-.055);rotationBoardTilt.add(leg);
+                const foot=new THREE.Mesh(new THREE.BoxGeometry(.13,.055,.46),LITMAT(0x654b38));foot.position.set(x,.028,0);rotationBoardG.add(foot);
+            }
+            const rotationBoardPanel=new THREE.Mesh(new THREE.BoxGeometry(1.10,.90,.07),LITMAT(0x365477));rotationBoardPanel.position.set(0,1.04,0);rotationBoardTilt.add(rotationBoardPanel);
+            rotationBoardPanel.add(new THREE.LineSegments(new THREE.EdgesGeometry(rotationBoardPanel.geometry),new THREE.LineBasicMaterial({color:0x19344d})));
+            const rotationBoardCanvas=document.createElement('canvas');rotationBoardCanvas.width=640;rotationBoardCanvas.height=480;
+            const rotationBoardCtx=rotationBoardCanvas.getContext('2d');rotationBoardCtx.fillStyle='#f5f9ff';rotationBoardCtx.fillRect(0,0,640,480);
+            rotationBoardCtx.strokeStyle='#d6e4f2';rotationBoardCtx.lineWidth=1;
+            for(let x=0;x<640;x+=40){rotationBoardCtx.beginPath();rotationBoardCtx.moveTo(x,0);rotationBoardCtx.lineTo(x,480);rotationBoardCtx.stroke();}
+            for(let y=0;y<480;y+=40){rotationBoardCtx.beginPath();rotationBoardCtx.moveTo(0,y);rotationBoardCtx.lineTo(640,y);rotationBoardCtx.stroke();}
+            rotationBoardCtx.fillStyle='#214c80';rotationBoardCtx.textAlign='center';rotationBoardCtx.font='bold 42px Microsoft YaHei';rotationBoardCtx.fillText('几何旋转画板',320,62);
+            rotationBoardCtx.fillStyle='#6b849c';rotationBoardCtx.font='24px Microsoft YaHei';rotationBoardCtx.fillText('自由绘图 · 选点旋转',320,435);
+            const rotationBoardFace=new THREE.Mesh(new THREE.PlaneGeometry(1.02,.83),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(rotationBoardCanvas),side:THREE.DoubleSide}));rotationBoardFace.position.set(0,1.04,.039);rotationBoardTilt.add(rotationBoardFace);
+            const rotationBoardPivot=new THREE.Group();rotationBoardPivot.position.set(-.23,.87,.055);rotationBoardTilt.add(rotationBoardPivot);
+            const rotationTrianglePoints=[V(0,0,0),V(.39,0,0),V(.16,.29,0)];
+            function makeRotationTriangle(color){
+                const group=new THREE.Group();group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(rotationTrianglePoints),new THREE.LineBasicMaterial({color})));
+                rotationTrianglePoints.forEach(p=>{const dot=new THREE.Mesh(new THREE.SphereGeometry(.017,10,8),new THREE.MeshBasicMaterial({color}));dot.position.copy(p);group.add(dot);});return group;
+            }
+            rotationBoardPivot.add(makeRotationTriangle(0x2861ce));
+            const rotationBoardTriangle=makeRotationTriangle(0x008780);rotationBoardTriangle.position.z=.005;rotationBoardPivot.add(rotationBoardTriangle);
+            const rotationCenterMark=new THREE.Mesh(new THREE.TorusGeometry(.033,.006,6,24),new THREE.MeshBasicMaterial({color:0xdc8a2c}));rotationCenterMark.position.z=.013;rotationBoardPivot.add(rotationCenterMark);
+            let rotationBoardLaunching=false,rotationBoardLaunch=0,rotationBoardTimer=null;
+            const rotationBoardPrompt=document.getElementById('rotationBoardPrompt'),rotationBoardScreen=new THREE.Vector3();
+            rotationBoardG.userData.aimLabel='展开旋转画板，进入交互几何画板';rotationBoardG.userData.sfx='magic';
+            function openRotationBoard(playSound=true){
+                if(rotationBoardLaunching)return;rotationBoardLaunching=true;rotationBoardPrompt.classList.remove('visible');if(playSound)SND.play('magic');
+                rotationBoardTimer=setTimeout(()=>{location.href=location.protocol==='file:'?'https://dangdanglaoshi.cn/geometry-board/':new URL('geometry-board/',location.href).href},geometryReduceMotion?80:1100);
+            }
+            regMagic(rotationBoardG,()=>openRotationBoard(false));rotationBoardPrompt.addEventListener('click',()=>openRotationBoard(true));
+            addEventListener('pageshow',()=>{if(rotationBoardTimer)clearTimeout(rotationBoardTimer);rotationBoardTimer=null;rotationBoardLaunching=false;rotationBoardLaunch=0;rotationBoardG.position.copy(ROTATION_BOARD_HOME);rotationBoardG.scale.setScalar(1);rotationBoardTilt.rotation.x=0;rotationBoardG.rotation.y=.48;});
+            function updateRotationBoard(dt,time){
+                rotationBoardLaunch+=((rotationBoardLaunching?1:0)-rotationBoardLaunch)*Math.min(1,dt*6);const e=rotationBoardLaunch*rotationBoardLaunch*(3-2*rotationBoardLaunch);
+                rotationBoardTilt.rotation.x=-e*.16;rotationBoardG.position.y=ROTATION_BOARD_HOME.y+e*.14;rotationBoardG.position.z=ROTATION_BOARD_HOME.z+e*.22;rotationBoardG.scale.setScalar(1+e*.14);
+                rotationBoardTriangle.rotation.z=geometryReduceMotion?Math.PI/3:Math.PI/3*(.5+.5*Math.sin(time*.9))+e*Math.PI/3;
+                if(fullHouse||rotationBoardLaunching||(viewMode==='fp'&&player.pos.y<FY-.4)){rotationBoardPrompt.classList.remove('visible');return;}
+                rotationBoardG.localToWorld(rotationBoardScreen.set(0,1.65,0));rotationBoardScreen.project(camera);
+                rotationBoardPrompt.style.left=((rotationBoardScreen.x*.5+.5)*innerWidth)+'px';rotationBoardPrompt.style.top=((-rotationBoardScreen.y*.5+.5)*innerHeight)+'px';
+                rotationBoardPrompt.classList.toggle('visible',rotationBoardScreen.z>-1&&rotationBoardScreen.z<1&&Math.abs(rotationBoardScreen.x)<1.02&&Math.abs(rotationBoardScreen.y)<1.02);
+            }
 
             /* —— 椅子 —— */
             const CHAIR_IN = -3.20;
@@ -9425,6 +9481,7 @@
                 { x: RUBIK_HOME.x, z: RUBIK_HOME.z, r: 1.6, label: '打开正方体涂色探索', act: () => startCubeColoring(true) },
                 { x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
                 { x: CAMP_HOME.x, z: CAMP_HOME.z, r: 1.7, label: '拼合积木，进入数学思维训练营', act: () => openMathCamp(true) },
+                { x: ROTATION_BOARD_HOME.x, z: ROTATION_BOARD_HOME.z, minY: FY-.4, r: 1.6, label: '展开旋转画板，进入交互几何画板', act: () => openRotationBoard(true) },
                 { x: FX, z: FZ, r: 2.0, label: '点燃 / 熄灭壁炉', act: toggleFire },
                 { x: 0, z: 0, r: 2.4, label: '点亮 / 熄灭魔法吊灯', act: toggleLamp },
                 { x: 0, z: 4, r: 1.8, label: '打开 / 关上大门', act: () => toggleSpring(doorGroup) },
@@ -9443,7 +9500,15 @@
             function doInteract() { if (viewMode === 'fp' && (aimHit || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (nearestInteract) nearestInteract.act(); }
             function updateInteractHint() {
                 if (performance.now() * 0.001 < hintOverrideUntil) { hintEl.innerHTML = hintOverrideText; hintEl.classList.add('show'); return; }
-                if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { aimHit = aimRay(); if (aimHit) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>准星</b> 或 <b>交互键</b> ' : '点击 <b>左键</b> ') + aimHit.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show'); return; } aimHit = null; nearestInteract = null; let best = 1e9; for (const it of interactables) { if (it.fh && !fullHouse) continue; const d = Math.hypot(player.pos.x - it.x, player.pos.z - it.z); if (d < it.r && d < best) { best = d; nearestInteract = it; } } if (nearestInteract) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>交互键</b> ' : '按 <b>E</b> ') + nearestInteract.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show');
+                if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { aimHit = aimRay(); if (aimHit) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>准星</b> 或 <b>交互键</b> ' : '点击 <b>左键</b> ') + aimHit.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show'); return; }
+                aimHit = null; nearestInteract = null; let best = 1e9;
+                for (const it of interactables) {
+                    if (it.fh && !fullHouse) continue;
+                    if (it.minY !== undefined && player.pos.y < it.minY) continue;
+                    const d = Math.hypot(player.pos.x - it.x, player.pos.z - it.z);
+                    if (d < it.r && d < best) { best = d; nearestInteract = it; }
+                }
+                if (nearestInteract) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>交互键</b> ' : '按 <b>E</b> ') + nearestInteract.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show');
             }
 
             const keys = {}; const signInput = document.getElementById('signInput'); const signEditor = document.getElementById('signEditor'); const picInput = document.getElementById('picInput');
@@ -9454,7 +9519,7 @@
                 keys[e.code] = true;
                 if (e.code === 'KeyV' && viewMode !== 'fixed') setViewMode(viewMode === 'fp' ? 'tp' : 'fp');
                 if (e.code === 'Space') { e.preventDefault(); tryJump(); }
-                if (e.code === 'KeyE' && nearestInteract) doInteract();
+                if (e.code === 'KeyE' && (nearestInteract || (viewMode === 'fp' && aimHit))) doInteract();
                 if (e.code === 'Digit1' || e.code === 'Numpad1') selectSlot(1);
                 if (e.code === 'Digit2' || e.code === 'Numpad2') selectSlot(2);
                 if (e.code === 'KeyF') tryCast();
@@ -11080,6 +11145,7 @@
                 updateMultipleLesson(dt,time);
                 updateMultiplePrompt();
                 updateMathCamp(dt,time);
+                updateRotationBoard(dt,time);
                 renderer.render(scene, camera);
             }
             animate(0);

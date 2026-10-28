@@ -536,6 +536,9 @@ export function App() {
           className="top-actions flex items-center flex-wrap gap-2"
           aria-label="画板操作"
         >
+          <a className="cabin-return" href="../">
+            ← 回到小屋
+          </a>
           <button onClick={newBoard}>＋ 新建画板</button>
           <button className="accent" onClick={loadExample}>
             加载例5

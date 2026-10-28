@@ -90,6 +90,21 @@ input[type="checkbox"] {
 .top-actions button {
   font-size: 12px;
 }
+.cabin-return {
+  color: #597694;
+  font-size: 11px;
+  padding: 8px 5px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.cabin-return:hover {
+  color: #2861ce;
+}
+.cabin-return:focus-visible {
+  outline: 3px solid #80aaff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
 .toolbar-rule {
   height: 24px;
   width: 1px;
