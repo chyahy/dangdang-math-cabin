@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0c101b">
+  <meta name="description" content="当当老师的交互魔方旋转室：拖动三维魔方，逐层旋转，观察贴片轨迹，逐步播放旋转公式。">
+  <title>魔方旋转室 · 当当老师</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="masthead">
+  <a class="teacher" href="https://dangdanglaoshi.cn/" aria-label="返回当当老师的小屋"><span class="brand-mark" aria-hidden="true">当</span><span>当当老师<small>数学里的好奇心</small></span></a>
+  <div class="page-label">三阶魔方 · 交互演示</div>
+  <button id="helpButton" class="quiet">使用说明 <span>?</span></button>
+</header>
+<main>
+  <section class="visual" aria-label="三维魔方与贴片轨迹">
+    <div class="visual-heading"><div><span class="eyebrow">每一次转动，都有迹可循</span><h1>魔方<span>旋转室</span><i>Cube in motion.</i></h1></div><button id="fullscreen" class="icon-button" title="全屏显示" aria-label="全屏显示">⛶</button></div>
+    <div class="orbit-panel"><canvas id="orbits" aria-label="当前转层的贴片运动轨迹"></canvas><div class="orbit-caption"><span class="live-dot"></span><strong>贴片运动轨迹</strong><small>亮点与魔方同步转动</small></div></div>
+    <div id="viewport" tabindex="0" aria-label="三维魔方。拖动查看，点击色块选择面；滚轮或双指缩放。">
+      <div class="view-tools"><button id="resetView" class="quiet">↺ 视角复位</button><button id="autoOrbit" class="quiet" aria-pressed="false">环绕查看</button></div>
+      <div id="fallback" hidden>当前浏览器未开启三维图形支持，请用最新版 Edge、Chrome 或 Safari 打开。</div>
+      <div class="cube-shadow"></div>
+      <div id="faceBadge" class="face-badge">R · 右面</div>
+    </div>
+    <div class="visual-footer"><span>拖动查看 · 点击选面 · 双指 / 滚轮缩放</span><span id="cubeState"><i></i>已复原</span></div>
+  </section>
+  <aside class="controls" aria-label="魔方旋转控制">
+    <section class="control-section face-section">
+      <div class="section-heading"><h2>转哪一面？</h2><span id="selectedName">右面 / R</span></div>
+      <div id="faceButtons" class="face-grid"></div>
+      <div class="turn-buttons"><button id="clockwise" class="turn primary"><span>↻</span><b>顺时针</b><small>转 90°</small></button><button id="counterclockwise" class="turn"><span>↺</span><b>逆时针</b><small>转 90°</small></button><button id="halfTurn" class="turn half"><span>⤾</span><b>转半圈</b><small>转 180°</small></button></div>
+      <p class="hint">方向按<strong>正对所选面</strong>观察时计算。</p>
+      <div class="utility-row"><button id="undo" class="secondary" disabled>↶ 撤销</button><button id="redo" class="secondary" disabled>↷ 重做</button><button id="scramble" class="secondary">打乱</button><button id="reset" class="secondary">复原</button></div>
+    </section>
+    <section class="control-section demo-section">
+      <div class="section-heading"><h2>跟着步骤看</h2><span id="progress">0 / 24</span></div>
+      <label class="sr-only" for="demoSelect">选择旋转演示</label><select id="demoSelect"><option value="six">六次循环 · 看它回到原点</option><option value="four">同一面转四次 · 一周 360°</option><option value="checker">棋盘格 · 观察颜色交换</option><option value="custom">自己填写步骤</option></select>
+      <p id="demoDescription" class="description">R U R′ U′ 重复 6 次，魔方回到起始状态。</p>
+      <div id="customPanel" hidden><label for="algorithm">用空格分开每一步</label><textarea id="algorithm" rows="2" placeholder="R U R' U'" spellcheck="false">R U R' U'</textarea><button id="loadAlgorithm" class="secondary">加载我的步骤</button><small>支持 U R F D L B，′ 表示逆时针，2 表示半圈。</small></div>
+      <div id="sequence" class="sequence" aria-label="演示步骤"></div>
+      <div class="playback"><button id="previous" class="secondary" aria-label="上一步" disabled>◀</button><button id="play" class="play primary">▶ 播放演示</button><button id="next" class="secondary" aria-label="下一步">▶</button></div>
+      <button id="restartDemo" class="text-button">从头演示</button>
+      <div class="speed-row"><label for="speed">转动速度</label><input id="speed" type="range" min="0" max="100" value="45"><output id="speedValue" for="speed">适中</output></div>
+    </section>
+    <section class="control-section history-section"><div class="section-heading"><h2>我的转动记录</h2><span id="moveCount">0 步</span></div><div id="history" class="history"><span class="empty">选择一面，开始第一次转动。</span></div></section>
+    <p class="notation"><span>U 上</span><span>D 下</span><span>L 左</span><span>R 右</span><span>F 前</span><span>B 后</span></p>
+  </aside>
+</main>
+<footer class="site-footer"><span>当当老师小课堂</span><span>54 张贴片 · 26 个可见小方块 · 无数种可能</span></footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<dialog id="help"><div class="dialog-heading"><h2>先转一转，再看一看。</h2><button id="closeHelp" class="icon-button" aria-label="关闭说明">×</button></div><p>拖动魔方空白处或色块，可以从不同方向观察。点击色块选择它所在的一面，再用右侧按钮转动这一层。</p><p>手机上单指拖动查看，双指捏合缩放。电脑可以使用滚轮缩放。</p><p>上方轨迹图与真实贴片位置同步。亮点表示这次被转动的贴片，曲线是它们围绕转轴运动的路径。</p><p>键盘按 U、R、F、D、L、B 顺时针转动对应面；按住 Shift 为逆时针。空格播放或暂停，Ctrl / ⌘ + Z 撤销。</p><p>演示中的 U、R 等字母固定对应魔方本身的面，拖动观察不会改变这些定义。加载演示会先复原魔方。</p><button id="gotIt" class="primary">开始探索</button></dialog>
+<script src="vendor/three.min.js"></script>
+<script src="model.js"></script>
+<script src="app.js"></script>
+</body></html>
