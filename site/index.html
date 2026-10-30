@@ -778,7 +778,8 @@
         #geometryPrompt,
         #multiplePrompt,
         #campPrompt,
-        #rotationBoardPrompt {
+        #rotationBoardPrompt,
+        #solidGeometryPrompt {
             position: fixed;
             left: 0;
             top: 0;
@@ -806,7 +807,8 @@
         #geometryPrompt.visible,
         #multiplePrompt.visible,
         #campPrompt.visible,
-        #rotationBoardPrompt.visible {
+        #rotationBoardPrompt.visible,
+        #solidGeometryPrompt.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -824,7 +826,9 @@
         #campPrompt:hover,
         #campPrompt:focus-visible,
         #rotationBoardPrompt:hover,
-        #rotationBoardPrompt:focus-visible {
+        #rotationBoardPrompt:focus-visible,
+        #solidGeometryPrompt:hover,
+        #solidGeometryPrompt:focus-visible {
             background: #fff3cf;
             transform: translate(-50%, calc(-100% - 20px));
             outline: none;
@@ -976,6 +980,9 @@
 
         .gameShelfPanel {
             width: 240px;
+            max-height: calc(100dvh - 110px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
             padding: 16px 14px 14px;
             border: 1.5px solid #4b5148;
             border-right: 0;
@@ -1039,13 +1046,16 @@
         #rotationBoardPrompt { background:rgba(237,247,255,.97); border-color:#2861ce; color:#194a83; }
         #rotationBoardPrompt:hover,#rotationBoardPrompt:focus-visible { background:#dbf1ef; }
         .gameShelfLink[href="geometry-board/"] .gameShelfIcon { background:#008780; }
+        #solidGeometryPrompt { background:rgba(238,250,244,.97);border-color:#087e83;color:#17635f; }
+        .gameShelfLink[href="solid-geometry/"] .gameShelfIcon { background:#087e83; }
 
         #deckPrompt::after,
         #factorPrompt::after,
         #rubikPrompt::after,
         #geometryPrompt::after,
         #multiplePrompt::after,
-        #rotationBoardPrompt::after {
+        #rotationBoardPrompt::after,
+        #solidGeometryPrompt::after {
             content: "";
             position: absolute;
             left: 50%;
@@ -1175,7 +1185,7 @@
         #homeworkPortal.hasCover .homeworkPortalPaper > div { display: none; }
 
         @media (max-width: 560px) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
             #gameShelf { top: 66px; width: min(286px, 88vw); transform: translateX(calc(100% - 46px)); }
             #gameShelf.open { transform: translateX(0); }
             .gameShelfPanel { width: calc(100% - 46px); }
@@ -1187,7 +1197,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
             .portalRing, #gamePortal.show .portalCard { animation-duration: .01ms; animation-iteration-count: 1; }
         }
     </style>
@@ -1283,6 +1293,7 @@
     <button id="multiplePrompt" type="button" aria-label="点击二楼墙上的份数图卷轴，进入和倍差倍课堂"><span class="multipleIcon">1份</span>展开份数图 · 和倍差倍课堂</button>
     <button id="campPrompt" type="button" aria-label="点击二楼算式积木板，进入数学思维训练营">▦ 算式积木 · 数学思维训练营</button>
     <button id="rotationBoardPrompt" type="button" aria-label="点击二楼地毯旁的旋转画板，进入交互几何画板">△ 旋转画板 · 自由绘图与旋转</button>
+    <button id="solidGeometryPrompt" type="button" aria-label="点击门边的几何展台，进入立体图形观察站">▱ 展开立体 · 进入观察站</button>
     <aside id="gameShelf" aria-label="课堂游戏快捷入口">
         <button id="gameShelfToggle" type="button" aria-expanded="false" aria-controls="gameShelfList"><span class="shelfArrow" aria-hidden="true">‹</span>游<br>戏</button>
         <div class="gameShelfPanel">
@@ -1295,6 +1306,7 @@
                 <a class="gameShelfLink" href="sum-difference-multiple/free/"><span class="gameShelfIcon">1份</span><span>和倍与差倍</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="math-camp/"><span class="gameShelfIcon">＋×</span><span>数学思维训练营</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="geometry-board/"><span class="gameShelfIcon">△↻</span><span>交互几何画板</span><span class="gameShelfGo">›</span></a>
+                <a class="gameShelfLink" href="solid-geometry/"><span class="gameShelfIcon">▱</span><span>立体图形观察站</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="homework/"><span class="gameShelfIcon">画</span><span>学生作业画廊</span><span class="gameShelfGo">›</span></a>
             </nav>
         </div>
@@ -1322,7 +1334,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.10.28.2';
+            const PAGE_VERSION = '2026.10.30.2';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1972,6 +1984,7 @@
             const STUMPS = [[7.6, -5.8], [-8.2, 3.6], [-6.5, -8.5]];
             function yardSpotFree(x, z) {
                 if (HOMEWORK_STUDENTS.some(s => Math.hypot(x - s.x, z - s.z) < 0.8)) return false;
+                if (Math.hypot(x-4.2,z-5.7)<2.4) return false; // 门边几何展台的观察空间
                 if (x > -5.05 && x < 5.05 && z > -5.05 && z < 5.05) return false;
                 if (x > -1.35 && x < 1.35 && z > 4.35 && z < 5.3) return false;
                 if (x > -0.7 && x < 0.7 && z > 4.9 && z < 7.9) return false;
@@ -4228,6 +4241,47 @@
                 rotationBoardG.localToWorld(rotationBoardScreen.set(0,1.65,0));rotationBoardScreen.project(camera);
                 rotationBoardPrompt.style.left=((rotationBoardScreen.x*.5+.5)*innerWidth)+'px';rotationBoardPrompt.style.top=((-rotationBoardScreen.y*.5+.5)*innerHeight)+'px';
                 rotationBoardPrompt.classList.toggle('visible',rotationBoardScreen.z>-1&&rotationBoardScreen.z<1&&Math.abs(rotationBoardScreen.x)<1.02&&Math.abs(rotationBoardScreen.y)<1.02);
+            }
+
+            /* —— 门边独立立体几何展台：六个面沿公共棱展开，不占桌面和外墙 —— */
+            const SOLID_GEOMETRY_HOME=V(4.2,0,5.7),solidGeometryG=new THREE.Group();
+            solidGeometryG.name='solid-geometry-entrance';solidGeometryG.position.copy(SOLID_GEOMETRY_HOME);scene.add(solidGeometryG);
+            const solidStone=LITMAT(0x5c8b83),solidRim=LITMAT(0xd2ab68);
+            put(edge(new THREE.CylinderGeometry(.78,.88,.16,16),1,null,solidStone),0,.08,0,0,0,0,solidGeometryG);
+            put(edge(new THREE.CylinderGeometry(.48,.57,.82,12),1,null,solidStone),0,.57,0,0,0,0,solidGeometryG);
+            put(edge(new THREE.CylinderGeometry(.84,.84,.085,24),1,null,solidRim),0,1.02,0,0,0,0,solidGeometryG);
+            const solidNameCanvas=document.createElement('canvas');solidNameCanvas.width=512;solidNameCanvas.height=128;
+            const solidNameCtx=solidNameCanvas.getContext('2d');solidNameCtx.fillStyle='#f4efdd';solidNameCtx.fillRect(0,0,512,128);solidNameCtx.fillStyle='#245c5a';solidNameCtx.textAlign='center';solidNameCtx.font='bold 48px Microsoft YaHei';solidNameCtx.fillText('立体图形观察站',256,58);solidNameCtx.font='25px Microsoft YaHei';solidNameCtx.fillText('转一转 · 展开看',256,105);
+            const solidName=new THREE.Mesh(new THREE.PlaneGeometry(1.02,.255),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(solidNameCanvas),side:THREE.DoubleSide}));solidName.position.set(.32,.66,.49);solidName.rotation.y=.58;solidGeometryG.add(solidName);
+            const solidPaperG=new THREE.Group();solidPaperG.position.y=1.25;solidGeometryG.add(solidPaperG);
+            const SOLID_SIDE=.62,solidHinges=[];
+            function solidPaperFace(color,parent,x,y,z,rx=0,ry=0){
+                const g=new THREE.Group(),geometry=new THREE.PlaneGeometry(SOLID_SIDE,SOLID_SIDE),material=new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide});
+                const face=new THREE.Mesh(geometry,material);g.add(face);g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry),new THREE.LineBasicMaterial({color:0x2b5358})));g.position.set(x,y,z);g.rotation.set(rx,ry,0);parent.add(g);return g;
+            }
+            solidPaperFace(0xf3ce85,solidPaperG,0,0,0,-Math.PI/2);
+            for(const side of ['right','left','front','back']){
+                const hinge=new THREE.Group();solidPaperG.add(hinge);
+                if(side==='right'||side==='left'){hinge.position.x=(side==='right'?1:-1)*SOLID_SIDE/2;solidPaperFace(side==='right'?0x81bfcc:0xb7a2d1,hinge,0,SOLID_SIDE/2,0,0,Math.PI/2);solidHinges.push({g:hinge,axis:'z',sign:side==='right'?-1:1})}
+                else{hinge.position.z=(side==='front'?1:-1)*SOLID_SIDE/2;solidPaperFace(side==='front'?0x91c6ad:0xe5ac8a,hinge,0,SOLID_SIDE/2,0);solidHinges.push({g:hinge,axis:'x',sign:side==='front'?1:-1});
+                    if(side==='front'){const cap=new THREE.Group();cap.position.y=SOLID_SIDE;hinge.add(cap);solidPaperFace(0x8baad1,cap,0,0,-SOLID_SIDE/2,-Math.PI/2);solidHinges.push({g:cap,axis:'x',sign:1})}
+                }
+            }
+            let solidGeometryLaunching=false,solidGeometryLaunch=0,solidGeometryTimer=null;
+            const solidGeometryPrompt=document.getElementById('solidGeometryPrompt'),solidGeometryScreen=V();
+            solidGeometryG.userData.aimLabel='展开立体，进入立体图形观察站';solidGeometryG.userData.sfx='magic';
+            function openSolidGeometry(playSound=true){
+                if(solidGeometryLaunching)return;solidGeometryLaunching=true;solidGeometryPrompt.classList.remove('visible');if(playSound)SND.play('magic');if(document.pointerLockElement)document.exitPointerLock();
+                solidGeometryTimer=setTimeout(()=>{location.href=location.protocol==='file:'?'https://dangdanglaoshi.cn/solid-geometry/':new URL('solid-geometry/',location.href).href},geometryReduceMotion?80:1150);
+            }
+            regMagic(solidGeometryG,()=>openSolidGeometry(false));solidGeometryPrompt.addEventListener('click',()=>openSolidGeometry(true));
+            addEventListener('pageshow',()=>{if(solidGeometryTimer)clearTimeout(solidGeometryTimer);solidGeometryTimer=null;solidGeometryLaunching=false;solidGeometryLaunch=0;solidGeometryG.scale.setScalar(1);});
+            function updateSolidGeometry(dt,time){
+                solidGeometryLaunch+=((solidGeometryLaunching?1:0)-solidGeometryLaunch)*Math.min(1,dt*5.5);const e=solidGeometryLaunch*solidGeometryLaunch*(3-2*solidGeometryLaunch),opening=solidGeometryLaunching?e:geometryReduceMotion?0:.08+.06*Math.sin(time*.8);
+                solidPaperG.rotation.y=geometryReduceMotion?.3:time*.15;solidPaperG.position.y=1.25+e*.25;for(const hinge of solidHinges)hinge.g.rotation[hinge.axis]=hinge.sign*opening*Math.PI/2;solidGeometryG.scale.setScalar(1+e*.13);
+                if(solidGeometryLaunching||(viewMode==='fp'&&Math.hypot(player.pos.x-SOLID_GEOMETRY_HOME.x,player.pos.z-SOLID_GEOMETRY_HOME.z)>5)){solidGeometryPrompt.classList.remove('visible');return}
+                solidGeometryG.localToWorld(solidGeometryScreen.set(0,2.5,0));solidGeometryScreen.project(camera);
+                const promptHalf=solidGeometryPrompt.offsetWidth/2+10;solidGeometryPrompt.style.left=Math.max(promptHalf,Math.min(innerWidth-promptHalf,(solidGeometryScreen.x*.5+.5)*innerWidth))+'px';solidGeometryPrompt.style.top=((-solidGeometryScreen.y*.5+.5)*innerHeight)+'px';solidGeometryPrompt.classList.toggle('visible',solidGeometryScreen.z>-1&&solidGeometryScreen.z<1&&Math.abs(solidGeometryScreen.x)<1.02&&Math.abs(solidGeometryScreen.y)<1.02);
             }
 
             /* —— 椅子 —— */
@@ -9415,6 +9469,7 @@
                 { x1: -7.5, z1: 7.2, x2: -1.5, z2: 7.8 }, { x1: 1.5, z1: 7.2, x2: 7.5, z2: 7.8 },
                 { x1: 2.78, z1: 5.98, x2: 3.42, z2: 6.62 },
                 ...HOMEWORK_STUDENTS.map(s => ({ x1: s.x - 0.42, z1: s.z - 0.34, x2: s.x + 0.42, z2: s.z + 0.34 })),
+                { x1: SOLID_GEOMETRY_HOME.x-.86, z1: SOLID_GEOMETRY_HOME.z-.86, x2: SOLID_GEOMETRY_HOME.x+.86, z2: SOLID_GEOMETRY_HOME.z+.86 },
                 { x1: -6.18, z1: 5.82, x2: -5.42, z2: 6.58 },
                 { x1: -5.58, z1: 6.42, x2: -4.82, z2: 7.18 },
                 { x1: 5.22, z1: 6.12, x2: 5.98, z2: 6.88 },
@@ -9482,6 +9537,7 @@
                 { x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
                 { x: CAMP_HOME.x, z: CAMP_HOME.z, r: 1.7, label: '拼合积木，进入数学思维训练营', act: () => openMathCamp(true) },
                 { x: ROTATION_BOARD_HOME.x, z: ROTATION_BOARD_HOME.z, minY: FY-.4, r: 1.6, label: '展开旋转画板，进入交互几何画板', act: () => openRotationBoard(true) },
+                { x: SOLID_GEOMETRY_HOME.x, z: SOLID_GEOMETRY_HOME.z, maxY: 1.5, r: 2.3, label: '展开立体，进入立体图形观察站', act: () => openSolidGeometry(true) },
                 { x: FX, z: FZ, r: 2.0, label: '点燃 / 熄灭壁炉', act: toggleFire },
                 { x: 0, z: 0, r: 2.4, label: '点亮 / 熄灭魔法吊灯', act: toggleLamp },
                 { x: 0, z: 4, r: 1.8, label: '打开 / 关上大门', act: () => toggleSpring(doorGroup) },
@@ -9495,7 +9551,19 @@
             const hintEl = document.getElementById('hint'), crosshairEl = document.getElementById('crosshair'), lockTipEl = document.getElementById('lockTip');
             let nearestInteract = null, aimHit = null; const raycaster = new THREE.Raycaster(); const CENTER = new THREE.Vector2(0, 0); const mouse = new THREE.Vector2();
             function ancestorVisible(o) { let p = o; while (p) { if (p.visible === false) return false; p = p.parent; } return true; }
-            function aimRay() { raycaster.setFromCamera(CENTER, camera); const h = raycaster.intersectObjects(hingeMeshes, false).filter(x => ancestorVisible(x.object)); if (h.length) { const g = h[0].object.userData.hingeGroup; return { label: g.userData.aimLabel || '交互', act: () => toggleSpring(g) }; } const m = raycaster.intersectObjects(magicMeshes, false).filter(x => ancestorVisible(x.object)); if (m.length) { const o = m[0].object.userData.magicRoot; return { label: o.userData.aimLabel || '交互', act: () => fireMagic(o) }; } const f = raycaster.intersectObjects(fireMeshes, false).filter(x => ancestorVisible(x.object)); if (f.length) return { label: '点燃 / 熄灭壁炉', act: toggleFire }; return null; }
+            function sceneRayAction(point) {
+                raycaster.setFromCamera(point,camera);
+                const nearest=[
+                    {kind:'hinge',hit:raycaster.intersectObjects(hingeMeshes,false).find(h=>ancestorVisible(h.object))},
+                    {kind:'magic',hit:raycaster.intersectObjects(magicMeshes,false).find(h=>ancestorVisible(h.object))},
+                    {kind:'fire',hit:raycaster.intersectObjects(fireMeshes,false).find(h=>ancestorVisible(h.object))}
+                ].filter(item=>item.hit).sort((a,b)=>a.hit.distance-b.hit.distance)[0];
+                if(!nearest)return null;
+                if(nearest.kind==='hinge'){const g=nearest.hit.object.userData.hingeGroup;return {label:g.userData.aimLabel||'交互',act:()=>toggleSpring(g)}}
+                if(nearest.kind==='magic'){const g=nearest.hit.object.userData.magicRoot;return {label:g.userData.aimLabel||'交互',act:()=>fireMagic(g)}}
+                return {label:'点燃 / 熄灭壁炉',act:toggleFire};
+            }
+            function aimRay() { return sceneRayAction(CENTER); }
             const isLocked = () => document.pointerLockElement === renderer.domElement;
             function doInteract() { if (viewMode === 'fp' && (aimHit || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (nearestInteract) nearestInteract.act(); }
             function updateInteractHint() {
@@ -9505,6 +9573,7 @@
                 for (const it of interactables) {
                     if (it.fh && !fullHouse) continue;
                     if (it.minY !== undefined && player.pos.y < it.minY) continue;
+                    if (it.maxY !== undefined && player.pos.y > it.maxY) continue;
                     const d = Math.hypot(player.pos.x - it.x, player.pos.z - it.z);
                     if (d < it.r && d < best) { best = d; nearestInteract = it; }
                 }
@@ -9606,7 +9675,7 @@
                 dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy);
                 pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1);
             });
-            renderer.domElement.addEventListener('pointerup', e => { const wasClick = dragInfo?.id === e.pointerId && dragInfo.moved < 6 && !didPinch; endViewDrag(e); if (!wasClick) return; if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (viewMode === 'fp' && !IS_TOUCH && !isLocked()) { renderer.domElement.requestPointerLock(); return; } mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1; raycaster.setFromCamera(mouse, camera); const hits = raycaster.intersectObjects(hingeMeshes, false).filter(h => ancestorVisible(h.object)); if (hits.length) { toggleSpring(hits[0].object.userData.hingeGroup); return; } const mh = raycaster.intersectObjects(magicMeshes, false).filter(h => ancestorVisible(h.object)); if (mh.length) { fireMagic(mh[0].object.userData.magicRoot); return; } const fh = raycaster.intersectObjects(fireMeshes, false).filter(h => ancestorVisible(h.object)); if (fh.length) toggleFire(); });
+            renderer.domElement.addEventListener('pointerup', e => { const wasClick = dragInfo?.id === e.pointerId && dragInfo.moved < 6 && !didPinch; endViewDrag(e); if (!wasClick) return; if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (viewMode === 'fp' && !IS_TOUCH && !isLocked()) { renderer.domElement.requestPointerLock(); return; } mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1; const hit=sceneRayAction(mouse);if(hit)hit.act(); });
             renderer.domElement.addEventListener('pointercancel', endViewDrag);
             renderer.domElement.addEventListener('lostpointercapture', endViewDrag);
             addEventListener('pointerup', endViewDrag);
@@ -11146,6 +11215,7 @@
                 updateMultiplePrompt();
                 updateMathCamp(dt,time);
                 updateRotationBoard(dt,time);
+                updateSolidGeometry(dt,time);
                 renderer.render(scene, camera);
             }
             animate(0);

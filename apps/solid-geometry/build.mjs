@@ -1,0 +1,17 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import vm from 'node:vm';
+import {fileURLToPath} from 'node:url';
+const root=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(root,'../..');
+let html=await fs.readFile(path.join(root,'index.html'),'utf8');
+const nets=await fs.readFile(path.join(root,'nets.js'),'utf8');
+html=html.replace('<script src="nets.js"></script>',()=>'<script>\n'+nets+'\n</script>');
+for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
+const cabin=await fs.readFile(path.join(repo,'site/index.html'),'utf8');
+for(const match of cabin.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
+const version=JSON.parse(await fs.readFile(path.join(repo,'site/version.json'),'utf8'));
+if(cabin.match(/const PAGE_VERSION = '([^']+)'/)?.[1]!==version.version)throw new Error('Cabin cache version mismatch');
+const output=path.join(repo,'site/solid-geometry');await fs.mkdir(output,{recursive:true});
+await fs.writeFile(path.join(output,'index.html'),html);
+const offline=path.resolve(repo,'../../当当老师-立体图形观察站（离线版）.html');await fs.writeFile(offline,html);
+console.log(JSON.stringify({output:path.join(output,'index.html'),offline,bytes:Buffer.byteLength(html)},null,2));

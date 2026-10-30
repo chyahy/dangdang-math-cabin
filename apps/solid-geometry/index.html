@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087e83">
+<meta name="description" content="当当老师的立体图形观察站：十种立体图形、沿棱展开动画、圆柱和圆锥展开图、尺寸调整与图片导出。">
+<title>立体图形观察站 · 当当老师</title>
+<style>
+:root{--ink:#203b4a;--muted:#72828a;--teal:#087e83;--line:#e0e9eb;--paper:#f1f5f6;--blue:#c4e4ed}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font-family:"Microsoft YaHei","PingFang SC",sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #f2b454;outline-offset:4px}.page{max-width:1440px;margin:auto;padding:26px 32px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:27px}.brand{display:flex;gap:10px;align-items:center;font-size:15px;font-weight:700;letter-spacing:2px}.brand svg{width:31px;height:31px}.eyebrow{color:var(--muted);font:11px Consolas,monospace;letter-spacing:2px}.intro{display:flex;justify-content:space-between;align-items:end;margin-bottom:24px;gap:16px}h1{font-size:clamp(27px,3vw,38px);letter-spacing:2px;margin:0;font-weight:600}.intro p{font-size:13px;color:var(--muted);line-height:1.8;margin:0}.workspace{display:grid;grid-template-columns:205px minmax(0,1fr) 245px;border:1px solid var(--line);border-radius:21px;overflow:hidden;background:#fff;min-height:610px}.library{padding:24px 15px;border-right:1px solid var(--line)}.section-title{font-size:11px;letter-spacing:2px;color:var(--muted);margin:0 7px 15px}.shape-list{display:grid;gap:6px}.shape{background:transparent;border:1px solid transparent;border-radius:11px;padding:9px 10px;display:flex;align-items:center;gap:11px;text-align:left;color:var(--ink);transition:background .16s,border .16s}.shape:hover{background:#f2f7f7}.shape.active{background:#e8f5f3;border-color:#b6dad7;color:#05696e}.shape svg{width:37px;height:35px;flex-shrink:0}.shape span{font-size:13px}.shape small{display:block;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:1px}.stage-panel{min-width:0;display:flex;flex-direction:column;background:#f9fcfc}.stage-heading{padding:23px 26px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}.stage-heading h2{margin:0;font-size:17px;font-weight:600}.tag{color:var(--teal);font-size:10px;background:#e8f3f1;border:1px solid #d3e9e5;border-radius:15px;padding:5px 9px;white-space:nowrap}.drawing{position:relative;flex:1;display:flex;align-items:center;min-height:390px}.drawing svg{width:100%;height:auto;display:block;touch-action:none;cursor:grab;user-select:none;outline-offset:-5px}.drawing svg.dragging{cursor:grabbing}.hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#85969c;font-size:11px;pointer-events:none}.stage-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:19px 22px;border-top:1px solid var(--line);background:white;flex-wrap:wrap}.button-group{display:flex;gap:6px}.btn{display:inline-flex;justify-content:center;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:#fff;color:var(--ink);font-size:11px;line-height:1.5}.btn:hover{background:#edf5f5}.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal);min-width:88px}.btn.selected{background:#eaf5f3;color:var(--teal);border-color:#a9d4cf}.btn svg{width:13px;height:13px}.settings{padding:25px 21px;border-left:1px solid var(--line)}.settings h3{font-size:12px;font-weight:600;margin:0 0 20px;letter-spacing:1px}.slider-row{margin-bottom:22px}.slider-caption{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:12px;margin-bottom:10px}.slider-caption output{font:12px Consolas,monospace;color:var(--teal);background:#f0f7f6;border-radius:4px;padding:4px 6px;white-space:nowrap}input[type=range]{width:100%;accent-color:var(--teal);height:5px;cursor:pointer}.settings-divider{height:1px;background:var(--line);margin:23px 0}.check{display:flex;gap:9px;align-items:center;font-size:12px;margin:15px 0;cursor:pointer}.check input{accent-color:var(--teal);width:15px;height:15px;margin:0}.swatches{display:flex;gap:10px;margin-top:14px}.swatch{width:25px;height:25px;border-radius:50%;border:3px solid white;outline:1px solid var(--line)}.swatch[aria-pressed=true]{outline:2px solid var(--ink);outline-offset:2px}.note{font-size:11px;line-height:1.9;color:var(--muted);margin:19px 0 0}.info{display:grid;grid-template-columns:205px minmax(0,1fr) 245px;border:1px solid var(--line);border-radius:17px;background:#fff;margin-top:16px;overflow:hidden}.info-title{padding:23px 22px;background:#e8f2f1;display:flex;flex-direction:column;justify-content:center;gap:8px}.info-title strong{font-size:14px}.info-title span{font-size:10px;color:#648482;letter-spacing:1px}.facts{padding:24px;display:flex;align-items:center;justify-content:space-around;gap:15px}.fact{text-align:center}.fact b{display:block;font:29px/1.1 Georgia,serif;color:var(--ink);margin-bottom:7px}.fact span{font-size:11px;color:var(--muted)}.formula{padding:21px;border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:10px}.formula small{font-size:10px;color:var(--muted);letter-spacing:1px}.formula strong{font:16px/1.4 Georgia,"Microsoft YaHei",serif}.formula .result{color:var(--teal);font:12px/1.5 Consolas,monospace}footer{display:flex;justify-content:space-between;color:#81939b;font-size:10px;line-height:1.8;margin-top:18px;gap:20px}footer span:last-child{letter-spacing:1px;font-family:Consolas,monospace}
+@media(max-width:1100px){.page{padding:22px}.workspace{grid-template-columns:170px minmax(0,1fr) 210px}.info{grid-template-columns:170px minmax(0,1fr) 210px}.settings{padding:24px 15px}.library{padding:24px 10px}.shape{padding:8px 6px;gap:6px}.stage-toolbar{padding:15px}.button-group{gap:4px}.btn{padding:8px}.drawing{min-height:350px}.stage-heading{padding:21px 20px 0}}
+@media(max-width:830px){.workspace{grid-template-columns:150px minmax(0,1fr)}.settings{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1.25fr 1fr;gap:25px;padding:21px}.settings-divider{display:none}.settings h3{margin-bottom:18px}.note{margin-top:13px}.settings .swatches{margin-bottom:8px}.slider-row{margin-bottom:16px}.info{grid-template-columns:150px 1fr}.formula{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:17px 22px}.drawing{min-height:340px}}
+@media(max-width:560px){.page{padding:20px 12px}.top{margin-bottom:23px}.eyebrow{font-size:9px;letter-spacing:1px}.intro{display:block}.intro p{margin-top:10px;font-size:12px}.workspace{display:flex;flex-direction:column;border-radius:15px}.library{border:0;border-bottom:1px solid var(--line);padding:13px}.library .section-title{display:none}.shape-list{grid-template-columns:repeat(5,1fr);gap:4px}.shape{padding:6px 2px;display:flex;flex-direction:column;gap:4px;justify-content:center}.shape svg{width:29px;height:26px}.shape span{font-size:10px}.shape small{display:none}.stage-heading{padding:18px 19px 0}.drawing{min-height:0}.hint{font-size:10px;bottom:7px}.stage-toolbar{padding:13px 12px;gap:9px}.btn{font-size:10px;padding:7px 8px}.settings{padding:20px 17px;gap:20px}.info{grid-template-columns:100px 1fr}.info-title{padding:17px 13px}.info-title strong{font-size:12px}.info-title span{font-size:8px;letter-spacing:0}.facts{padding:21px 14px;gap:12px}.fact b{font-size:25px}.fact span{font-size:10px}.formula{padding:16px;font-size:12px}.formula strong{font-size:14px}footer span:last-child{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+.top-actions{display:flex;flex-wrap:wrap;gap:7px}.top-actions a{text-decoration:none}.brand{letter-spacing:1px}.brand small{display:block;font-size:10px;letter-spacing:1px;color:var(--muted);margin-top:4px;font-weight:400}.net-controls{margin:0 22px 17px;padding:13px 14px;border:1px solid #cae1dd;border-radius:10px;background:#eff8f5}.net-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.net-top .btn{font-size:12px;min-width:110px}.net-status{color:#4e807c;font-size:11px}.net-slider{margin-top:13px;display:flex;align-items:center;gap:10px;font-size:11px;color:#60837e}.net-slider input{flex:1;min-width:35px}.net-note{font-size:11px;line-height:1.8;color:#66847d;margin:10px 0 0}.net-legend{display:flex;align-items:center;gap:12px;font-size:10px;color:#6d827c;margin-top:7px}.net-legend i{display:inline-block;width:23px;border-top:2px dashed #d1933d;vertical-align:middle;margin-right:4px}.net-legend b{display:inline-block;width:23px;border-top:1px solid #315b70;vertical-align:middle;margin-right:4px}.numeric-dim{width:73px;padding:5px 6px;border:1px solid #c7dcd8;border-radius:5px;background:#fff;color:var(--teal);font:12px Consolas,monospace;text-align:right}.info .formula{gap:8px}.formula strong{font-size:14px}.surface-heading{padding-top:10px;border-top:1px solid var(--line);margin-top:4px}.result{font-size:11px!important}.stage-toolbar .zoom-controls{display:flex;gap:4px}.zoom-controls .btn{padding:7px 9px}.status-message{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#203b4a;color:#fff;padding:12px 20px;border-radius:9px;box-shadow:0 8px 30px #203b4a30;z-index:10;max-width:90vw;line-height:1.7;font-size:12px;transition:.2s}.status-message.show{opacity:1;transform:translate(-50%,0)}[hidden]{display:none!important}.drawing svg{min-height:260px}.net-controls .btn:disabled{opacity:.45;cursor:default}body:fullscreen{background:var(--paper);overflow:auto}.stage-toolbar .button-group{flex-wrap:wrap}.shape-net-label{font-size:14px;fill:#315b70;text-anchor:middle;font-family:'Microsoft YaHei',sans-serif}
+#cubeNetGallery{margin-top:10px;border-top:1px solid #c9e0da;padding-top:9px}#cubeNetGallery summary{font-size:11px;color:#477e72;cursor:pointer}.cube-net-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:9px}.net-choice{border:1px solid #c8dcd5;background:#fff;border-radius:6px;padding:4px;color:#56766f;font-size:9px;min-width:0}.net-choice[aria-pressed=true]{border:2px solid #087e83;background:#e3f2ec;padding:3px}.net-choice svg{width:100%;height:38px;display:block}.net-choice span{display:block;text-align:center;margin-top:2px}
+.btn:disabled{opacity:.45;cursor:default}
+@media(max-width:560px){.top{align-items:flex-start;gap:9px;flex-wrap:wrap}.top-actions{gap:5px;margin-left:auto}.top-actions .btn{font-size:10px;padding:6px 8px}.brand{font-size:12px}.brand svg{width:26px;height:26px}.brand small{font-size:9px}.intro{margin-bottom:18px}.net-controls{margin:0 12px 12px;padding:10px}.net-note{font-size:10px}.net-status{font-size:10px}.net-top .btn{font-size:11px}.stage-toolbar{gap:8px}.drawing svg{min-height:270px}.settings{grid-template-columns:1fr 1fr;gap:15px}.numeric-dim{width:65px}.surface-heading{margin-top:0}.formula{gap:9px}.formula small{font-size:9px}.formula .result{font-size:10px!important}.formula strong{font-size:12px}.net-legend{font-size:9px}.net-slider{font-size:10px}.top .brand{gap:7px}}
+@media(max-width:370px){.settings{grid-template-columns:1fr}.settings>div+div{border-top:1px solid var(--line);padding-top:16px}.brand{font-size:11px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="top"><div class="brand"><svg viewBox="0 0 32 32" fill="none" stroke="#087e83" stroke-width="1.5" stroke-linejoin="round"><path d="m16 2 13 7v15l-13 7L3 24V9Z"/><path d="m3 9 13 7 13-7M16 16v15M16 2v14"/></svg><div>当当老师小课堂<small>立体图形观察站</small></div></div><div class="top-actions"><a id="backHome" class="btn" href="../">← 回到小屋</a><button class="btn" id="exportPNG">↓ 导出图片</button><button class="btn" id="fullscreen">⛶ 全屏</button></div></header>
+  <div class="intro"><h1>把立体，展开来看。</h1><p>拖动观察每一面，再沿着棱慢慢展开。<br>每一面的形状与大小，在展开时保持不变。</p></div>
+  <div class="workspace">
+    <nav class="library" aria-label="选择立体图形"><p class="section-title">图形收藏架 · 10 种</p><div id="shapeList" class="shape-list"></div></nav>
+    <section class="stage-panel" aria-label="立体图形预览">
+      <div class="stage-heading"><h2 id="shapeTitle">四棱台</h2><span class="tag" id="shapeTag">多面体</span></div>
+      <div class="drawing">
+        <svg id="scene" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" role="img" tabindex="0" aria-labelledby="svgTitle svgDesc">
+          <title id="svgTitle">可旋转的四棱台</title><desc id="svgDesc">拖动旋转立体图形，也可以聚焦后使用方向键旋转。</desc>
+          <defs><radialGradient id="ground"><stop stop-color="#b8d4d8" stop-opacity=".38"/><stop offset="1" stop-color="#b8d4d8" stop-opacity="0"/></radialGradient><pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#b8cdd2" opacity=".38"/></pattern></defs>
+          <path d="M0 0H800V600H0Z" fill="url(#grid)"/>
+          <ellipse cx="400" cy="484" rx="219" ry="42" fill="url(#ground)"/>
+          <g id="hiddenLines"></g><g id="surfaces"></g><g id="visibleLines"></g><g id="vertexLabels"></g><g id="axes"></g>
+        </svg>
+        <div class="hint" id="stageHint">拖动旋转 · 双指缩放与平移 · 方向键也可以操作</div>
+      </div>
+      <div class="net-controls"><div class="net-top"><button class="btn primary" id="toggleNet" aria-pressed="false">◇ 沿棱展开</button><span class="net-status" id="netStatus">立体状态 · 0%</span></div><div class="net-slider" id="netSliderRow"><span>收拢</span><input id="netAmount" type="range" min="0" max="100" value="0" step="1" aria-label="展开程度"><span>展开</span></div><p class="net-note" id="netNote">选定底面作为连接中心，其他面沿公共棱转动。拖动进度，可以停在任意一步。</p><div class="net-legend" id="netLegend"><span><i></i>折叠线</span><span><b></b>剪开后的边界</span></div><details id="cubeNetGallery"><summary>正方体的 11 种展开图</summary><div id="cubeNetChoices" class="cube-net-grid"></div></details></div>
+      <div class="stage-toolbar"><div class="button-group"><button class="btn primary" id="spin" aria-pressed="true">Ⅱ 暂停转动</button><button class="btn" id="reset" title="恢复当前图形的默认尺寸和视角">↺ 重置</button></div><div class="button-group" aria-label="观察视角"><button class="btn selected view" data-view="space">立体</button><button class="btn view" data-view="front">正视</button><button class="btn view" data-view="top">俯视</button><button class="btn view" data-view="side">侧视</button></div><div class="zoom-controls" aria-label="缩放"><button class="btn" id="zoomOut" aria-label="缩小">−</button><button class="btn" id="fit" aria-label="完整显示图形">完整显示</button><button class="btn" id="zoomIn" aria-label="放大">＋</button></div></div>
+    </section>
+    <aside class="settings"><div><h3>改变它的样子</h3><div id="sliders"></div><p class="note" id="dimensionNote"></p></div><div><div class="settings-divider"></div><h3>观察小工具</h3><label class="check"><input id="hidden" type="checkbox" checked>显示被遮挡的棱线</label><label class="check"><input id="labels" type="checkbox">标记顶点</label><label class="check"><input id="axisToggle" type="checkbox" checked>显示坐标方向</label><div class="swatches" aria-label="图形颜色"><button class="swatch" data-color="blue" aria-label="海蓝色" aria-pressed="true" style="background:#83c7db"></button><button class="swatch" data-color="mint" aria-label="薄荷绿色" aria-pressed="false" style="background:#7cc6ac"></button><button class="swatch" data-color="orange" aria-label="杏橙色" aria-pressed="false" style="background:#eda577"></button><button class="swatch" data-color="purple" aria-label="丁香紫色" aria-pressed="false" style="background:#b4a3d9"></button></div><p class="note" id="toolNote">虚线表示从当前角度看不到的棱。</p></div></aside>
+  </div>
+  <section class="info" aria-label="图形知识"><div class="info-title"><strong>认识这个图形</strong><span id="factSubtitle">数一数它的结构</span></div><div class="facts" id="facts"></div><div class="formula"><small>体积</small><strong id="volumeFormula"></strong><span class="result" id="volumeResult"></span><small class="surface-heading">展开图的总面积 / 表面积</small><strong id="surfaceFormula"></strong><span class="result" id="surfaceResult"></span></div></section>
+  <footer><span id="learningNote"></span><span>当当老师 · 立体与平面之间</span></footer>
+</main>
+<div id="statusMessage" class="status-message" role="status" aria-live="polite"></div>
+<script src="nets.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), TAU=Math.PI*2;
+const defs={
+  frustum:{name:'四棱台',short:'棱台',en:'FRUSTUM',type:'多面体',params:[['a','下底边长 a',2,5,3.6],['h','高度 h',1,5,3],['ratio','上 / 下底边长',.2,.85,.5]],stats:[8,12,6],formula:'V = h (a² + ab + b²) / 3',note:'上下底面是相似的正方形，且互相平行；b 表示上底边长。',learn:'观察提示：棱台是棱锥被平行于底面的平面截去顶部后，留下的部分。'},
+  cube:{name:'正方体',short:'正方体',en:'CUBE',type:'多面体',params:[['a','棱长 a',1.5,4.5,3]],stats:[8,12,6],formula:'V = a³',note:'所有棱长相等，六个面都是完全相同的正方形。',learn:'观察提示：正方体也是一种特殊的长方体。'},
+  cuboid:{name:'长方体',short:'长方体',en:'CUBOID',type:'多面体',params:[['a','长度 a',2,5,4],['b','宽度 b',1,4,2.4],['h','高度 h',1,5,3]],stats:[8,12,6],formula:'V = a × b × h',note:'相对的面完全相同，相交于同一顶点的三条棱互相垂直。',learn:'观察提示：正视、俯视和侧视，分别能看到哪些边长？'},
+  triprism:{name:'三棱柱',short:'三棱柱',en:'TRIANGULAR PRISM',type:'多面体',params:[['a','底面边长 a',2,5,3.6],['h','高度 h',1,5,3.6]],stats:[6,9,5],formula:'V = S底 × h',note:'这里展示直三棱柱，底面为正三角形；S底 = √3 a² / 4。',learn:'观察提示：棱柱的上下底面形状和大小相同，侧面连接对应的顶点。'},
+  hexprism:{name:'六棱柱',short:'六棱柱',en:'HEXAGONAL PRISM',type:'多面体',params:[['a','底面边长 a',1,2.8,1.8],['h','高度 h',1,5,3.2]],stats:[12,18,8],formula:'V = S底 × h',note:'这里展示直六棱柱，底面为正六边形；S底 = 3√3 a² / 2。',learn:'观察提示：六棱柱有两个六边形底面和六个矩形侧面。'},
+  cylinder:{name:'圆柱',short:'圆柱',en:'CYLINDER',type:'旋转体',params:[['r','底面半径 r',.7,2.4,1.6],['h','高度 h',1,5,3.4]],curved:true,formula:'V = πr²h',note:'两个底面是大小相同的圆；侧面展开后是一个长方形。',learn:'观察提示：圆柱有 2 个平面和 1 个曲面，圆形边界不属于多面体的直棱。'},
+  pyramid:{name:'四棱锥',short:'四棱锥',en:'SQUARE PYRAMID',type:'多面体',params:[['a','底面边长 a',2,5,3.8],['h','高度 h',1,5,3.8]],stats:[5,8,5],formula:'V = a²h / 3',note:'这里展示正四棱锥：底面是正方形，顶点位于底面中心的正上方。',learn:'观察提示：棱锥的所有侧面都是三角形，并且共享同一个顶点。'},
+  cone:{name:'圆锥',short:'圆锥',en:'CONE',type:'旋转体',params:[['r','底面半径 r',.7,2.4,1.8],['h','高度 h',1,5,3.8]],curved:true,formula:'V = πr²h / 3',note:'一个圆形底面、一个曲面和一个顶点；侧面展开是扇形。',learn:'观察提示：圆锥与圆柱等底等高时，圆锥的体积是圆柱的三分之一。'},
+  tetra:{name:'三棱锥',short:'三棱锥',en:'TRIANGULAR PYRAMID',type:'多面体',params:[['a','底面边长 a',2,5,4],['h','高度 h',1,5,3.6]],stats:[4,6,4],formula:'V = S底 × h / 3',note:'底面为正三角形，顶点位于底面中心的正上方；S底 = √3 a² / 4。',learn:'观察提示：三棱锥的四个面都是三角形，也叫四面体；它们不一定是正三角形。'},
+  sphere:{name:'球',short:'球',en:'SPHERE',type:'旋转体',params:[['r','半径 r',1,2.5,1.9]],curved:true,formula:'V = 4πr³ / 3',note:'球面上的每一点，到球心的距离都等于半径 r。',learn:'观察提示：从任意方向看球，它的轮廓都是圆。球只有一个连续的曲面。'}
+};
+const colors={blue:[124,191,213],mint:[115,190,162],orange:[229,156,110],purple:[170,151,209]};
+let current='cube',dims={},model,color='blue',yaw=-.62,pitch=.35,zoom=1,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,dirty=true,last=null,lastDraw=0;
+let unfoldAmount=0,netAnimation=null,topology=null,netCamera={yaw:-.62,pitch:.35},panX=0,panY=0,messageTimer,cubeNetOptions=null,cubeNetIndex=0;
+const touches=new Map();let drag=null,pinch=null;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+function message(text){clearTimeout(messageTimer);$('statusMessage').textContent=text;$('statusMessage').classList.add('show');messageTimer=setTimeout(()=>$('statusMessage').classList.remove('show'),3200)}
+$('backHome').href=location.protocol==='file:'?'https://dangdanglaoshi.cn/':'../';
+const icons={
+frustum:'M7 26 14 7 31 7 39 26 25 33Z M7 26h32M14 7l11 7 6-7M25 14v19',
+cube:'m5 11 17-8 17 8v18l-17 8L5 29Z M5 11l17 8 17-8M22 19v18',
+cuboid:'m3 12 24-7 14 7v17l-24 7L3 29Z M3 12l14 7 24-7M17 19v17',
+triprism:'m6 28 13-23 11 23Z M19 5l15 1 9 23H30M6 28l13 9 24-8',
+hexprism:'m6 11 8-6h18l8 6-8 6H14Z M6 11v18l8 6h18l8-6V11M14 17v18M32 17v18',
+cylinder:'M7 9c0-8 33-8 33 0s-33 8-33 0v22c0 8 33 8 33 0V9',
+pyramid:'m23 3 18 27-19 7L4 28Z M23 3l-1 34M4 28l37 2',
+cone:'M23 3 5 30c0 9 36 9 36 0ZM5 30c0-8 36-8 36 0',
+tetra:'m23 3 18 27-25 7L4 24Z M23 3l-7 34M4 24l37 6',
+sphere:'M23 3a17 17 0 1 0 0 34 17 17 0 1 0 0-34M6 20c0-7 34-7 34 0s-34 7-34 0M23 3c-11 0-11 34 0 34s11-34 0-34'};
+for(const [id,d] of Object.entries(defs)){
+const button=document.createElement('button');button.className='shape';button.dataset.shape=id;button.setAttribute('aria-pressed','false');button.innerHTML=`<svg viewBox="0 0 46 40" fill="#d9eeed" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icons[id]}"/></svg><span>${d.short}<small>${d.en}</small></span>`;button.addEventListener('click',()=>select(id));$('shapeList').appendChild(button);
+}
+const vecSub=(a,b)=>a.map((v,i)=>v-b[i]);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a.reduce((sum,v,i)=>sum+v*b[i],0);
+const unit=v=>{const l=Math.hypot(...v);return v.map(x=>x/l)};
+function build(){
+const d=dims,vertices=[],faces=[],smooth=defs[current].curved;
+function ring(n,r,y,offset=0){let ids=[];for(let i=0;i<n;i++){const t=TAU*i/n+offset;ids.push(vertices.length);vertices.push([r*Math.cos(t),y,r*Math.sin(t)])}return ids}
+function sides(bottom,top){for(let i=0;i<bottom.length;i++){const j=(i+1)%bottom.length;faces.push([bottom[i],bottom[j],top[j],top[i]])}faces.push(bottom,top)}
+if(current==='sphere'){
+const n=40,steps=20;vertices.push([0,-d.r,0]);let rings=[];for(let j=1;j<steps;j++){const t=-Math.PI/2+Math.PI*j/steps;rings.push(ring(n,d.r*Math.cos(t),d.r*Math.sin(t)))}const north=vertices.length;vertices.push([0,d.r,0]);
+for(let i=0;i<n;i++){let k=(i+1)%n;faces.push([0,rings[0][i],rings[0][k]],[north,rings.at(-1)[i],rings.at(-1)[k]])}
+for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++)faces.push([rings[j][i],rings[j][(i+1)%n],rings[j+1][(i+1)%n],rings[j+1][i]]);
+}else if(['cylinder','cone','triprism','hexprism','tetra'].includes(current)){
+const n=current==='hexprism'?6:['triprism','tetra'].includes(current)?3:64;
+const r=n===3?d.a/Math.sqrt(3):n===6?d.a:d.r;
+const b=ring(n,r,-d.h/2,n===3?-Math.PI/2:Math.PI/4);
+if(current==='cone'||current==='tetra'){const peak=vertices.length;vertices.push([0,d.h/2,0]);faces.push(b);for(let i=0;i<n;i++)faces.push([b[i],b[(i+1)%n],peak])}
+else sides(b,ring(n,r,d.h/2,n===3?-Math.PI/2:Math.PI/4));
+}else{
+const a=d.a,b=current==='cuboid'?d.b:a,h=current==='cube'?a:d.h;
+const bottom=[[-a/2,-h/2,-b/2],[a/2,-h/2,-b/2],[a/2,-h/2,b/2],[-a/2,-h/2,b/2]];vertices.push(...bottom);
+if(current==='pyramid'){vertices.push([0,h/2,0]);faces.push([0,1,2,3],[0,1,4],[1,2,4],[2,3,4],[3,0,4])}
+else{const ratio=current==='frustum'?d.ratio:1;vertices.push(...bottom.map(v=>[v[0]*ratio,h/2,v[2]*ratio]));sides([0,1,2,3],[4,5,6,7])}
+}
+const centroid=vertices.reduce((sum,v)=>sum.map((x,i)=>x+v[i]/vertices.length),[0,0,0]);
+const normals=faces.map(f=>{let n=cross(vecSub(vertices[f[1]],vertices[f[0]]),vecSub(vertices[f[2]],vertices[f[0]]));const center=f.reduce((sum,i)=>sum.map((x,k)=>x+vertices[i][k]/f.length),[0,0,0]);if(dot(n,vecSub(center,centroid))<0){f.reverse();n=n.map(x=>-x)}return unit(n)});
+const edgeMap=new Map();faces.forEach((f,fi)=>f.forEach((a,i)=>{const b=f[(i+1)%f.length],key=[Math.min(a,b),Math.max(a,b)].join('-');if(!edgeMap.has(key))edgeMap.set(key,{a,b,faces:[]});edgeMap.get(key).faces.push(fi)}));
+model={vertices,faces,normals,edges:[...edgeMap.values()],smooth};
+if(current==='cube'){if(!cubeNetOptions){cubeNetOptions=SolidNets.cubeNets(model);renderCubeNetChoices()}topology=cubeNetOptions[cubeNetIndex].topology}else topology=smooth?null:SolidNets.tree(model);
+dirty=true;updateFacts();
+}
+function rotate(v){const c=Math.cos(yaw),s=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);const x=c*v[0]+s*v[2],z=-s*v[0]+c*v[2];return [x,cp*v[1]-sp*z,sp*v[1]+cp*z]}
+const coord=v=>`${v[0].toFixed(2)},${v[1].toFixed(2)}`;
+function render(){
+if(unfoldAmount>0){renderNet();return;}
+const extent=Math.max(...model.vertices.map(v=>Math.hypot(...v)));
+const scale=182/Math.max(2,extent)*zoom;
+const transformed=model.vertices.map(rotate),points=transformed.map(v=>[400+panX+v[0]*scale,279+panY-v[1]*scale]);
+const normals=model.normals.map(rotate),front=normals.map(n=>n[2]>.00001);
+const light=unit([-.5,.8,1]),base=colors[color];
+let surfaces='';const order=model.faces.map((f,i)=>({i,z:f.reduce((s,j)=>s+transformed[j][2]/f.length,0)})).sort((a,b)=>a.z-b.z);
+for(const {i} of order){if(!front[i])continue;const shade=.71+.29*Math.max(0,dot(normals[i],light));const fill=`rgb(${base.map(v=>Math.round(v*shade+255*(1-shade)*.14)).join(',')})`;surfaces+=`<polygon points="${model.faces[i].map(j=>coord(points[j])).join(' ')}" fill="${fill}" stroke="${fill}" stroke-width=".7" stroke-linejoin="round"/>`}
+let hidden='',visible='';
+for(const e of model.edges){
+const isFront=e.faces.some(i=>front[i]),isSilhouette=e.faces.some(i=>front[i])&&e.faces.some(i=>!front[i]);
+let drawEdge=!model.smooth;
+if(current==='cylinder')drawEdge=Math.abs(model.vertices[e.a][1]-model.vertices[e.b][1])<.00001||isSilhouette;
+if(current==='cone')drawEdge=(e.a!==64&&e.b!==64)||isSilhouette;
+if(current==='sphere')drawEdge=isSilhouette;
+if(!drawEdge)continue;
+const line=`<path d="M${coord(points[e.a])}L${coord(points[e.b])}"/>`;
+if(isFront)visible+=line;else if($('hidden').checked)hidden+=line;
+}
+$('surfaces').innerHTML=surfaces;
+// Hidden lines are overlaid with a faint dash, like a textbook drawing.
+$('hiddenLines').innerHTML='';
+$('visibleLines').innerHTML=`<g fill="none" stroke="#315b70" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round" opacity=".45" stroke-dasharray="5 5">${hidden}</g><g fill="none" stroke="#315b70" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">${visible}</g>`;
+let labels='';if($('labels').checked&&!model.smooth)model.vertices.forEach((v,i)=>{const p=points[i],x=p[0]+(p[0]>400?12:-12),y=p[1]+(p[1]>279?18:-12);labels+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#224c60"/><text x="${x}" y="${y}" text-anchor="middle" font-size="14" font-family="Georgia,serif" fill="#234c60" stroke="#f9fcfc" stroke-width="4" paint-order="stroke">${String.fromCharCode(65+i)}</text>`});$('vertexLabels').innerHTML=labels;
+let axes='';if($('axisToggle').checked){const origin=[710,500],basis=[[1,0,0],[0,1,0],[0,0,1]],labels=['x','y','z'],palette=['#cf8a70','#4b9c86','#6599bb'];basis.forEach((v,i)=>{const r=rotate(v),x=origin[0]+r[0]*34,y=origin[1]-r[1]*34;axes+=`<path d="M${origin}L${x},${y}" fill="none" stroke="${palette[i]}" stroke-width="2.3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="2.5" fill="${palette[i]}"/><text x="${x+8}" y="${y+4}" font-size="12" fill="${palette[i]}" font-family="Consolas,monospace">${labels[i]}</text>`});axes+='<circle cx="710" cy="500" r="3" fill="#78939d"/>'}$('axes').innerHTML=axes;dirty=false;
+}
+function netText(x,y,text,size=14){size=Math.max(size,Math.min(25,10*800/Math.max(280,$('scene').clientWidth)));return `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" font-size="${size}" font-family="Microsoft YaHei,sans-serif" fill="#315b70" stroke="#f9fcfc" stroke-width="3" paint-order="stroke">${text}</text>`}
+function renderNet(){
+let surfaces='',lines='',labels='';
+if(!defs[current].curved){
+const net=SolidNets.unfold(model,unfoldAmount,topology),all=net.faces.flatMap(f=>f.points.map(rotate));
+const minX=Math.min(...all.map(p=>p[0])),maxX=Math.max(...all.map(p=>p[0])),minY=Math.min(...all.map(p=>p[1])),maxY=Math.max(...all.map(p=>p[1]));
+const scale=Math.min(650/Math.max(.1,maxX-minX),420/Math.max(.1,maxY-minY))*zoom,cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+const project=v=>{const p=rotate(v);return [400+panX+(p[0]-cx)*scale,275+panY-(p[1]-cy)*scale]};
+const sorted=net.faces.map(f=>({...f,depth:f.points.reduce((sum,p)=>sum+rotate(p)[2]/f.points.length,0)})).sort((a,b)=>a.depth-b.depth);
+for(const f of sorted){
+const points=f.points.map(project),normal=rotate(f.normal),shade=.73+.27*Math.abs(dot(normal,unit([-.4,.6,1]))),base=colors[color];
+const fill=f.id===net.rootFace?'#f3ce85':`rgb(${base.map(v=>Math.round(v*shade+255*(1-shade)*.3)).join(',')})`;
+surfaces+=`<polygon data-net-face="${f.id}" points="${points.map(coord).join(' ')}" fill="${fill}" stroke="#315b70" stroke-width="1.6" stroke-linejoin="round"/>`;
+if(unfoldAmount>.93){const center=points.reduce((s,p)=>s.map((x,i)=>x+p[i]/points.length),[0,0]);labels+=netText(center[0],center[1]+4,f.id===net.rootFace?'底面':'面 '+(f.id+1),12)}
+}
+if(unfoldAmount>.7)for(const hinge of net.hinges){const a=project(hinge.a),b=project(hinge.b);lines+=`<path data-fold-line="${hinge.face}" d="M${coord(a)}L${coord(b)}" fill="none" stroke="#bd7d22" stroke-width="2" stroke-dasharray="7 5"/>`}
+$('scene').setAttribute('data-net-face-count',net.faces.length);
+}else{
+const n=SolidNets.curvedNet(current,dims);if(!n)return;
+const fill=`rgb(${colors[color].join(',')})`,stroke='#315b70';
+if(current==='cylinder'){
+const width=n.width,height=n.height,scale=Math.min(625/width,420/height)*zoom;
+const px=x=>400+panX+x*scale,py=y=>275+panY+y*scale;
+surfaces=`<rect data-net-face="side" x="${px(-width/2)}" y="${py(-n.h/2)}" width="${width*scale}" height="${n.h*scale}" fill="${fill}" stroke="${stroke}" stroke-width="1.7"/>`;
+for(const sign of [-1,1])surfaces+=`<circle data-net-face="base" cx="${px(0)}" cy="${py(sign*(n.h/2+n.r))}" r="${n.r*scale}" fill="#f3ce85" stroke="${stroke}" stroke-width="1.7"/>`;
+labels+=netText(px(0),py(0)+5,'侧面：长方形',13)+netText(px(0),py(-n.h/2-n.r)+5,'底面',12)+netText(px(0),py(n.h/2+n.r)+5,'底面',12);
+labels+=netText(px(0),py(-n.h/2)-10,'长 = 2πr ≈ '+width.toFixed(2),12);
+labels+=netText(px(width/2)+35,py(0)+5,'h = '+n.h.toFixed(1),11);
+$('scene').setAttribute('data-net-face-count','3');
+}else{
+const minY=Math.min(0,n.l*Math.cos(n.angle/2)),maxY=n.l+2*n.r,width=n.angle>=Math.PI?2*n.l:2*n.l*Math.sin(n.angle/2),height=maxY-minY;
+const scale=Math.min(610/Math.max(width,2*n.r),420/height)*zoom;
+const px=x=>400+panX+x*scale,py=y=>275+panY+(y-(minY+maxY)/2)*scale;
+const a=Math.PI/2-n.angle/2,b=Math.PI/2+n.angle/2,x1=n.l*Math.cos(a),y1=n.l*Math.sin(a),x2=n.l*Math.cos(b),y2=n.l*Math.sin(b),radius=n.l*scale;
+surfaces=`<path data-net-face="side" d="M${px(0)},${py(0)}L${px(x1)},${py(y1)}A${radius},${radius} 0 ${n.angle>Math.PI?1:0} 1 ${px(x2)},${py(y2)}Z" fill="${fill}" stroke="${stroke}" stroke-width="1.7"/><circle data-net-face="base" cx="${px(0)}" cy="${py(n.l+n.r)}" r="${n.r*scale}" fill="#f3ce85" stroke="${stroke}" stroke-width="1.7"/>`;
+labels+=netText(px(0),py(n.l*.66),'侧面：扇形',13)+netText(px(0),py(n.l+n.r)+5,'底面',12);
+labels+=netText(px(0),py(n.l*.34),'圆心角 ≈ '+n.degrees.toFixed(1)+'°',11);
+labels+=netText(px(x1*.65)+35,py(y1*.65)-10,'母线 l ≈ '+n.l.toFixed(2),11);
+$('scene').setAttribute('data-net-face-count','2');
+}
+}
+$('surfaces').innerHTML=surfaces;$('visibleLines').innerHTML=lines;$('vertexLabels').innerHTML=labels;$('hiddenLines').innerHTML='';$('axes').innerHTML='';dirty=false;
+}
+function updateNetControls(){
+const sphere=current==='sphere',curved=defs[current].curved;
+$('cubeNetGallery').hidden=current!=='cube';
+$('toggleNet').disabled=sphere;$('toggleNet').textContent=unfoldAmount>0?'◆ 收成立体':curved?'◇ 查看展开图':'◇ 沿棱展开';$('toggleNet').setAttribute('aria-pressed',String(unfoldAmount>0));
+$('netSliderRow').hidden=curved;$('netLegend').hidden=curved||unfoldAmount===0;
+$('netAmount').value=Math.round(unfoldAmount*100);$('netStatus').textContent=sphere?'球面不能完整无变形地铺平':unfoldAmount===0?'立体状态 · 0%':unfoldAmount>=.999?'完整展开 · 100%':'正在展开 · '+Math.round(unfoldAmount*100)+'%';
+$('netNote').textContent=sphere?'球面没有完整、无变形的平面展开图。可以旋转观察球面；切开或拉伸后得到的图形，不是精确展开图。':current==='cylinder'?'侧面展开是长方形，长等于底面周长 2πr，宽等于高 h，再加上 2 个圆形底面。':current==='cone'?'侧面展开是扇形，半径是母线 l，弧长等于底面周长 2πr，再加上 1 个圆形底面。':'金色面是连接中心。其他面沿公共棱转动，不拉伸、不改变大小；虚线表示仍然相连的折叠线。';
+$('stageHint').textContent=unfoldAmount>0?(curved?'平面展开图 · 拖动平移 · 双指缩放':'拖动改变观察角度 · 双指缩放与平移'):'拖动旋转 · 双指缩放与平移 · 方向键也可以操作';
+$('spin').disabled=unfoldAmount>0;
+$('hidden').disabled=unfoldAmount>0||sphere;$('labels').disabled=unfoldAmount>0||curved;$('axisToggle').disabled=unfoldAmount>0;
+$('toolNote').textContent=unfoldAmount>0?(curved?'展开图由准确的长方形、圆或扇形组成。':'展开图中用实线表示边界，虚线表示连接各面的折叠线。'):curved?'曲面的轮廓随视角变化；绘图用的细分线不作为图形的棱。':'虚线表示从当前角度看不到的棱。';
+document.querySelectorAll('.view').forEach(b=>b.disabled=curved&&unfoldAmount>0);
+$('scene').setAttribute('data-net-amount',unfoldAmount.toFixed(4));
+if(unfoldAmount===0)$('scene').removeAttribute('data-net-face-count');
+$('svgTitle').textContent=(unfoldAmount>0?'展开中的':'可旋转的')+defs[current].name;
+}
+function changeUnfold(value,animate=false){
+if(current==='sphere')return;value=Math.max(0,Math.min(1,value));manual();panX=panY=0;zoom=1;
+if(defs[current].curved){unfoldAmount=value>0?1:0;netAnimation=null;updateNetControls();dirty=true;return}
+if(unfoldAmount===0&&value>0)netCamera={yaw,pitch};
+const endYaw=value>0?netCamera.yaw*(1-value):netCamera.yaw,endPitch=value>0?netCamera.pitch+(Math.PI/2-netCamera.pitch)*value:netCamera.pitch;
+if(animate&&!reduced.matches)netAnimation={start:performance.now(),from:unfoldAmount,to:value,yaw,pitch,endYaw,endPitch};
+else{netAnimation=null;unfoldAmount=value;yaw=endYaw;pitch=endPitch;updateNetControls();dirty=true}
+}
+function renderCubeNetChoices(){
+$('cubeNetChoices').replaceChildren();
+cubeNetOptions.forEach((option,i)=>{const minX=Math.min(...option.cells.map(p=>p[0])),minY=Math.min(...option.cells.map(p=>p[1])),width=Math.max(...option.cells.map(p=>p[0]))-minX+1,height=Math.max(...option.cells.map(p=>p[1]))-minY+1;
+const button=document.createElement('button');button.className='net-choice';button.dataset.net=String(i);button.setAttribute('aria-label','正方体展开图 '+(i+1));button.setAttribute('aria-pressed',String(i===cubeNetIndex));
+button.innerHTML=`<svg viewBox="-0.15 -0.15 ${width+.3} ${height+.3}" aria-hidden="true">${option.cells.map(([x,y],fi)=>`<rect x="${x-minX}" y="${y-minY}" width="1" height="1" fill="${fi===option.topology.rootFace?'#f3ce85':'#a4d5dd'}" stroke="#426b73" stroke-width=".06"/>`).join('')}</svg><span>${i+1}</span>`;
+button.addEventListener('click',()=>{cubeNetIndex=i;topology=option.topology;document.querySelectorAll('.net-choice').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.net)===i)));changeUnfold(1,false);message('已切换到第 '+(i+1)+' 种展开图，可以拖动进度看它折回正方体。')});$('cubeNetChoices').append(button);
+});
+}
+$('toggleNet').addEventListener('click',()=>changeUnfold(netAnimation?1-netAnimation.to:unfoldAmount>0?0:1,true));
+$('netAmount').addEventListener('input',e=>changeUnfold(Number(e.target.value)/100));
+function updateFacts(){
+const def=defs[current],d=dims;let stats;
+if(!def.curved)stats=def.stats.map((n,i)=>[n,['个顶点','条棱','个面'][i]]);
+else stats=current==='cylinder'?[[2,'个平面'],[1,'个曲面'],[0,'个顶点']]:current==='cone'?[[1,'个平面'],[1,'个曲面'],[1,'个顶点']]:[[0,'个平面'],[1,'个曲面'],[0,'个顶点']];
+$('facts').innerHTML=stats.map(([n,text])=>`<div class="fact"><b>${n}</b><span>${text}</span></div>`).join('');
+$('volumeFormula').textContent=def.formula;
+let volume=0;
+switch(current){case 'cube':volume=d.a**3;break;case 'cuboid':volume=d.a*d.b*d.h;break;case 'frustum':volume=d.h*d.a*d.a*(1+d.ratio+d.ratio*d.ratio)/3;break;case 'pyramid':volume=d.a*d.a*d.h/3;break;case 'triprism':volume=Math.sqrt(3)/4*d.a*d.a*d.h;break;case 'hexprism':volume=3*Math.sqrt(3)/2*d.a*d.a*d.h;break;case 'tetra':volume=Math.sqrt(3)/12*d.a*d.a*d.h;break;case 'cylinder':volume=Math.PI*d.r*d.r*d.h;break;case 'cone':volume=Math.PI*d.r*d.r*d.h/3;break;case 'sphere':volume=4*Math.PI*d.r**3/3;break;}
+$('volumeResult').textContent=`V ≈ ${volume.toFixed(2)} 立方单位`;
+const surface=current==='sphere'?4*Math.PI*d.r*d.r:current==='cylinder'||current==='cone'?SolidNets.curvedNet(current,d).area:SolidNets.surfaceArea(model);
+$('surfaceResult').textContent=`S ≈ ${surface.toFixed(2)} 平方单位`;
+$('surfaceFormula').textContent=current==='sphere'?'S = 4πr²':current==='cylinder'?'S = 2πr² + 2πrh':current==='cone'?'S = πr² + πrl（l 为母线）':current==='cube'?'S = 6a²':current==='cuboid'?'S = 2(ab + ah + bh)':'S = 各个面的面积之和';
+$('dimensionNote').textContent=def.note+(current==='frustum'?` 当前 b = ${(d.a*d.ratio).toFixed(2)}。`:'');
+$('factSubtitle').textContent=def.curved?'区分平面与曲面':'数一数它的结构';$('learningNote').textContent=def.learn;
+}
+function select(id){
+current=id;const d=defs[id];dims=Object.fromEntries(d.params.map(p=>[p[0],p[4]]));
+unfoldAmount=0;netAnimation=null;panX=panY=0;
+document.querySelectorAll('.shape').forEach(button=>{const selected=button.dataset.shape===id;button.classList.toggle('active',selected);button.setAttribute('aria-pressed',selected)});
+$('shapeTitle').textContent=d.name;$('svgTitle').textContent='可旋转的'+d.name;$('shapeTag').textContent=d.type;
+$('sliders').innerHTML=d.params.map(([key,label,min,max,value])=>`<div class="slider-row"><div class="slider-caption"><label for="dim-${key}">${label}</label><input class="numeric-dim" id="num-${key}" data-param="${key}" type="number" min="${min}" max="${max}" value="${value}" step="${key==='ratio'?.05:.1}" aria-label="直接输入${label}"></div><input id="dim-${key}" data-param="${key}" type="range" min="${min}" max="${max}" value="${value}" step="${key==='ratio'?.05:.1}"></div>`).join('');
+$('sliders').querySelectorAll('input').forEach(input=>{
+const update=()=>{const key=input.dataset.param,value=Number(input.value);if(input.value===''||!Number.isFinite(value)){input.value=dims[key];return}const min=Number(input.min),max=Number(input.max),step=Number(input.step);dims[key]=Number((Math.round((Math.max(min,Math.min(max,value))-min)/step)*step+min).toFixed(3));$('dim-'+key).value=$('num-'+key).value=dims[key];build()};
+input.addEventListener(input.type==='range'?'input':'change',update);if(input.type==='number')input.addEventListener('keydown',e=>{if(e.key==='Enter'){update();input.blur()}});
+});
+$('labels').disabled=!!d.curved;$('hidden').disabled=id==='sphere';
+$('toolNote').textContent=d.curved?'曲面的轮廓随视角变化；绘图用的细分线不作为图形的棱。':'虚线表示从当前角度看不到的棱。';
+yaw=-.62;pitch=.35;zoom=1;setViewSelected('space');build();updateNetControls();
+}
+function setSpin(value){playing=value;$('spin').textContent=playing?'Ⅱ 暂停转动':'▷ 自动转动';$('spin').setAttribute('aria-pressed',String(playing));last=null}
+function setViewSelected(name){document.querySelectorAll('.view').forEach(b=>{const active=b.dataset.view===name;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active))})}
+function manual(){setSpin(false);setViewSelected('');dirty=true}
+$('spin').addEventListener('click',()=>{if(unfoldAmount>0){message('先收成立体，再观察自动转动。');return}setSpin(!playing);if(playing)setViewSelected('space')});
+$('reset').addEventListener('click',()=>select(current));
+document.querySelectorAll('.view').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.view;[yaw,pitch]=v==='front'?[0,0]:v==='top'?[0,Math.PI/2]:v==='side'?[-Math.PI/2,0]:[-.62,.35];setSpin(false);setViewSelected(v);dirty=true}));
+for(const id of ['hidden','labels','axisToggle'])$(id).addEventListener('change',()=>{dirty=true});
+document.querySelectorAll('.swatch').forEach(b=>b.addEventListener('click',()=>{color=b.dataset.color;document.querySelectorAll('.swatch').forEach(s=>s.setAttribute('aria-pressed',String(s===b)));dirty=true}));
+const scene=$('scene');
+function getPinch(){const [a,b]=[...touches.values()];return {gap:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+scene.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();manual();netAnimation=null;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});scene.setPointerCapture(e.pointerId);scene.classList.add('dragging');if(touches.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY};else if(touches.size===2){pinch={...getPinch(),zoom,panX,panY};drag=null}});
+scene.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2&&pinch){const p=getPinch(),r=scene.getBoundingClientRect();zoom=Math.max(.45,Math.min(2.2,pinch.zoom*p.gap/Math.max(8,pinch.gap)));panX=pinch.panX+(p.x-pinch.x)*800/r.width;panY=pinch.panY+(p.y-pinch.y)*600/r.height}else if(drag&&e.pointerId===drag.id){if(defs[current].curved&&unfoldAmount>0){const r=scene.getBoundingClientRect();panX+=(e.clientX-drag.x)*800/r.width;panY+=(e.clientY-drag.y)*600/r.height}else{yaw+=(e.clientX-drag.x)*.009;pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch+(e.clientY-drag.y)*.009))}drag.x=e.clientX;drag.y=e.clientY}dirty=true});
+function endDrag(e){if(e)touches.delete(e.pointerId);else touches.clear();if(touches.size===1){const [id,p]=[...touches.entries()][0];drag={id,...p};pinch=null}else{drag=null;pinch=null;scene.classList.remove('dragging')}if(e&&scene.hasPointerCapture(e.pointerId))scene.releasePointerCapture(e.pointerId)}scene.addEventListener('pointerup',endDrag);scene.addEventListener('pointercancel',endDrag);scene.addEventListener('lostpointercapture',endDrag);window.addEventListener('blur',()=>endDrag());
+window.addEventListener('resize',()=>{endDrag();dirty=true});
+scene.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.45,zoom*Math.exp(-e.deltaY*.001)));dirty=true},{passive:false});
+scene.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='].includes(e.key))return;e.preventDefault();manual();if(e.key==='ArrowLeft')yaw-=.12;if(e.key==='ArrowRight')yaw+=.12;if(e.key==='ArrowUp')pitch=Math.min(Math.PI/2,pitch+.12);if(e.key==='ArrowDown')pitch=Math.max(-Math.PI/2,pitch-.12);if(e.key==='+'||e.key==='=')zoom=Math.min(1.45,zoom+.05);if(e.key==='-')zoom=Math.max(.65,zoom-.05)});
+function fit(){zoom=1;panX=panY=0;if(unfoldAmount>=.999&&!defs[current].curved){yaw=0;pitch=Math.PI/2}dirty=true}
+$('zoomOut').addEventListener('click',()=>{zoom=Math.max(.45,zoom*.85);dirty=true});$('zoomIn').addEventListener('click',()=>{zoom=Math.min(2.2,zoom/ .85);dirty=true});$('fit').addEventListener('click',fit);
+$('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else message('可以将手机横屏，获得更大的观察区域。')}catch{message('当前浏览器暂不支持全屏。')}});
+$('exportPNG').addEventListener('click',async()=>{
+const wasPlaying=playing;setSpin(false);if(dirty)render();const copy=scene.cloneNode(true);copy.setAttribute('width','1600');copy.setAttribute('height','1200');copy.style.background='#f9fcfc';
+const blob=new Blob([new XMLSerializer().serializeToString(copy)],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),image=new Image();
+try{await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=url});const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=1200;const context=canvas.getContext('2d');context.fillStyle='#f9fcfc';context.fillRect(0,0,1600,1200);context.drawImage(image,0,0);context.fillStyle='#466e74';context.font='23px Microsoft YaHei';context.fillText('当当老师 · '+defs[current].name+(unfoldAmount>0?' · 展开图':''),45,1155);const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!png)throw Error();const target=URL.createObjectURL(png),link=document.createElement('a');link.href=target;link.download='当当老师-'+defs[current].name+(unfoldAmount>0?'-展开图':'')+'.png';link.click();setTimeout(()=>URL.revokeObjectURL(target),1500);message('图片已导出。')}catch{message('导出暂时失败，请换用 Edge 或 Chrome 再试。')}finally{URL.revokeObjectURL(url);if(wasPlaying&&unfoldAmount===0)setSpin(true)}
+});
+reduced.addEventListener('change',e=>{if(e.matches){setSpin(false);if(netAnimation)changeUnfold(netAnimation.to)}});
+document.addEventListener('visibilitychange',()=>{last=null;if(document.hidden)endDrag()});
+function frame(now){if(!document.hidden){if(netAnimation){const t=Math.min(1,(now-netAnimation.start)/1150),s=t*t*(3-2*t);unfoldAmount=netAnimation.from+(netAnimation.to-netAnimation.from)*s;yaw=netAnimation.yaw+(netAnimation.endYaw-netAnimation.yaw)*s;pitch=netAnimation.pitch+(netAnimation.endPitch-netAnimation.pitch)*s;if(t===1){unfoldAmount=netAnimation.to;netAnimation=null}updateNetControls();dirty=true}if(last!==null&&playing&&unfoldAmount===0){yaw+=Math.min((now-last)/1000,.08)*.24;dirty=true}if(dirty&&now-lastDraw>32){render();lastDraw=now}}last=now;requestAnimationFrame(frame)}
+select('cube');setSpin(playing);render();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
