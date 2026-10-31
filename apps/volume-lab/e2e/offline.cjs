@@ -1,0 +1,12 @@
+const {chromium,expect}=require('@playwright/test');
+const {pathToFileURL}=require('node:url');const path=require('node:path');
+(async()=>{const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--ignore-gpu-blocklist']});
+try{const context=await browser.newContext({offline:true,viewport:{width:1440,height:1050},reducedMotion:'reduce'}),page=await context.newPage(),errors=[],external=[];
+page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))external.push(r.url())});
+await page.goto(pathToFileURL(path.resolve(__dirname,'../dist-offline/index.html')).href);await expect(page.locator('.scene-viewport canvas').first()).toBeVisible();await expect(page.locator('.scene-fallback:visible')).toHaveCount(0);
+await page.locator('#unit-L').fill('.3');await page.locator('#unit-L').press('Enter');await expect(page.locator('#unit-mL')).toHaveValue('300');
+await page.getByRole('button',{name:'1 mL',exact:true}).click();await expect(page.getByTestId('magnifier')).toBeVisible();await expect(page.getByTestId('scene')).toHaveAttribute('data-main-water-height','0.01');
+await page.getByRole('button',{name:'立方体装箱',exact:true}).click();await page.getByRole('button',{name:'开始装箱',exact:true}).click();await expect(page.getByTestId('scene')).toHaveAttribute('data-cube-count','1000');
+await page.getByRole('button',{name:'量杯倒水',exact:true}).click();await page.getByRole('button',{name:'开始倒水',exact:true}).click();await expect(page.getByTestId('pour-balance')).toHaveAttribute('data-tank-ml','250');await expect(page.getByTestId('pour-balance')).toHaveAttribute('data-cup-ml','750');
+if(errors.length||external.length)throw Error(JSON.stringify({errors,external}));console.log('PASS: standalone file:// HTML, actual 3D rendering, exact units, 1mL magnification, 1000-cube packing, conserved pouring, zero network requests.');await context.close();
+}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
