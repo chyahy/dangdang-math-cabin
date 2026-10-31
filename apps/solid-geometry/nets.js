@@ -64,7 +64,29 @@
       for(let i=start;i<=links.length-(5-selected.length);i++)choose(i+1,[...selected,links[i]]);
     }
     choose(0,[]);
-    return [...found.values()].sort((a,b)=>a.key===defaultKey?-1:b.key===defaultKey?1:a.key.localeCompare(b.key));
+    return [...found.values()].sort((a,b)=>a.key===defaultKey?-1:b.key===defaultKey?1:a.key.localeCompare(b.key)).map(n=>({...n,...netOrientation(n.cells)}));
   }
-  root.SolidNets={tree,unfold,polygonArea,surfaceArea,curvedNet,cubeNets,sub,cross,dot,unit};
+  function netOrientation(cells){
+    for(const type of ['1-4-1','2-3-1','2-2-2','3-3'])for(let turn=0;turn<4;turn++){
+      const rows=new Map();
+      for(let [x,y] of cells){for(let i=0;i<turn;i++)[x,y]=[-y,x];rows.set(y,(rows.get(y)||0)+1)}
+      const counts=[...rows].sort((a,b)=>a[0]-b[0]).map(r=>r[1]);
+      if(counts.join('-')===type)return {type,turn};
+      if(counts.reverse().join('-')===type)return {type,turn:(turn+2)%4};
+    }
+    throw Error('未识别的正方体展开图');
+  }
+  function netType(cells){return netOrientation(cells).type}
+  function boxNets(model){
+    // Classify topology on a unit cube; unfold the actual rectangular faces later.
+    const half=[0,1,2].map(i=>Math.max(...model.vertices.map(p=>Math.abs(p[i]))));
+    const reference={...model,vertices:model.vertices.map(p=>p.map((v,i)=>v/half[i]))};
+    return cubeNets(reference);
+  }
+  function edgeAxis(model,edge){
+    const v=sub(model.vertices[edge.b],model.vertices[edge.a]);
+    return v.reduce((axis,x,i)=>Math.abs(x)>Math.abs(v[axis])?i:axis,0);
+  }
+  function boxFaceName(normal){const axis=normal.reduce((best,x,i)=>Math.abs(x)>Math.abs(normal[best])?i:best,0);return [['左面','右面'],['下面','上面'],['后面','前面']][axis][normal[axis]>0?1:0]}
+  root.SolidNets={tree,unfold,polygonArea,surfaceArea,curvedNet,cubeNets,boxNets,netType,edgeAxis,boxFaceName,sub,cross,dot,unit};
 })(globalThis);

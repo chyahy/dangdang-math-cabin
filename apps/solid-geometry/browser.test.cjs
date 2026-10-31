@@ -34,6 +34,14 @@ async function verifyGeometry(){await expect.poll(()=>page.evaluate(()=>window.q
 })}
 if((await verifyGeometry()).length)throw Error((await verifyGeometry()).join(', '));
 await page.locator('#cubeNetGallery summary').click();
+// The four standard families have 6, 3, 1 and 1 genuinely different nets.
+for(const [type,count] of [['1-4-1',6],['2-3-1',3],['2-2-2',1],['3-3',1]]){
+ await page.locator(`[data-net-type="${type}"]`).click();await expect(page.locator('.net-choice')).toHaveCount(count);
+ expect(await page.locator('.net-choice').evaluateAll((buttons,type)=>buttons.every(b=>b.dataset.group===type),type)).toBeTruthy();
+ const rowCounts=await page.locator('.net-choice svg').evaluateAll(svgs=>svgs.map(svg=>{const rows=new Map();svg.querySelectorAll('polygon').forEach(p=>{const points=[...p.points],cy=points.reduce((s,q)=>s+q.y,0)/points.length,key=cy.toFixed(5);rows.set(key,(rows.get(key)||0)+1)});return [...rows].sort((a,b)=>Number(a[0])-Number(b[0])).map(r=>r[1]).join('-')}));
+ expect(rowCounts.every(rows=>rows===type)).toBeTruthy();
+}
+await page.locator('[data-net-type="all"]').click();
 for(let i=0;i<11;i++){await page.locator(`[data-net="${i}"]`).click();await expect(page.locator('#scene')).toHaveAttribute('data-net-amount','1.0000');const fail=await verifyGeometry();if(fail.length)throw Error('cube net '+i+': '+fail.join(','))}
 // Partial unfolding must preserve every face area too.
 await page.locator('#netAmount').fill('48');
@@ -44,9 +52,43 @@ if(!partial)throw Error('Partial unfold changes face area');
 await page.locator('#num-a').fill('4');await page.locator('#num-a').press('Enter');
 await expect(page.locator('#volumeResult')).toContainText('64.00');await expect(page.locator('#surfaceResult')).toContainText('96.00');
 await page.locator('#netAmount').fill('100');if((await verifyGeometry()).length)throw Error('Resized net invalid');
+// Face switches affect both solid and net without changing the actual surface area.
+const areaBefore=await page.locator('#surfaceResult').textContent();
+await page.locator('#faceOptions input').nth(0).uncheck();await expect(page.locator('[data-net-face]')).toHaveCount(5);
+await page.locator('#hideAllFaces').click();await expect(page.locator('[data-net-face]')).toHaveCount(0);
+await expect(page.locator('#surfaceResult')).toHaveText(areaBefore);
+await page.locator('#faceOptions input').nth(0).check();await expect(page.locator('[data-net-face]')).toHaveCount(1);
+await page.locator('#toggleNet').click();await expect(page.locator('[data-solid-face]')).toHaveCount(1);
+await page.locator('#showAllFaces').click();await expect(page.locator('#faceOptions input:checked')).toHaveCount(6);
+for(const id of ['showLength','showWidth','showHeight'])await page.locator('#'+id).check();
+await expect(page.locator('[data-dimension]')).toHaveCount(3);await page.locator('#showWidth').uncheck();await expect(page.locator('[data-dimension]')).toHaveCount(2);await page.locator('#showWidth').check();
+// Click rendered geometry in screen coordinates, including after zooming.
+async function vertexPoint(p,id){await p.locator('#scene').scrollIntoViewIfNeeded();await p.waitForTimeout(80);return p.locator(`[data-pick-vertex="${id}"]`).first().evaluate(e=>{const p=new DOMPoint(Number(e.getAttribute('cx')),Number(e.getAttribute('cy'))).matrixTransform(e.getScreenCTM());return {x:p.x,y:p.y}})}
+async function clickVertex(p,id){const q=await vertexPoint(p,id);await p.mouse.click(q.x,q.y)}
+await clickVertex(page,0);await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','3');
+await expect.poll(()=>page.locator('[data-highlight-edge]').evaluateAll(a=>new Set(a.map(e=>e.dataset.highlightEdge)).size)).toBe(3);
+await page.locator('#clearSelection').click();
+const a=await vertexPoint(page,0),b=await vertexPoint(page,1);await page.mouse.click((a.x+b.x)/2,(a.y+b.y)/2);
+await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','4');await expect(page.locator('#selectionStatus')).toContainText('长方向');
+for(const axis of [0,2,1]){await page.locator('#edgeSelect').selectOption('axis-'+axis);await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','4')}
+await page.locator('#zoomIn').click();await clickVertex(page,6);await expect(page.locator('#vertexSelect')).toHaveValue('6');await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','3');
+await page.locator('#clearSelection').click();const stage=await page.locator('#scene').boundingBox();await page.mouse.move(stage.x+stage.width*.5,stage.y+stage.height*.4);await page.mouse.down();await page.mouse.move(stage.x+stage.width*.5+70,stage.y+stage.height*.4+30,{steps:8});await page.mouse.up();await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','0');
 for(const shape of ['cuboid','frustum','triprism','hexprism','pyramid','tetra']){
  await page.locator(`[data-shape="${shape}"]`).click();await page.locator('#toggleNet').click();
  await expect(page.locator('#scene')).toHaveAttribute('data-net-amount','1.0000');const fail=await verifyGeometry();if(fail.length)throw Error(shape+': '+fail.join(','));
+ if(shape==='cuboid'){
+  await expect(page.locator('.net-choice')).toHaveCount(11);
+  for(const sizes of [[4,2.4,3],[5,1,5],[2,4,1]]){
+   for(const [j,key] of ['a','b','h'].entries()){await page.locator('#num-'+key).fill(String(sizes[j]));await page.locator('#num-'+key).press('Enter')}
+   for(let i=0;i<11;i++){await page.locator(`[data-net="${i}"]`).click();const fail=await verifyGeometry();if(fail.length)throw Error('cuboid '+sizes+' net '+i+': '+fail.join(','))}
+   await page.locator('#edgeSelect').selectOption('axis-0');await expect(page.locator('#scene')).toHaveAttribute('data-highlight-count','4');
+  }
+  await expect(page.locator('#observations')).toContainText('长 = 2');await expect(page.locator('#observations')).toContainText('宽 = 4');await expect(page.locator('#observations')).toContainText('高 = 1');
+  for(const [key,value] of [['a',4],['b',2.4],['h',3]]){await page.locator('#num-'+key).fill(String(value));await page.locator('#num-'+key).press('Enter')}
+  await page.locator('#toggleNet').click();await page.locator('[data-view="front"]').click();await expect(page.locator('[data-dimension]')).toHaveCount(3);
+  await page.locator('[data-view="space"]').click();await page.locator('#vertexSelect').selectOption('0');await page.locator('#faceOptions label').filter({hasText:'上面'}).locator('input').uncheck();
+  await page.locator('#vertexSelect').scrollIntoViewIfNeeded();await page.screenshot({path:path.resolve(__dirname,'../../.edgeone/solid-geometry-qa/desktop-observe.png'),fullPage:true});
+ }
 }
 for(const shape of ['cylinder','cone']){await page.locator(`[data-shape="${shape}"]`).click();await page.locator('#toggleNet').click();await expect(page.locator('[data-net-face]')).toHaveCount(shape==='cylinder'?3:2);await expect(page.locator('#netNote')).toContainText(shape==='cylinder'?'长方形':'扇形')}
 await page.locator('[data-shape=sphere]').click();await expect(page.locator('#toggleNet')).toBeDisabled();await expect(page.locator('#netNote')).toContainText('没有完整、无变形');
@@ -61,6 +103,12 @@ await page.locator('#toggleNet').click();await expect(page.locator('#scene')).to
 const mobileContext=await browser.newContext({offline:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce'}),mobile=await mobileContext.newPage();mobile.on('pageerror',e=>errors.push(e.message));await mobile.goto(url);
 await mobile.locator('#toggleNet').tap();await expect(mobile.locator('#scene')).toHaveAttribute('data-net-amount','1.0000');
 await mobile.locator('#cubeNetGallery summary').tap();await mobile.locator('[data-net="8"]').tap();
+await mobile.locator('[data-net-type="2-3-1"]').tap();await expect(mobile.locator('.net-choice')).toHaveCount(3);await mobile.locator('.net-choice').first().tap();
+await mobile.locator('#showHeight').check();await expect(mobile.locator('[data-dimension="高"]')).toHaveCount(1);
+await mobile.locator('#hideAllFaces').tap();await expect(mobile.locator('[data-net-face]')).toHaveCount(0);await mobile.locator('#showAllFaces').tap();
+await mobile.locator('#toggleNet').tap();await mobile.locator('#scene').scrollIntoViewIfNeeded();
+const tapPoint=await vertexPoint(mobile,2);await mobile.touchscreen.tap(tapPoint.x,tapPoint.y);await expect(mobile.locator('#scene')).toHaveAttribute('data-highlight-count','3');
+await mobile.locator('#toggleNet').tap();
 await mobile.evaluate(()=>scrollTo(0,0));if(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Phone overflow');
 await mobile.screenshot({path:path.join(dir,'mobile-net.png'),fullPage:true});
 const box=await mobile.locator('#scene').boundingBox(),tx=box.x+box.width/2,ty=box.y+box.height/2;
@@ -71,7 +119,7 @@ await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});a
 if(before===await mobile.locator('#surfaces').innerHTML())throw Error('Pinch does not change diagram');
 await mobile.locator('#fit').tap();await mobile.setViewportSize({width:844,height:390});if(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Landscape overflow');
 if(errors.length)throw Error(errors.join('\n'));if(network.length)throw Error('Unexpected external network requests');
-console.log('PASS: all 11 cube nets, 6 other polyhedra, planarity, area preservation, connected hinges, no overlaps, partial unfolding, resized cube, cylinder/cone nets, sphere limitation, numeric dimensions, surface/volume, PNG export, animation, mobile pinch+pan, landscape, offline and no page errors. '+dir);
+console.log('PASS: net categories 6/3/1/1 with correctly oriented rows; all 11 cube nets and 33 dimensioned cuboid nets; planar, area-preserving, connected, no overlaps; face visibility in solid/net; independent dimensions; actual vertex/edge clicks and direction groups; zoomed clicks, touch taps, drag/pinch isolation; original solids, export, animation, mobile/landscape and offline with no errors. '+dir);
 await context.close();await mobileContext.close();
 }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
