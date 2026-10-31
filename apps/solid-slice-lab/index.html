@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>立体切割实验室 · 当当老师</title>
+    <meta name="description" content="当当老师立体切割实验室：旋转观察正方体、棱柱、棱锥，选择顶点锁定切面，探索不同的截面。" />
+    <style>
+      :root {
+        --ink: #17324d;
+        --blue: #2379ba;
+        --coral: #ef6b4f;
+        --yellow: #ffd441;
+        --mist: #eaf3f5;
+        --line: #c9dadd;
+        --paper: #f8fbfc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        position: relative;
+        isolation: isolate;
+        background: #dcebee;
+        color: var(--ink);
+        font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+        pointer-events: none;
+        background-image: linear-gradient(#8db7c5 1px, transparent 1px), linear-gradient(90deg, #8db7c5 1px, transparent 1px);
+        background-size: 32px 32px;
+        background-repeat: repeat;
+        opacity: 0.15;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      .app {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        padding: 16px;
+        display: grid;
+        grid-template-rows: auto minmax(760px, 1fr);
+        gap: 12px;
+      }
+      .topbar,
+      .workspace {
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+      .topbar {
+        min-height: 66px;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(248, 251, 252, 0.965);
+        border: 1px solid white;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(28, 68, 84, 0.09);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark { width: 66px; height: 56px; object-fit: contain; }
+      .header-tools { display: flex; align-items: center; gap: 12px; }
+      .back-home { color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 12px; background: white; padding: 10px 14px; white-space: nowrap; }
+      .back-home:hover { background: #e7f4f8; }
+      a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #2379ba; outline-offset: 3px; }
+      .logo {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 auto;
+        border: 2px solid white;
+        border-radius: 14px;
+        object-fit: cover;
+        object-position: 50% 23%;
+        box-shadow: 0 4px 12px rgba(23, 50, 77, 0.16);
+      }
+      .brand b {
+        display: block;
+        font-size: 22px;
+        letter-spacing: 0.02em;
+      }
+      .brand small {
+        display: block;
+        color: #647a89;
+        margin-top: 2px;
+      }
+      .result {
+        padding: 9px 15px;
+        border: 1px solid #bed3da;
+        border-radius: 999px;
+        background: white;
+        color: #597080;
+      }
+      .result strong {
+        margin-left: 8px;
+        color: #0f699e;
+        font-size: 18px;
+      }
+      .workspace {
+        display: grid;
+        grid-template-columns: 260px minmax(430px, 1fr) 310px;
+        background: rgba(248, 251, 252, 0.97);
+        border: 1px solid white;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(37, 82, 99, 0.15);
+      }
+      .panel {
+        padding: 22px;
+        background: rgba(248, 251, 252, 0.965);
+      }
+      .left {
+        border-right: 1px solid var(--line);
+      }
+      .right {
+        border-left: 1px solid var(--line);
+      }
+      .kicker {
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        color: #16848c;
+      }
+      .panel h2 {
+        font-size: 21px;
+        margin: 5px 0 17px;
+      }
+      .family-list {
+        display: grid;
+        gap: 8px;
+      }
+      .family {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d5e1e5;
+        border-radius: 13px;
+        background: white;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+      .family.active {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: white;
+      }
+      .family .ico {
+        font-size: 25px;
+      }
+      .family b {
+        display: block;
+      }
+      .family small {
+        display: block;
+        margin-top: 2px;
+        color: #718493;
+        font-size: 12px;
+      }
+      .family.active small {
+        color: #bfd0de;
+      }
+      .side-picker {
+        margin-top: 16px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: var(--mist);
+      }
+      .side-picker > span {
+        display: block;
+        margin-bottom: 9px;
+        color: #58707e;
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .side-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+      .side-buttons button {
+        min-height: 38px;
+        border: 1px solid #bdd2d8;
+        border-radius: 9px;
+        background: white;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .side-buttons button.active {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: white;
+      }
+      .vertex-tool {
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid #b9d4d9;
+        border-radius: 13px;
+        background: #fff8d5;
+      }
+      .vertex-tool strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #6d5500;
+      }
+      .vertex-tool span {
+        display: block;
+        min-height: 38px;
+        color: #5d6870;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .vertex-tool button {
+        width: 100%;
+        min-height: 34px;
+        margin-top: 8px;
+        border: 1px solid #d7b83f;
+        border-radius: 8px;
+        background: white;
+        color: #684f00;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .tip {
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #eaf3f5;
+        color: #4d6674;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .stage {
+        position: relative;
+        min-width: 0;
+        min-height: 460px;
+        background: var(--mist);
+        overflow: hidden;
+      }
+      .stage.cut {
+        box-shadow: inset 0 0 0 4px rgba(255, 212, 65, 0.78);
+      }
+      #canvas {
+        position: absolute;
+        inset: 0;
+      }
+      #canvas canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .stage-label {
+        position: absolute;
+        z-index: 2;
+        top: 18px;
+        left: 20px;
+        right: 20px;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+      .stage-label span,
+      .stage-label b {
+        padding: 7px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .stage-label span {
+        background: var(--ink);
+        color: white;
+        font-weight: 800;
+      }
+      .stage-label b {
+        background: rgba(255, 244, 182, 0.94);
+        color: #775900;
+      }
+      .legend {
+        position: absolute;
+        z-index: 2;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 14px;
+        padding: 8px 14px;
+        border: 1px solid white;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.86);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .legend i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+        border-radius: 3px;
+      }
+      .legend .b {
+        background: var(--blue);
+      }
+      .legend .c {
+        background: var(--coral);
+      }
+      .legend .y {
+        background: var(--yellow);
+      }
+      .control {
+        display: block;
+        padding: 13px 0;
+        border-bottom: 1px solid #dce6e9;
+      }
+      .control-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 9px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .degree-entry {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 7px;
+        border: 1px solid #b9d1d6;
+        border-radius: 8px;
+        background: white;
+        color: #0e7281;
+      }
+      .degree-entry:focus-within {
+        border-color: #16848c;
+        box-shadow: 0 0 0 3px rgba(22, 132, 140, 0.14);
+      }
+      .degree-entry input {
+        width: 54px;
+        padding: 2px 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: inherit;
+        text-align: right;
+        font-weight: 900;
+      }
+      .degree-entry span {
+        font-weight: 900;
+      }
+      input[type="range"] {
+        width: 100%;
+        accent-color: #16848c;
+      }
+      input[type="range"]:disabled {
+        cursor: not-allowed;
+        opacity: 0.42;
+      }
+      .preset-title {
+        margin: 17px 0 8px;
+        color: #607481;
+        font-size: 13px;
+        font-weight: 900;
+      }
+      .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+      .presets button,
+      .merge {
+        height: 38px;
+        border: 1px solid #c5d6db;
+        border-radius: 9px;
+        background: white;
+        color: var(--ink);
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .presets button:last-child {
+        grid-column: 1/-1;
+      }
+      .cut-button {
+        width: 100%;
+        height: 46px;
+        margin-top: 16px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--yellow);
+        color: #4c3b00;
+        font-weight: 900;
+        box-shadow: 0 6px 0 #c89c14;
+        cursor: pointer;
+      }
+      .cut-button:active {
+        transform: translateY(3px);
+        box-shadow: 0 3px 0 #c89c14;
+      }
+      .merge {
+        width: 100%;
+        margin-top: 9px;
+      }
+      .view-reset {
+        border-color: #78b4ba;
+        background: #f0fbfb;
+        color: #0e7281;
+      }
+      .distance {
+        display: block;
+        margin-top: 17px;
+        padding: 14px;
+        border: 1px solid #d1e0e4;
+        border-radius: 14px;
+        background: #edf4f5;
+      }
+      .distance .control-head {
+        margin-bottom: 10px;
+      }
+      @media (max-width: 1050px) {
+        .app {
+          grid-template-rows: auto auto;
+        }
+        .workspace {
+          grid-template-columns: 220px 1fr;
+        }
+        .stage {
+          height: 590px;
+        }
+        .right {
+          grid-column: 1/-1;
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0 20px;
+        }
+        .right h2,
+        .right .kicker,
+        .right .actions {
+          grid-column: 1/-1;
+        }
+        .distance {
+          grid-column: 1/-1;
+        }
+      }
+      @media (max-width: 700px) {
+        .topbar { flex-wrap: wrap; gap: 12px; }
+        .brand { gap: 8px; }
+        .brand b { font-size: 20px; }
+        .brand-mark { width: 46px; height: 44px; }
+        .header-tools { width: 100%; justify-content: space-between; }
+        .result strong { display: inline !important; margin-left: 6px !important; }
+        .app {
+          padding: 8px;
+        }
+        .topbar {
+          padding: 10px;
+        }
+        .brand small {
+          display: none;
+        }
+        .result {
+          font-size: 12px;
+        }
+        .result strong {
+          display: block;
+          margin: 0;
+        }
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+        .left {
+          border-right: 0;
+        }
+        .family-list {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .family {
+          display: block;
+          text-align: center;
+        }
+        .family small {
+          display: none;
+        }
+        .side-buttons {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .stage {
+          height: min(68vh, 590px);
+          min-height: 460px;
+        }
+        .right {
+          grid-template-columns: 1fr;
+        }
+        .right h2,
+        .right .kicker,
+        .right .actions,
+        .distance {
+          grid-column: auto;
+        }
+        .stage-label b {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" src="./assets/dangdang-logo.png" alt="当当老师 Logo" />
+          <img class="logo" src="./assets/dangdang-teacher.png" alt="当当老师动漫形象" />
+          <div>
+            <b>当当老师小课堂</b
+            ><small>立体切割实验室 · 鼠标拖动旋转 · 滚轮缩放</small>
+          </div>
+        </div>
+        <div class="header-tools"><div class="result">当前截面 <strong id="sectionName">—</strong></div><a class="back-home" id="backHome" href="../">← 返回小屋</a></div>
+      </header>
+      <div class="workspace">
+        <aside class="panel left">
+          <span class="kicker">第一步</span>
+          <h2>选择立体图形</h2>
+          <div class="family-list">
+            <button class="family active" data-shape="cube">
+              <span class="ico">▣</span
+              ><span><b>正方体</b><small>6个正方形面</small></span></button
+            ><button class="family" data-shape="prism">
+              <span class="ico">⬡</span
+              ><span><b>棱柱</b><small>可选3—6边形底面</small></span></button
+            ><button class="family" data-shape="pyramid">
+              <span class="ico">△</span
+              ><span><b>棱锥</b><small>可选3—6边形底面</small></span>
+            </button>
+          </div>
+          <div class="side-picker" id="sidePicker" hidden>
+            <span>选择底面边数</span>
+            <div class="side-buttons" id="sideButtons"></div>
+          </div>
+          <div class="vertex-tool">
+            <strong>● 点击顶点确定切面</strong>
+            <span id="vertexHint">已选0个顶点，请先选择2个顶点。</span>
+            <button id="clearVertices" type="button">清除顶点，重新选择</button>
+          </div>
+          <div class="tip">
+            <b>观察方法</b
+            ><br />选择2个顶点可锁定一条轴线，再拖动两个角度让切面绕轴旋转；选择第3个顶点即可唯一确定切面。
+          </div>
+        </aside>
+        <section class="stage" id="stage">
+          <div class="stage-label">
+            <span id="shapeName">正方体</span
+            ><b id="stageStatus">亮黄色区域就是截面</b>
+          </div>
+          <div id="canvas"></div>
+          <div class="legend">
+            <span><i class="b"></i>第一部分</span
+            ><span><i class="c"></i>第二部分</span
+            ><span><i class="y"></i>截面</span>
+          </div>
+        </section>
+        <aside class="panel right">
+          <span class="kicker">第二步</span>
+          <h2>移动切割面</h2>
+          <label class="control"
+            ><span class="control-head"
+              ><span>切面倾角</span
+              ><span class="degree-entry"
+                ><input
+                  id="tiltNumber"
+                  type="number"
+                  min="0"
+                  max="180"
+                  step="0.01"
+                  value="42"
+                  inputmode="numeric"
+                  aria-label="直接输入切面倾斜度数"
+                /><span>°</span></span
+              ></span
+            ><input
+              id="tilt"
+              type="range"
+              min="0"
+              max="180"
+              step="0.01"
+              value="42" /></label
+          ><label class="control"
+            ><span class="control-head"
+              ><span>切面方向</span
+              ><span class="degree-entry"
+                ><input
+                  id="turnNumber"
+                  type="number"
+                  min="0"
+                  max="360"
+                  step="0.01"
+                  value="28"
+                  inputmode="numeric"
+                  aria-label="直接输入切面方向度数"
+                /><span>°</span></span
+              ></span
+            ><input
+              id="turn"
+              type="range"
+              min="0"
+              max="360"
+              step="0.01"
+              value="28" /></label
+          ><label class="control"
+            ><span class="control-head"
+              ><span>前后移动</span><output id="offsetOut">正中间</output></span
+            ><input
+              id="offset"
+              type="range"
+              min="-3"
+              max="3"
+              step="0.01"
+              value="0"
+          /></label>
+          <div class="actions">
+            <div class="preset-title">一键切割</div>
+            <div class="presets">
+              <button data-preset="horizontal">横着切</button
+              ><button data-preset="vertical">竖着切</button
+              ><button data-preset="diagonal">中心对角切</button>
+            </div>
+            <button class="cut-button" id="cut">✂ 开始切割并拉开</button
+            ><button class="merge" id="merge">重新合起来</button
+            ><button class="merge view-reset" id="resetView">
+              ⟳ 视图复位（完整显示）
+            </button>
+          </div>
+          <label class="distance"
+            ><span class="control-head"
+              ><span>两部分的距离</span
+              ><output id="distanceOut">还没拉开</output></span
+            ><input
+              id="distance"
+              type="range"
+              min="0"
+              max="1.5"
+              step="0.05"
+              value="0"
+          /></label>
+        </aside>
+      </div>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
