@@ -49,6 +49,45 @@
     if(kind==='cone'){const l=Math.hypot(r,h),angle=2*Math.PI*r/l;return {kind,r,h,l,angle,degrees:angle*180/Math.PI,area:Math.PI*r*(r+l)}}
     return null;
   }
+  function prismTree(model,n){
+    const links=new Set([`0:${n}`,`0:${n+1}`]);
+    for(let i=0;i<n-1;i++)links.add(`${i}:${i+1}`);
+    return tree(model,links);
+  }
+  // Isometric development: material coordinates keep their lengths at every frame.
+  // Cylinder: arc-length s becomes an arc of decreasing curvature, ending at x=s.
+  // Cone: slant distance u and sector angle beta retain metric du² + u² dBeta².
+  function curvedUnfold(kind,dims,amount,segments=96){
+    const t=Math.max(0,Math.min(1,amount)),r=dims.r,h=dims.h,l=Math.hypot(r,h),faces=[];
+    if(!(r>0&&h>0)||!['cylinder','cone'].includes(kind))throw Error('曲面展开需要正的半径和高度');
+    function cylinderPoint(s,y){const k=(1-t)/r;return Math.abs(k)<1e-9?[s,y,r]:[Math.sin(k*s)/k,y,r-2*Math.sin(k*s/2)**2/k]}
+    const opening=Math.asin(r/l)+(Math.PI/2-Math.asin(r/l))*t,rho=Math.sin(opening),q=Math.cos(opening);
+    function conePoint(u,beta){const phi=beta/rho;return [u*rho*Math.sin(phi),h/2-u*q,u*rho*Math.cos(phi)]}
+    const point=kind==='cylinder'?cylinderPoint:conePoint;
+    for(let i=0;i<segments;i++){
+      const a=-Math.PI+2*Math.PI*i/segments,b=-Math.PI+2*Math.PI*(i+1)/segments;
+      let points,normal;
+      if(kind==='cylinder'){
+        points=[point(r*a,-h/2),point(r*b,-h/2),point(r*b,h/2),point(r*a,h/2)];
+        normal=[Math.sin((1-t)*(a+b)/2),0,Math.cos((1-t)*(a+b)/2)];
+      }else{
+        points=[[0,h/2,0],point(l,r/l*a),point(l,r/l*b)];
+        const phi=r/l*(a+b)/2/rho;normal=[q*Math.sin(phi),rho,q*Math.cos(phi)];
+      }
+      faces.push({group:'side',points,normal});
+    }
+    // Disk bases are rigid and rotate around a tangent through the retained contact point.
+    for(const sign of kind==='cylinder'?[-1,1]:[-1]){
+      const pivot=kind==='cylinder'?[0,sign*h/2,r]:point(l,0),angle=kind==='cylinder'?sign*t*Math.PI/2:-t*Math.PI;
+      const points=[];
+      for(let i=0;i<segments;i++){
+        const phi=2*Math.PI*i/segments,relative=[r*Math.sin(phi),0,r*(Math.cos(phi)-1)];
+        points.push(add(pivot,axisRotate(relative,[1,0,0],angle)));
+      }
+      faces.push({group:sign<0?'bottom':'top',points,normal:axisRotate([0,sign,0],[1,0,0],angle),pivot});
+    }
+    return {kind,amount:t,faces,point,r,h,l,width:2*Math.PI*r,sectorAngle:2*Math.PI*r/l,sideArea:kind==='cylinder'?2*Math.PI*r*h:Math.PI*r*l};
+  }
   function cubeNets(model){
     const links=model.edges.map(e=>[...e.faces].sort((a,b)=>a-b).join(':'));
     const length=Math.hypot(...sub(model.vertices[model.faces[0][0]],model.vertices[model.faces[0][1]]));
@@ -88,5 +127,5 @@
     return v.reduce((axis,x,i)=>Math.abs(x)>Math.abs(v[axis])?i:axis,0);
   }
   function boxFaceName(normal){const axis=normal.reduce((best,x,i)=>Math.abs(x)>Math.abs(normal[best])?i:best,0);return [['左面','右面'],['下面','上面'],['后面','前面']][axis][normal[axis]>0?1:0]}
-  root.SolidNets={tree,unfold,polygonArea,surfaceArea,curvedNet,cubeNets,boxNets,netType,edgeAxis,boxFaceName,sub,cross,dot,unit};
+  root.SolidNets={tree,unfold,polygonArea,surfaceArea,curvedNet,curvedUnfold,prismTree,cubeNets,boxNets,netType,edgeAxis,boxFaceName,sub,cross,dot,unit};
 })(globalThis);

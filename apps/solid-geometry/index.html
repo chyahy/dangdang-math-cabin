@@ -20,6 +20,7 @@
 .net-filters{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.net-filters button{font-size:11px;padding:6px 8px}.net-filters button[aria-pressed=true]{background:#087e83;color:white;border-color:#087e83}.net-choice svg{height:52px}.cube-net-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.net-choice span{font-size:10px;line-height:1.5}.observation-tools{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.observation-tools h3{margin-bottom:10px}.face-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}.face-options .check{margin:0;min-height:28px;font-size:11px}.small-actions{display:flex;gap:6px;margin:10px 0}.small-actions .btn{font-size:10px;padding:5px 8px}.observation-tools select{display:block;width:100%;min-width:0;margin:8px 0;padding:8px;border:1px solid #c7dcd8;border-radius:6px;background:white;color:var(--ink);font:inherit;font-size:11px}.selection-status{font-size:11px;line-height:1.8;color:#a25015;background:#fff5df;border-radius:7px;padding:9px;margin:9px 0;min-height:52px}.dimension-options{display:flex;flex-wrap:wrap;gap:10px}.dimension-options .check{margin:5px 0;font-size:11px}#observations{pointer-events:none}.settings{max-height:none}.net-summary{font-size:11px;color:#477e72;margin:6px 0}.drawing{flex:0 0 auto;position:sticky;top:8px;background:#f9fcfc;z-index:1}.drawing svg{max-height:66vh}select:focus-visible{outline:3px solid #f2b454;outline-offset:3px}
 .drawing{position:relative;top:auto}.settings{max-height:calc(100dvh - 220px);overflow-y:auto;align-self:start;scrollbar-width:thin}
 @media(max-width:830px){.observation-tools{grid-column:1/-1}.settings{align-content:start;max-height:none;overflow:visible;align-self:stretch}.drawing{position:relative;top:auto}.drawing svg{max-height:none}.cube-net-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.family-picker{margin:14px 22px 0;padding:12px 14px;border:1px solid #c9dfdc;border-radius:10px;background:#eef8f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.family-picker label{font-size:12px;color:#286b66}.family-picker select{padding:8px;border:1px solid #abcfc9;border-radius:7px;background:white;color:var(--ink);font:inherit;font-size:12px}.family-shortcuts{display:flex;gap:5px;flex-wrap:wrap}.family-shortcuts button[aria-pressed=true]{background:var(--teal);color:white}.curve-note{fill:#477e72;font-size:14px}.net-playback{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}@media(max-width:560px){.family-picker{margin:12px 12px 0;padding:10px;gap:7px}.family-shortcuts .btn{padding:6px 8px}.family-picker select{font-size:12px}}
 </style>
 </head>
 <body>
@@ -27,7 +28,7 @@
   <header class="top"><div class="brand"><svg viewBox="0 0 32 32" fill="none" stroke="#087e83" stroke-width="1.5" stroke-linejoin="round"><path d="m16 2 13 7v15l-13 7L3 24V9Z"/><path d="m3 9 13 7 13-7M16 16v15M16 2v14"/></svg><div>当当老师小课堂<small>立体图形观察站</small></div></div><div class="top-actions"><a id="backHome" class="btn" href="../">← 回到小屋</a><button class="btn" id="exportPNG">↓ 导出图片</button><button class="btn" id="fullscreen">⛶ 全屏</button></div></header>
   <div class="intro"><h1>把立体，展开来看。</h1><p>拖动观察每一面，再沿着棱慢慢展开。<br>每一面的形状与大小，在展开时保持不变。</p></div>
   <div class="workspace">
-    <nav class="library" aria-label="选择立体图形"><p class="section-title">图形收藏架 · 10 种</p><div id="shapeList" class="shape-list"></div></nav>
+    <nav class="library" aria-label="选择立体图形"><p class="section-title">图形收藏架</p><div id="shapeList" class="shape-list"></div></nav>
     <section class="stage-panel" aria-label="立体图形预览">
       <div class="stage-heading"><h2 id="shapeTitle">四棱台</h2><span class="tag" id="shapeTag">多面体</span></div>
       <div class="drawing">
@@ -70,6 +71,28 @@ const colors={blue:[124,191,213],mint:[115,190,162],orange:[229,156,110],purple:
 let current='cube',dims={},model,color='blue',yaw=-.62,pitch=.35,zoom=1,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,dirty=true,last=null,lastDraw=0;
 let unfoldAmount=0,netAnimation=null,topology=null,netCamera={yaw:-.62,pitch:.35},panX=0,panY=0,messageTimer,cubeNetOptions=null,cubeNetIndex=0;
 let netFilter='all',hiddenFaces=new Set(),selection=null,pickVertices=[],pickEdges=[],tap=null;
+const sideCounts={triprism:3,hexprism:6,pyramid:4,tetra:3};
+const familyShape=()=>Object.hasOwn(sideCounts,current),pyramidShape=()=>current==='pyramid'||current==='tetra';
+const numberNames={3:'三',4:'四',5:'五',6:'六',7:'七',8:'八',9:'九',10:'十',11:'十一',12:'十二'};
+document.querySelector('.stage-heading').insertAdjacentHTML('afterend','<div id="familyPicker" class="family-picker" hidden><label for="sideCount">底面边数 / 侧棱条数</label><select id="sideCount" aria-label="选择几棱柱或几棱锥"></select><div id="familyShortcuts" class="family-shortcuts"></div></div>');
+for(let n=3;n<=12;n++){const option=document.createElement('option');option.value=n;option.textContent=n+' 棱';$('sideCount').append(option)}
+for(const n of [3,4,5,6,8,10,12]){const b=document.createElement('button');b.className='btn';b.dataset.sides=n;b.textContent=n+' 棱';b.onclick=()=>changeSides(n);$('familyShortcuts').append(b)}
+$('sideCount').onchange=e=>changeSides(Number(e.target.value));
+function configureFamily(){
+ if(!familyShape())return;const d=defs[current],n=sideCounts[current],pyramid=pyramidShape(),name=numberNames[n]+'棱'+(pyramid?'锥':'柱');
+ d.name=name;d.stats=pyramid?[n+1,2*n,n+1]:[2*n,3*n,n+2];d.formula=pyramid?'V = S底 × h / 3':'V = S底 × h';
+ d.note=`底面是正${numberNames[n]}边形，底面边长为 a；${pyramid?'顶点位于底面中心正上方':'侧棱与底面垂直'}。`;
+ d.learn=pyramid?`观察提示：${name}有 ${n} 个三角形侧面；顶点连接 ${n} 条侧棱。`:`观察提示：${name}有 2 个相同的底面和 ${n} 个长方形侧面。`;
+}
+function refreshFamilyPicker(){
+ $('familyPicker').hidden=!familyShape();if(!familyShape())return;
+ $('sideCount').value=sideCounts[current];[...$('sideCount').options].forEach(o=>o.textContent=numberNames[o.value]+'棱'+(pyramidShape()?'锥':'柱'));document.querySelectorAll('[data-sides]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.sides)===sideCounts[current])));
+ $('shapeTitle').textContent=defs[current].name;
+}
+function changeSides(n){
+ if(!familyShape()||!Number.isInteger(n)||n<3||n>12)return;
+ sideCounts[current]=n;configureFamily();unfoldAmount=0;netAnimation=null;hiddenFaces.clear();selection=null;panX=panY=0;zoom=1;yaw=-.62;pitch=.35;manual();build();refreshFamilyPicker();updateNetControls();
+}
 const boxShape=()=>current==='cube'||current==='cuboid';
 const netYaw=()=>boxShape()&&cubeNetOptions?-cubeNetOptions[cubeNetIndex].turn*Math.PI/2:0;
 const axisNames=['长','高','宽'],axisColors=['#cc681c','#8650b1','#1674ae'];
@@ -158,7 +181,7 @@ cone:'M23 3 5 30c0 9 36 9 36 0ZM5 30c0-8 36-8 36 0',
 tetra:'m23 3 18 27-25 7L4 24Z M23 3l-7 34M4 24l37 6',
 sphere:'M23 3a17 17 0 1 0 0 34 17 17 0 1 0 0-34M6 20c0-7 34-7 34 0s-34 7-34 0M23 3c-11 0-11 34 0 34s11-34 0-34'};
 for(const [id,d] of Object.entries(defs)){
-const button=document.createElement('button');button.className='shape';button.dataset.shape=id;button.setAttribute('aria-pressed','false');button.innerHTML=`<svg viewBox="0 0 46 40" fill="#d9eeed" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icons[id]}"/></svg><span>${d.short}<small>${d.en}</small></span>`;button.addEventListener('click',()=>select(id));$('shapeList').appendChild(button);
+const button=document.createElement('button');button.className='shape';button.dataset.shape=id;button.setAttribute('aria-pressed','false');button.innerHTML=`<svg viewBox="0 0 46 40" fill="#d9eeed" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icons[id]}"/></svg><span>${id==='triprism'?'棱柱':id==='pyramid'?'棱锥':d.short}<small>${id==='triprism'||id==='pyramid'?'3—12 棱可选':d.en}</small></span>`;button.addEventListener('click',()=>select(id));$('shapeList').appendChild(button);
 }
 const vecSub=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -172,12 +195,12 @@ if(current==='sphere'){
 const n=40,steps=20;vertices.push([0,-d.r,0]);let rings=[];for(let j=1;j<steps;j++){const t=-Math.PI/2+Math.PI*j/steps;rings.push(ring(n,d.r*Math.cos(t),d.r*Math.sin(t)))}const north=vertices.length;vertices.push([0,d.r,0]);
 for(let i=0;i<n;i++){let k=(i+1)%n;faces.push([0,rings[0][i],rings[0][k]],[north,rings.at(-1)[i],rings.at(-1)[k]])}
 for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++)faces.push([rings[j][i],rings[j][(i+1)%n],rings[j+1][(i+1)%n],rings[j+1][i]]);
-}else if(['cylinder','cone','triprism','hexprism','tetra'].includes(current)){
-const n=current==='hexprism'?6:['triprism','tetra'].includes(current)?3:64;
-const r=n===3?d.a/Math.sqrt(3):n===6?d.a:d.r;
-const b=ring(n,r,-d.h/2,n===3?-Math.PI/2:Math.PI/4);
-if(current==='cone'||current==='tetra'){const peak=vertices.length;vertices.push([0,d.h/2,0]);faces.push(b);for(let i=0;i<n;i++)faces.push([b[i],b[(i+1)%n],peak])}
-else sides(b,ring(n,r,d.h/2,n===3?-Math.PI/2:Math.PI/4));
+}else if(familyShape()||current==='cylinder'||current==='cone'){
+const n=familyShape()?sideCounts[current]:64;
+const r=familyShape()?d.a/(2*Math.sin(Math.PI/n)):d.r,offset=n===4?Math.PI/4:-Math.PI/2;
+const b=ring(n,r,-d.h/2,offset);
+if(current==='cone'||pyramidShape()){const peak=vertices.length;vertices.push([0,d.h/2,0]);faces.push(b);for(let i=0;i<n;i++)faces.push([b[i],b[(i+1)%n],peak])}
+else sides(b,ring(n,r,d.h/2,offset));
 }else{
 const a=d.a,b=current==='cuboid'?d.b:a,h=current==='cube'?a:d.h;
 const bottom=[[-a/2,-h/2,-b/2],[a/2,-h/2,-b/2],[a/2,-h/2,b/2],[-a/2,-h/2,b/2]];vertices.push(...bottom);
@@ -188,12 +211,13 @@ const centroid=vertices.reduce((sum,v)=>sum.map((x,i)=>x+v[i]/vertices.length),[
 const normals=faces.map(f=>{let n=cross(vecSub(vertices[f[1]],vertices[f[0]]),vecSub(vertices[f[2]],vertices[f[0]]));const center=f.reduce((sum,i)=>sum.map((x,k)=>x+vertices[i][k]/f.length),[0,0,0]);if(dot(n,vecSub(center,centroid))<0){f.reverse();n=n.map(x=>-x)}return unit(n)});
 const edgeMap=new Map();faces.forEach((f,fi)=>f.forEach((a,i)=>{const b=f[(i+1)%f.length],key=[Math.min(a,b),Math.max(a,b)].join('-');if(!edgeMap.has(key))edgeMap.set(key,{a,b,faces:[]});edgeMap.get(key).faces.push(fi)}));
 model={vertices,faces,normals,edges:[...edgeMap.values()],smooth};
-if(boxShape()){if(!cubeNetOptions)cubeNetOptions=SolidNets.boxNets(model);topology=cubeNetOptions[cubeNetIndex].topology;renderCubeNetChoices()}else topology=smooth?null:SolidNets.tree(model);
+if(boxShape()){if(!cubeNetOptions)cubeNetOptions=SolidNets.boxNets(model);topology=cubeNetOptions[cubeNetIndex].topology;renderCubeNetChoices()}else topology=smooth?null:familyShape()&&!pyramidShape()?SolidNets.prismTree(model,sideCounts[current]):SolidNets.tree(model);
 dirty=true;updateFacts();refreshObservationControls();
 }
 function rotate(v){const c=Math.cos(yaw),s=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);const x=c*v[0]+s*v[2],z=-s*v[0]+c*v[2];return [x,cp*v[1]-sp*z,sp*v[1]+cp*z]}
 const coord=v=>`${v[0].toFixed(2)},${v[1].toFixed(2)}`;
 function render(){
+if(current==='cylinder'||current==='cone'){renderCurved();return;}
 if(unfoldAmount>0){renderNet();return;}
 const extent=Math.max(...model.vertices.map(v=>Math.hypot(...v)));
 const scale=182/Math.max(2,extent)*zoom;
@@ -222,6 +246,54 @@ let labels='';if($('labels').checked&&!model.smooth)model.vertices.forEach((v,i)
 let axes='';if($('axisToggle').checked){const origin=[710,500],basis=[[1,0,0],[0,1,0],[0,0,1]],labels=['x','y','z'],palette=['#cf8a70','#4b9c86','#6599bb'];basis.forEach((v,i)=>{const r=rotate(v),x=origin[0]+r[0]*34,y=origin[1]-r[1]*34;axes+=`<path d="M${origin}L${x},${y}" fill="none" stroke="${palette[i]}" stroke-width="2.3" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="2.5" fill="${palette[i]}"/><text x="${x+8}" y="${y+4}" font-size="12" fill="${palette[i]}" font-family="Consolas,monospace">${labels[i]}</text>`});axes+='<circle cx="710" cy="500" r="3" fill="#78939d"/>'}$('axes').innerHTML=axes;dirty=false;
 }
 function netText(x,y,text,size=14){size=Math.max(size,Math.min(25,10*800/Math.max(280,$('scene').clientWidth)));return `<text x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" font-size="${size}" font-family="Microsoft YaHei,sans-serif" fill="#315b70" stroke="#f9fcfc" stroke-width="3" paint-order="stroke">${text}</text>`}
+function renderCurvedAxes(){
+ let html='';if($('axisToggle').checked&&unfoldAmount===0){const origin=[710,500];[[1,0,0],[0,1,0],[0,0,1]].forEach((v,i)=>{const p=rotate(v),x=origin[0]+p[0]*34,y=origin[1]-p[1]*34,color=['#cf8a70','#4b9c86','#6599bb'][i];html+=`<path d="M${origin}L${x},${y}" stroke="${color}" stroke-width="2.3"/><text x="${x+8}" y="${y+4}" font-size="12" fill="${color}">${['x','y','z'][i]}</text>`})}$('axes').innerHTML=html;
+}
+function renderCurved(){
+ const mesh=SolidNets.curvedUnfold(current,dims,unfoldAmount),rotated=mesh.faces.flatMap(f=>f.points.map(rotate));
+ const minX=Math.min(...rotated.map(p=>p[0])),maxX=Math.max(...rotated.map(p=>p[0])),minY=Math.min(...rotated.map(p=>p[1])),maxY=Math.max(...rotated.map(p=>p[1])),cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+ const scale=Math.min(625/Math.max(.1,maxX-minX),405/Math.max(.1,maxY-minY))*zoom;
+ const project=v=>{const p=rotate(v);return [400+panX+(p[0]-cx)*scale,275+panY-(p[1]-cy)*scale]};
+ const keyFor=group=>group==='side'?'side':'base-'+(current==='cone'?0:group==='bottom'?model.faces.length-2:model.faces.length-1);
+ const front=mesh.faces.map(f=>rotate(f.normal)[2]>1e-7),base=colors[color],seen=new Set();let html='',labels='',ghost='';
+ const sorted=mesh.faces.map((f,id)=>({...f,id,depth:f.points.reduce((s,p)=>s+rotate(p)[2]/f.points.length,0)})).sort((a,b)=>a.depth-b.depth);
+ for(const f of sorted){
+  const key=keyFor(f.group);if(hiddenFaces.has(key))continue;
+  if(!front[f.id]&&hiddenFaces.size===0){
+   if($('hidden').checked&&unfoldAmount===0&&f.group==='side'){const p=f.points.map(project);ghost+=current==='cylinder'?`<path d="M${coord(p[0])}L${coord(p[1])}M${coord(p[3])}L${coord(p[2])}"/>`:`<path d="M${coord(p[1])}L${coord(p[2])}"/>`}
+   continue;
+  }
+  const normal=rotate(f.normal),shade=.73+.27*Math.abs(dot(normal,unit([-.4,.6,1]))),fill=f.group==='side'?`rgb(${base.map(v=>Math.round(v*shade+255*(1-shade)*.15)).join(',')})`:'#f3ce85';
+  const points=f.points.map(project),tag=unfoldAmount>0&&!seen.has(f.group)?`data-net-face="${f.group==='side'?'side':'base'}"`:'';seen.add(f.group);
+  html+=`<polygon ${tag} data-surface-group="${key}" points="${points.map(coord).join(' ')}" fill="${fill}" stroke="${fill}" stroke-width=".65" stroke-linejoin="round"/>`;
+  if(f.group!=='side')html+=`<polygon points="${points.map(coord).join(' ')}" fill="none" stroke="#315b70" stroke-width="1.7"/>`;
+  else {
+   const n=96,id=f.id,first=id===0,last=id===n-1,prev=id>0&&front[id-1],next=id<n-1&&front[id+1];
+   if(current==='cylinder'){
+    html+=`<path d="M${coord(points[0])}L${coord(points[1])}M${coord(points[3])}L${coord(points[2])}" fill="none" stroke="#315b70" stroke-width="1.5"/>`;
+    if(first||!prev)html+=`<path d="M${coord(points[0])}L${coord(points[3])}" fill="none" stroke="${first&&unfoldAmount>0?'#bd7d22':'#315b70'}" stroke-width="1.7"/>`;
+    if(last||!next)html+=`<path d="M${coord(points[1])}L${coord(points[2])}" fill="none" stroke="${last&&unfoldAmount>0?'#bd7d22':'#315b70'}" stroke-width="1.7"/>`;
+   }else {
+    html+=`<path d="M${coord(points[1])}L${coord(points[2])}" fill="none" stroke="#315b70" stroke-width="1.5"/>`;
+    if(first||!prev)html+=`<path d="M${coord(points[0])}L${coord(points[1])}" fill="none" stroke="${first&&unfoldAmount>0?'#bd7d22':'#315b70'}" stroke-width="1.7"/>`;
+    if(last||!next)html+=`<path d="M${coord(points[0])}L${coord(points[2])}" fill="none" stroke="${last&&unfoldAmount>0?'#bd7d22':'#315b70'}" stroke-width="1.7"/>`;
+   }
+  }
+ }
+ if(unfoldAmount>.999&&hiddenFaces.size===0){
+  if(current==='cylinder'){
+   const middle=project([0,0,dims.r]),top=project([0,dims.h/2+dims.r,dims.r]),bottom=project([0,-dims.h/2-dims.r,dims.r]),edge=project([Math.PI*dims.r,-dims.h/2,dims.r]);
+   labels+=netText(middle[0],middle[1]+4,'侧面：长方形',15)+netText(top[0],top[1]+4,'底面',13)+netText(bottom[0],bottom[1]+4,'底面',13)+netText(edge[0]-75,edge[1]+20,'长 = 2πr ≈ '+mesh.width.toFixed(2),12);
+  }else {
+   const middle=project([0,dims.h/2,mesh.l*.58]),basePoint=project([0,dims.h/2,mesh.l+dims.r]),anglePoint=project([0,dims.h/2,mesh.l*.3]);
+   labels+=netText(middle[0],middle[1]+5,'侧面：扇形',14)+netText(basePoint[0],basePoint[1]+4,'底面',13)+netText(anglePoint[0],anglePoint[1],'圆心角 ≈ '+(mesh.sectorAngle*180/Math.PI).toFixed(1)+'°',12);
+  }
+ }
+ $('surfaces').innerHTML=html;$('visibleLines').innerHTML=ghost?`<g fill="none" stroke="#315b70" stroke-width="1.2" stroke-dasharray="4 4" opacity=".4">${ghost}</g>`:'';$('hiddenLines').innerHTML='';$('vertexLabels').innerHTML=labels;renderCurvedAxes();renderObservations([],[]);
+ $('scene').dataset.curvedAmount=unfoldAmount.toFixed(4);$('scene').dataset.curvedSideArea=mesh.sideArea.toFixed(8);
+ if(unfoldAmount>0)$('scene').dataset.netFaceCount=current==='cylinder'?'3':'2';
+ dirty=false;
+}
 function renderNet(){
 let surfaces='',lines='',labels='';
 if(!defs[current].curved){
@@ -274,24 +346,23 @@ function updateNetControls(){
 const sphere=current==='sphere',curved=defs[current].curved;
 $('cubeNetGallery').hidden=!boxShape();
 document.querySelector('#cubeNetGallery summary').textContent=defs[current].name+'的 11 种展开方式';
-$('toggleNet').disabled=sphere;$('toggleNet').textContent=unfoldAmount>0?'◆ 收成立体':curved?'◇ 查看展开图':'◇ 沿棱展开';$('toggleNet').setAttribute('aria-pressed',String(unfoldAmount>0));
-$('netSliderRow').hidden=curved;$('netLegend').hidden=curved||unfoldAmount===0;
+$('toggleNet').disabled=sphere;$('toggleNet').textContent=unfoldAmount>0?'◆ 收成立体':curved?'◇ 沿母线展开':'◇ 沿棱展开';$('toggleNet').setAttribute('aria-pressed',String(unfoldAmount>0));
+$('netSliderRow').hidden=sphere;$('netLegend').hidden=curved||unfoldAmount===0;
 $('netAmount').value=Math.round(unfoldAmount*100);$('netStatus').textContent=sphere?'球面不能完整无变形地铺平':unfoldAmount===0?'立体状态 · 0%':unfoldAmount>=.999?'完整展开 · 100%':'正在展开 · '+Math.round(unfoldAmount*100)+'%';
-$('netNote').textContent=sphere?'球面没有完整、无变形的平面展开图。可以旋转观察球面；切开或拉伸后得到的图形，不是精确展开图。':current==='cylinder'?'侧面展开是长方形，长等于底面周长 2πr，宽等于高 h，再加上 2 个圆形底面。':current==='cone'?'侧面展开是扇形，半径是母线 l，弧长等于底面周长 2πr，再加上 1 个圆形底面。':'金色面是连接中心。其他面沿公共棱转动，不拉伸、不改变大小；虚线表示仍然相连的折叠线。';
-$('stageHint').textContent=unfoldAmount>0?(curved?'平面展开图 · 拖动平移 · 双指缩放':'拖动改变观察角度 · 双指缩放与平移'):'拖动旋转 · 双指缩放与平移 · 方向键也可以操作';
+$('netNote').textContent=sphere?'球面没有完整、无变形的平面展开图。可以旋转观察球面；切开或拉伸后得到的图形，不是精确展开图。':current==='cylinder'?'拖动进度沿母线剪开并摊平；侧面保持宽 h、长 2πr，不拉伸。两个底面沿保留的接触点翻开，最后得到长方形和 2 个圆。':current==='cone'?'拖动进度沿母线剪开并摊平；母线长度和弧长保持不变。侧面最后成为扇形，扇形半径等于母线 l，弧长等于 2πr。':'金色面是连接中心。其他面沿公共棱转动，不拉伸、不改变大小；虚线表示仍然相连的折叠线。';
+$('stageHint').textContent=unfoldAmount>0?'拖动改变观察角度 · 双指缩放与平移':'拖动旋转 · 双指缩放与平移 · 方向键也可以操作';
 $('spin').disabled=unfoldAmount>0;
 $('hidden').disabled=unfoldAmount>0||sphere;$('labels').disabled=unfoldAmount>0||curved;$('axisToggle').disabled=unfoldAmount>0;
-$('toolNote').textContent=unfoldAmount>0?(curved?'展开图由准确的长方形、圆或扇形组成。':'展开图中用实线表示边界，虚线表示连接各面的折叠线。'):curved?'曲面的轮廓随视角变化；绘图用的细分线不作为图形的棱。':'虚线表示从当前角度看不到的棱。';
-document.querySelectorAll('.view').forEach(b=>b.disabled=curved&&unfoldAmount>0);
+$('toolNote').textContent=unfoldAmount>0?(curved?'曲面沿剪开的位置逐渐展开；金色为底面，蓝色为侧面。可以停在任意进度，拖动旋转观察。':'展开图中用实线表示边界，虚线表示连接各面的折叠线。'):curved?'曲面的轮廓随视角变化；绘图用的细分线不作为图形的棱。':'虚线表示从当前角度看不到的棱。';
+document.querySelectorAll('.view').forEach(b=>b.disabled=false);
 $('scene').setAttribute('data-net-amount',unfoldAmount.toFixed(4));
 if(unfoldAmount===0)$('scene').removeAttribute('data-net-face-count');
 $('svgTitle').textContent=(unfoldAmount>0?'展开中的':'可旋转的')+defs[current].name;
 }
 function changeUnfold(value,animate=false){
 if(current==='sphere')return;value=Math.max(0,Math.min(1,value));manual();panX=panY=0;zoom=1;
-if(defs[current].curved){unfoldAmount=value>0?1:0;netAnimation=null;updateNetControls();dirty=true;return}
 if(unfoldAmount===0&&value>0)netCamera={yaw,pitch};
-const endYaw=value>0?netCamera.yaw*(1-value)+netYaw()*value:netCamera.yaw,endPitch=value>0?netCamera.pitch+(Math.PI/2-netCamera.pitch)*value:netCamera.pitch;
+const targetPitch=current==='cylinder'?0:Math.PI/2,endYaw=value>0?netCamera.yaw*(1-value)+netYaw()*value:netCamera.yaw,endPitch=value>0?netCamera.pitch+(targetPitch-netCamera.pitch)*value:netCamera.pitch;
 if(animate&&!reduced.matches)netAnimation={start:performance.now(),from:unfoldAmount,to:value,yaw,pitch,endYaw,endPitch};
 else{netAnimation=null;unfoldAmount=value;yaw=endYaw;pitch=endPitch;updateNetControls();dirty=true}
 }
@@ -316,6 +387,7 @@ $('facts').innerHTML=stats.map(([n,text])=>`<div class="fact"><b>${n}</b><span>$
 $('volumeFormula').textContent=def.formula;
 let volume=0;
 switch(current){case 'cube':volume=d.a**3;break;case 'cuboid':volume=d.a*d.b*d.h;break;case 'frustum':volume=d.h*d.a*d.a*(1+d.ratio+d.ratio*d.ratio)/3;break;case 'pyramid':volume=d.a*d.a*d.h/3;break;case 'triprism':volume=Math.sqrt(3)/4*d.a*d.a*d.h;break;case 'hexprism':volume=3*Math.sqrt(3)/2*d.a*d.a*d.h;break;case 'tetra':volume=Math.sqrt(3)/12*d.a*d.a*d.h;break;case 'cylinder':volume=Math.PI*d.r*d.r*d.h;break;case 'cone':volume=Math.PI*d.r*d.r*d.h/3;break;case 'sphere':volume=4*Math.PI*d.r**3/3;break;}
+if(familyShape()){const n=sideCounts[current];volume=n*d.a*d.a/(4*Math.tan(Math.PI/n))*d.h/(pyramidShape()?3:1)}
 $('volumeResult').textContent=`V ≈ ${volume.toFixed(2)} 立方单位`;
 const surface=current==='sphere'?4*Math.PI*d.r*d.r:current==='cylinder'||current==='cone'?SolidNets.curvedNet(current,d).area:SolidNets.surfaceArea(model);
 $('surfaceResult').textContent=`S ≈ ${surface.toFixed(2)} 平方单位`;
@@ -324,8 +396,8 @@ $('dimensionNote').textContent=def.note+(current==='frustum'?` 当前 b = ${(d.a
 $('factSubtitle').textContent=def.curved?'区分平面与曲面':'数一数它的结构';$('learningNote').textContent=def.learn;
 }
 function select(id){
-current=id;const d=defs[id];dims=Object.fromEntries(d.params.map(p=>[p[0],p[4]]));
-unfoldAmount=0;netAnimation=null;panX=panY=0;hiddenFaces.clear();selection=null;netFilter='all';
+current=id;configureFamily();const d=defs[id];dims=Object.fromEntries(d.params.map(p=>[p[0],p[4]]));
+unfoldAmount=0;netAnimation=null;panX=panY=0;hiddenFaces.clear();selection=null;netFilter='all';$('scene').removeAttribute('data-curved-amount');$('scene').removeAttribute('data-curved-side-area');
 document.querySelectorAll('.shape').forEach(button=>{const selected=button.dataset.shape===id;button.classList.toggle('active',selected);button.setAttribute('aria-pressed',selected)});
 $('shapeTitle').textContent=d.name;$('svgTitle').textContent='可旋转的'+d.name;$('shapeTag').textContent=d.type;
 $('sliders').innerHTML=d.params.map(([key,label,min,max,value])=>`<div class="slider-row"><div class="slider-caption"><label for="dim-${key}">${label}</label><input class="numeric-dim" id="num-${key}" data-param="${key}" type="number" min="${min}" max="${max}" value="${value}" step="${key==='ratio'?.05:.1}" aria-label="直接输入${label}"></div><input id="dim-${key}" data-param="${key}" type="range" min="${min}" max="${max}" value="${value}" step="${key==='ratio'?.05:.1}"></div>`).join('');
@@ -335,7 +407,7 @@ input.addEventListener(input.type==='range'?'input':'change',update);if(input.ty
 });
 $('labels').disabled=!!d.curved;$('hidden').disabled=id==='sphere';
 $('toolNote').textContent=d.curved?'曲面的轮廓随视角变化；绘图用的细分线不作为图形的棱。':'虚线表示从当前角度看不到的棱。';
-yaw=-.62;pitch=.35;zoom=1;setViewSelected('space');build();updateNetControls();
+yaw=-.62;pitch=.35;zoom=1;setViewSelected('space');build();refreshFamilyPicker();updateNetControls();
 }
 function setSpin(value){playing=value;$('spin').textContent=playing?'Ⅱ 暂停转动':'▷ 自动转动';$('spin').setAttribute('aria-pressed',String(playing));last=null}
 function setViewSelected(name){document.querySelectorAll('.view').forEach(b=>{const active=b.dataset.view===name;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active))})}
@@ -349,12 +421,12 @@ const scene=$('scene');
 function getPinch(){const [a,b]=[...touches.values()];return {gap:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
 scene.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();manual();netAnimation=null;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});scene.setPointerCapture(e.pointerId);scene.classList.add('dragging');if(touches.size===1){drag={id:e.pointerId,x:e.clientX,y:e.clientY};tap={id:e.pointerId,x:e.clientX,y:e.clientY}}else if(touches.size===2){pinch={...getPinch(),zoom,panX,panY};drag=null;tap=null}});
 scene.addEventListener('pointermove',e=>{if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>5)tap=null});
-scene.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2&&pinch){const p=getPinch(),r=scene.getBoundingClientRect();zoom=Math.max(.45,Math.min(2.2,pinch.zoom*p.gap/Math.max(8,pinch.gap)));panX=pinch.panX+(p.x-pinch.x)*800/r.width;panY=pinch.panY+(p.y-pinch.y)*600/r.height}else if(drag&&e.pointerId===drag.id){if(defs[current].curved&&unfoldAmount>0){const r=scene.getBoundingClientRect();panX+=(e.clientX-drag.x)*800/r.width;panY+=(e.clientY-drag.y)*600/r.height}else{yaw+=(e.clientX-drag.x)*.009;pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch+(e.clientY-drag.y)*.009))}drag.x=e.clientX;drag.y=e.clientY}dirty=true});
+scene.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2&&pinch){const p=getPinch(),r=scene.getBoundingClientRect();zoom=Math.max(.45,Math.min(2.2,pinch.zoom*p.gap/Math.max(8,pinch.gap)));panX=pinch.panX+(p.x-pinch.x)*800/r.width;panY=pinch.panY+(p.y-pinch.y)*600/r.height}else if(drag&&e.pointerId===drag.id){yaw+=(e.clientX-drag.x)*.009;pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch+(e.clientY-drag.y)*.009));drag.x=e.clientX;drag.y=e.clientY}dirty=true});
 function endDrag(e){if(e?.type==='pointerup'&&tap?.id===e.pointerId&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)<=5)pickAt(e);tap=null;if(e)touches.delete(e.pointerId);else touches.clear();if(touches.size===1){const [id,p]=[...touches.entries()][0];drag={id,...p};pinch=null}else{drag=null;pinch=null;scene.classList.remove('dragging')}if(e&&scene.hasPointerCapture(e.pointerId))scene.releasePointerCapture(e.pointerId)}scene.addEventListener('pointerup',endDrag);scene.addEventListener('pointercancel',endDrag);scene.addEventListener('lostpointercapture',endDrag);window.addEventListener('blur',()=>endDrag());
 window.addEventListener('resize',()=>{endDrag();dirty=true});
 scene.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.45,zoom*Math.exp(-e.deltaY*.001)));dirty=true},{passive:false});
 scene.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','='].includes(e.key))return;e.preventDefault();manual();if(e.key==='ArrowLeft')yaw-=.12;if(e.key==='ArrowRight')yaw+=.12;if(e.key==='ArrowUp')pitch=Math.min(Math.PI/2,pitch+.12);if(e.key==='ArrowDown')pitch=Math.max(-Math.PI/2,pitch-.12);if(e.key==='+'||e.key==='=')zoom=Math.min(1.45,zoom+.05);if(e.key==='-')zoom=Math.max(.65,zoom-.05)});
-function fit(){zoom=1;panX=panY=0;if(unfoldAmount>=.999&&!defs[current].curved){yaw=netYaw();pitch=Math.PI/2}dirty=true}
+function fit(){zoom=1;panX=panY=0;if(unfoldAmount>=.999){yaw=netYaw();pitch=current==='cylinder'?0:Math.PI/2}dirty=true}
 $('zoomOut').addEventListener('click',()=>{zoom=Math.max(.45,zoom*.85);dirty=true});$('zoomIn').addEventListener('click',()=>{zoom=Math.min(2.2,zoom/ .85);dirty=true});$('fit').addEventListener('click',fit);
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else message('可以将手机横屏，获得更大的观察区域。')}catch{message('当前浏览器暂不支持全屏。')}});
 $('exportPNG').addEventListener('click',async()=>{
