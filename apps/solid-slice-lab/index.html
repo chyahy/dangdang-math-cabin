@@ -517,6 +517,11 @@
           display: none;
         }
       }
+      .family-list{grid-template-columns:1fr 1fr}.family{padding:10px 5px;flex-direction:column;gap:4px;text-align:center}.family b{font-size:14px}.family small{font-size:10px}.family .ico{font-size:23px}
+      .target-control{margin-top:16px;border:1px solid #b8d9d8;background:#eef8f5;border-radius:13px;padding:13px}.target-control label{display:block;font-size:14px;font-weight:800;margin-bottom:9px}.target-control select{max-width:100%;width:100%;padding:10px 7px;border:1px solid #9bc3c4;border-radius:8px;background:white;color:var(--ink);font:inherit;font-size:13px}.target-control p{font-size:11px;line-height:1.8;margin:9px 0 0;color:#426976}.target-control button{width:100%;margin-top:9px;padding:8px;border:1px solid #87b7b8;border-radius:8px;background:white;color:#176d74;font:inherit;font-size:12px;cursor:pointer}.target-control select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+      .section-preview{position:absolute;right:15px;bottom:53px;z-index:3;width:174px;padding:9px;background:#ffffffed;border:1px solid #bcd5d9;border-radius:12px;box-shadow:0 5px 18px #17324d16;pointer-events:none}.section-preview strong{font-size:12px;color:#496e79}.section-preview svg{display:block;width:100%;height:95px}.section-preview p{font-size:10px;line-height:1.5;margin:0;color:#617d87}.app{grid-template-rows:auto minmax(800px,1fr)}
+      @media(max-width:1050px){.app{grid-template-rows:auto auto}}
+      @media(max-width:700px){.family-list{grid-template-columns:repeat(3,1fr)}.family{display:flex}.target-control{margin-top:12px}.section-preview{width:128px;right:10px;bottom:50px;padding:6px}.section-preview svg{height:70px}.section-preview p{font-size:9px}}
     </style>
   </head>
   <body>
@@ -547,19 +552,23 @@
               <span class="ico">△</span
               ><span><b>棱锥</b><small>可选3—6边形底面</small></span>
             </button>
+            <button class="family" data-shape="cuboid"><span class="ico">▱</span><span><b>长方体</b><small>长宽高不同</small></span></button>
+            <button class="family" data-shape="cylinder"><span class="ico">◉</span><span><b>圆柱</b><small>2个圆形底面</small></span></button>
+            <button class="family" data-shape="cone"><span class="ico">◭</span><span><b>圆锥</b><small>1个顶点与圆底面</small></span></button>
           </div>
           <div class="side-picker" id="sidePicker" hidden>
             <span>选择底面边数</span>
             <div class="side-buttons" id="sideButtons"></div>
           </div>
-          <div class="vertex-tool">
+          <div class="target-control"><label for="sectionTarget">想切成什么截面？</label><select id="sectionTarget" aria-label="选择目标截面"></select><button id="locateTarget" type="button">重新定位所选截面</button><p id="targetNote" role="status">选择后自动调整切面。</p></div>
+          <div class="vertex-tool" id="vertexTool">
             <strong>● 点击顶点确定切面</strong>
             <span id="vertexHint">已选0个顶点，请先选择2个顶点。</span>
             <button id="clearVertices" type="button">清除顶点，重新选择</button>
           </div>
           <div class="tip">
             <b>观察方法</b
-            ><br />选择2个顶点可锁定一条轴线，再拖动两个角度让切面绕轴旋转；选择第3个顶点即可唯一确定切面。
+            ><br /><span id="vertexMethod">选择2个顶点可锁定一条轴线，再拖动两个角度让切面绕轴旋转；选择第3个顶点即可唯一确定切面。</span>
           </div>
         </aside>
         <section class="stage" id="stage">
@@ -568,6 +577,7 @@
             ><b id="stageStatus">亮黄色区域就是截面</b>
           </div>
           <div id="canvas"></div>
+          <div class="section-preview"><strong>截面正视图</strong><svg id="sectionPreview" viewBox="0 0 180 110" role="img" aria-label="当前截面的正视图"></svg><p id="sectionDetail"></p></div>
           <div class="legend">
             <span><i class="b"></i>第一部分</span
             ><span><i class="c"></i>第二部分</span

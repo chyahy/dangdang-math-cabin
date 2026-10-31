@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createSolid, sectionFor, faceGeometry, frame, labels, TARGETS, targetCatalog, unavailableReason } from './sections';
+import type { Solid, Section, SectionKind } from './sections';
 
-type Shape = "cube" | "prism" | "pyramid";
+type Shape = Solid;
 const state = {
   shape: "cube" as Shape,
   sides: 4,
@@ -51,6 +53,38 @@ let selectedVertices: THREE.Vector3[] = [];
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const defaultViewDirection = new THREE.Vector3(5.4, 4.2, 6.2).normalize();
+let targetGoal: SectionKind | null = null;
+const curvedSolid=()=>state.shape==='cylinder'||state.shape==='cone';
+function refreshTargets(){
+  const catalog=targetCatalog(state.shape,state.sides),select=$<HTMLSelectElement>('sectionTarget');
+  select.replaceChildren(new Option('选择想得到的截面…',''));
+  for(const kind of TARGETS){
+    const available=catalog.has(kind),option=new Option(labels[kind]+(available?'':'（'+(curvedSolid()?'不能得到':'暂无定位示例')+'）'),kind);
+    option.disabled=!available;select.append(option);
+  }
+  targetGoal=null;select.value='';$('targetNote').textContent=curvedSolid()?(state.shape==='cylinder'?'圆柱不能用平面切出梯形或三角形。斜切碰到底面时，截面可能同时包含弧线和线段。':'圆锥不能用平面切出梯形或长方形。选择三角形时，切面将通过顶点。'):'只列出已验证的自动定位示例；定位后仍可手动调整切面。';
+  $('vertexTool').hidden=curvedSolid();$('vertexMethod').textContent=curvedSolid()?'圆柱没有顶点，圆锥只有1个顶点。请通过目标截面或角度、前后移动来探索。':'选择2个顶点可锁定一条轴线，再拖动两个角度让切面绕轴旋转；选择第3个顶点即可唯一确定切面。';
+}
+function renderSectionPreview(section:Section,normal:THREE.Vector3){
+  const svg=$('sectionPreview');
+  if(section.points.length<3){svg.innerHTML='<text x="90" y="55" text-anchor="middle" fill="#617886" font-size="12">未形成截面</text>';return}
+  const {u,v}=frame(normal),p=section.points.map(p=>[p.dot(u),p.dot(v)]),xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),minX=Math.min(...xs),minY=Math.min(...ys),w=Math.max(...xs)-minX,h=Math.max(...ys)-minY,scale=Math.min(145/Math.max(w,.01),85/Math.max(h,.01));
+  svg.innerHTML=`<polygon points="${p.map(([x,y])=>[90+(x-minX-w/2)*scale,55-(y-minY-h/2)*scale].join(',')).join(' ')}" fill="#ffe596" stroke="#9d7418" stroke-width="1.8"/>`;
+}
+function locateTarget(){
+ const value=$<HTMLSelectElement>('sectionTarget').value as SectionKind;if(!value)return;
+ const pose=targetCatalog(state.shape,state.sides).get(value);
+ if(!pose){$('targetNote').textContent=unavailableReason(state.shape,value);return}
+ cancelCutAnimation();clearSelectedVertices();targetGoal=value;
+ state.tilt=THREE.MathUtils.radToDeg(Math.acos(THREE.MathUtils.clamp(pose.normal.y,-1,1)));
+ state.turn=(THREE.MathUtils.radToDeg(Math.atan2(pose.normal.z,pose.normal.x))+360)%360;
+ state.offset=pose.distance;state.separation=0;planeCenter.copy(pose.normal).multiplyScalar(pose.distance);
+ syncInputs();rebuild();
+ const basis=frame(pose.normal),view=pose.normal.clone().multiplyScalar(1.6).addScaledVector(basis.u,.6).addScaledVector(basis.v,.5).normalize();
+ controls.target.set(0,0,0);camera.position.copy(view).multiplyScalar(12);fitView();
+ $('targetNote').textContent='已定位到'+labels[value]+'截面。可继续手动调整，或点击“开始切割并拉开”。';
+}
+$('sectionTarget').addEventListener('change',locateTarget);$('locateTarget').onclick=locateTarget;
 
 function cuttingNormal() {
   const tilt = THREE.MathUtils.degToRad(state.tilt);
@@ -161,18 +195,7 @@ function fitView(resetDirection = false) {
   controls.update();
 }
 function geometry() {
-  if (state.shape === "cube") return new THREE.BoxGeometry(2.7, 2.7, 2.7);
-  const radius = state.shape === "pyramid" ? 1.65 : 1.5;
-  const g = new THREE.CylinderGeometry(
-    state.shape === "pyramid" ? 0 : radius,
-    radius,
-    3.2,
-    state.sides,
-    1,
-    false,
-  );
-  g.rotateY(Math.PI / state.sides);
-  return g;
+  return createSolid(state.shape,state.sides);
 }
 
 function planeFromFirstThreeVertices() {
@@ -199,19 +222,9 @@ function applyPlaneThroughSelectedVertices() {
     rebuild();
     return false;
   }
-  state.tilt = Number(
-    THREE.MathUtils.radToDeg(
-      Math.acos(THREE.MathUtils.clamp(plane.normal.y, -1, 1)),
-    ).toFixed(2),
-  );
-  state.turn = Number(
-    (
-      (THREE.MathUtils.radToDeg(Math.atan2(plane.normal.z, plane.normal.x)) +
-        360) %
-      360
-    ).toFixed(2),
-  );
-  state.offset = Number(plane.normal.dot(selectedVertices[0]).toFixed(3));
+  state.tilt = THREE.MathUtils.radToDeg(Math.acos(THREE.MathUtils.clamp(plane.normal.y, -1, 1)));
+  state.turn = (THREE.MathUtils.radToDeg(Math.atan2(plane.normal.z,plane.normal.x))+360)%360;
+  state.offset = plane.normal.dot(selectedVertices[0]);
   planeCenter.copy(plane.normal).multiplyScalar(state.offset);
   state.separation = 0;
   syncInputs();
@@ -267,80 +280,6 @@ function chooseVertex(point: THREE.Vector3) {
     stageStatus.textContent = "再选一个顶点即可锁定切面";
   }
 }
-function intersection(g: THREE.BufferGeometry, plane: THREE.Plane) {
-  const source = g.index ? g.toNonIndexed() : g.clone(),
-    attr = source.getAttribute("position"),
-    points: THREE.Vector3[] = [];
-  const add = (p: THREE.Vector3) => {
-    if (!points.some((q) => q.distanceToSquared(p) < 0.0001))
-      points.push(p.clone());
-  };
-  for (let i = 0; i < attr.count; i += 3) {
-    const v = [0, 1, 2].map((k) =>
-      new THREE.Vector3().fromBufferAttribute(attr, i + k),
-    );
-    for (const [a, b] of [
-      [0, 1],
-      [1, 2],
-      [2, 0],
-    ]) {
-      const p1 = v[a],
-        p2 = v[b],
-        d1 = plane.distanceToPoint(p1),
-        d2 = plane.distanceToPoint(p2);
-      if (Math.abs(d1) < 0.00001) add(p1);
-      if (d1 * d2 < -0.0000001) add(p1.clone().lerp(p2, d1 / (d1 - d2)));
-    }
-  }
-  source.dispose();
-  if (points.length < 3) return { geometry: null, count: 0 };
-  const center = points
-      .reduce((s, p) => s.add(p), new THREE.Vector3())
-      .multiplyScalar(1 / points.length),
-    helper =
-      Math.abs(plane.normal.y) < 0.9
-        ? new THREE.Vector3(0, 1, 0)
-        : new THREE.Vector3(1, 0, 0),
-    u = new THREE.Vector3().crossVectors(plane.normal, helper).normalize(),
-    va = new THREE.Vector3().crossVectors(plane.normal, u).normalize();
-  points.sort(
-    (a, b) =>
-      Math.atan2(a.clone().sub(center).dot(va), a.clone().sub(center).dot(u)) -
-      Math.atan2(b.clone().sub(center).dot(va), b.clone().sub(center).dot(u)),
-  );
-  const corners = points.filter(
-      (p, i) =>
-        new THREE.Vector3()
-          .crossVectors(
-            points[(i - 1 + points.length) % points.length].clone().sub(p),
-            points[(i + 1) % points.length].clone().sub(p),
-          )
-          .lengthSq() > 0.00001,
-    ),
-    data: number[] = [];
-  for (let i = 0; i < corners.length; i++) {
-    const a = corners[i],
-      b = corners[(i + 1) % corners.length];
-    data.push(center.x, center.y, center.z, a.x, a.y, a.z, b.x, b.y, b.z);
-  }
-  const section = new THREE.BufferGeometry();
-  section.setAttribute("position", new THREE.Float32BufferAttribute(data, 3));
-  section.computeVertexNormals();
-  return { geometry: section, count: corners.length };
-}
-function sectionLabel(n: number) {
-  return n === 0
-    ? "切割面未经过图形"
-    : n === 3
-      ? "三角形"
-      : n === 4
-        ? "四边形"
-        : n === 5
-          ? "五边形"
-          : n === 6
-            ? "六边形"
-            : `${n}边形`;
-}
 function clear() {
   if (!model) return;
   scene.remove(model);
@@ -385,7 +324,7 @@ function rebuild() {
   a.position.copy(normal).multiplyScalar(gap);
   b.position.copy(normal).multiplyScalar(-gap);
   group.add(a, b);
-  const edges = new THREE.EdgesGeometry(g),
+  const edges = new THREE.EdgesGeometry(g,curvedSolid()?2:1),
     wireMat = new THREE.LineBasicMaterial({
       color: 0x17324d,
       transparent: true,
@@ -409,12 +348,11 @@ function rebuild() {
   plane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
   plane.position.copy(planeCenter);
   group.add(plane);
-  const section = intersection(g, base),
-    label = sectionLabel(section.count);
+  const actualSection = sectionFor(state.shape,g,base),sectionGeometry=faceGeometry(actualSection),label=labels[actualSection.kind];
   sectionName.textContent = label;
-  if (section.geometry) {
+  if (sectionGeometry) {
     const cut = new THREE.Mesh(
-      section.geometry,
+      sectionGeometry,
       new THREE.MeshBasicMaterial({
         color: 0xffd441,
         side: THREE.DoubleSide,
@@ -424,11 +362,12 @@ function rebuild() {
         depthWrite: false,
       }),
     );
-    cut.position.copy(normal).multiplyScalar(0.012);
+    cut.position.copy(normal).multiplyScalar(gap>0?gap:0.006);
     cut.renderOrder = 20;
     group.add(cut);
+    if(gap>0){const other=new THREE.Mesh(sectionGeometry.clone(),(cut.material as THREE.Material).clone());other.position.copy(normal).multiplyScalar(-gap);other.renderOrder=20;group.add(other)}
   }
-  if (state.separation < 0.15) {
+  if (state.separation < 0.15&&!curvedSolid()) {
     const clickableVertices = uniqueVertices(g).filter((point) => {
       if (state.shape === "cube") return true;
       const radialDistance = Math.hypot(point.x, point.z);
@@ -457,10 +396,7 @@ function rebuild() {
   g.dispose();
   model = group;
   scene.add(group);
-  const title =
-    state.shape === "cube"
-      ? "正方体"
-      : `${numeral[state.sides]}${state.shape === "prism" ? "棱柱" : "棱锥"}`;
+  const title = state.shape==='cube'?'正方体':state.shape==='cuboid'?'长方体':state.shape==='cylinder'?'圆柱':state.shape==='cone'?'圆锥':`${numeral[state.sides]}${state.shape==='prism'?'棱柱':'棱锥'}`;
   shapeName.textContent = title;
   stageStatus.textContent =
     state.separation > 0.15 ? `切割完成：截面是${label}` : "亮黄色区域就是截面";
@@ -470,11 +406,14 @@ function rebuild() {
   stage.dataset.selectedVertices = String(selectedVertices.length);
   stage.dataset.separation = String(state.separation);
   stage.dataset.anchorError = String(selectedVertices.reduce((error, point) => Math.max(error, Math.abs(base.distanceToPoint(point))), 0));
+  stage.dataset.sectionKind=actualSection.kind;stage.dataset.sectionArea=String(actualSection.area);stage.dataset.plane=JSON.stringify([...normal.toArray(),base.constant]);stage.dataset.sectionPoints=JSON.stringify(actualSection.points.map(p=>p.toArray()));
+  $('sectionDetail').textContent=actualSection.note||'黄色区域为真实切面与立体的交集。';renderSectionPreview(actualSection,normal);
+  if(targetGoal&&actualSection.kind!==targetGoal)$('targetNote').textContent='切面已手动改变，当前为'+label+'。可点击“重新定位”回到所选截面。';
   stage.classList.toggle("cut", state.separation > 0.15);
 }
 function updateOutputs() {
-  $<HTMLInputElement>("tiltNumber").value = String(state.tilt);
-  $<HTMLInputElement>("turnNumber").value = String(state.turn);
+  $<HTMLInputElement>("tiltNumber").value = String(Number(state.tilt.toFixed(2)));
+  $<HTMLInputElement>("turnNumber").value = String(Number(state.turn.toFixed(2)));
   const offsetInput = $<HTMLInputElement>("offset");
   offsetInput.disabled = selectedVertices.length >= 2;
   $<HTMLOutputElement>("offsetOut").textContent =
@@ -489,7 +428,7 @@ function updateOutputs() {
     state.separation === 0 ? "还没拉开" : "拖动可继续调整";
 }
 function renderSideButtons() {
-  sidePicker.hidden = state.shape === "cube";
+  sidePicker.hidden = state.shape !== 'prism'&&state.shape!=='pyramid';
   sideButtons.innerHTML = "";
   for (let n = 3; n <= 6; n++) {
     const b = document.createElement("button");
@@ -503,6 +442,7 @@ function renderSideButtons() {
       state.separation = 0;
       syncInputs();
       renderSideButtons();
+      refreshTargets();
       rebuild();
       fitView();
     };
@@ -530,6 +470,7 @@ document.querySelectorAll<HTMLButtonElement>(".family").forEach(
         .forEach((x) => x.classList.toggle("active", x === b));
       syncInputs();
       renderSideButtons();
+      refreshTargets();
       rebuild();
       fitView();
     }),
@@ -707,6 +648,7 @@ function resize() {
 new ResizeObserver(resize).observe(canvas);
 resize();
 renderSideButtons();
+refreshTargets();
 syncInputs();
 rebuild();
 fitView(true);
