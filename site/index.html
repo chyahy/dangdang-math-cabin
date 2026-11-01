@@ -779,7 +779,8 @@
         #multiplePrompt,
         #campPrompt,
         #rotationBoardPrompt,
-        #solidGeometryPrompt {
+        #solidGeometryPrompt,
+        #slicePrompt {
             position: fixed;
             left: 0;
             top: 0;
@@ -808,7 +809,8 @@
         #multiplePrompt.visible,
         #campPrompt.visible,
         #rotationBoardPrompt.visible,
-        #solidGeometryPrompt.visible {
+        #solidGeometryPrompt.visible,
+        #slicePrompt.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -828,7 +830,9 @@
         #rotationBoardPrompt:hover,
         #rotationBoardPrompt:focus-visible,
         #solidGeometryPrompt:hover,
-        #solidGeometryPrompt:focus-visible {
+        #solidGeometryPrompt:focus-visible,
+        #slicePrompt:hover,
+        #slicePrompt:focus-visible {
             background: #fff3cf;
             transform: translate(-50%, calc(-100% - 20px));
             outline: none;
@@ -1048,6 +1052,8 @@
         .gameShelfLink[href="geometry-board/"] .gameShelfIcon { background:#008780; }
         #solidGeometryPrompt { background:rgba(238,250,244,.97);border-color:#087e83;color:#17635f; }
         .gameShelfLink[href="solid-geometry/"] .gameShelfIcon { background:#087e83; }
+        #slicePrompt { background:rgba(255,248,222,.97);border-color:#bc7e21;color:#78500e; }
+        .gameShelfLink[href="solid-slice-lab/"] .gameShelfIcon { background:#a66d20; }
 
         #deckPrompt::after,
         #factorPrompt::after,
@@ -1055,7 +1061,8 @@
         #geometryPrompt::after,
         #multiplePrompt::after,
         #rotationBoardPrompt::after,
-        #solidGeometryPrompt::after {
+        #solidGeometryPrompt::after,
+        #slicePrompt::after {
             content: "";
             position: absolute;
             left: 50%;
@@ -1185,7 +1192,7 @@
         #homeworkPortal.hasCover .homeworkPortalPaper > div { display: none; }
 
         @media (max-width: 560px) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt, #slicePrompt { font-size: 12px; padding: 8px 12px 8px 10px; }
             #gameShelf { top: 66px; width: min(286px, 88vw); transform: translateX(calc(100% - 46px)); }
             #gameShelf.open { transform: translateX(0); }
             .gameShelfPanel { width: calc(100% - 46px); }
@@ -1197,7 +1204,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
+            #deckPrompt, #factorPrompt, #rubikPrompt, #geometryPrompt, #multiplePrompt, #rotationBoardPrompt, #solidGeometryPrompt, #slicePrompt, #gameShelf, #gamePortal, #homeworkPortal, .homeworkPortalBoard { transition-duration: .01ms; }
             .portalRing, #gamePortal.show .portalCard { animation-duration: .01ms; animation-iteration-count: 1; }
         }
     </style>
@@ -1294,6 +1301,7 @@
     <button id="campPrompt" type="button" aria-label="点击二楼算式积木板，进入数学思维训练营">▦ 算式积木 · 数学思维训练营</button>
     <button id="rotationBoardPrompt" type="button" aria-label="点击二楼地毯旁的旋转画板，进入交互几何画板">△ 旋转画板 · 自由绘图与旋转</button>
     <button id="solidGeometryPrompt" type="button" aria-label="点击门边的几何展台，进入立体图形观察站">▱ 展开立体 · 进入观察站</button>
+    <button id="slicePrompt" type="button" aria-label="点击二楼地毯前方的几何切割台，进入立体切割实验室">✂ 几何切割台 · 进入实验室</button>
     <aside id="gameShelf" aria-label="课堂游戏快捷入口">
         <button id="gameShelfToggle" type="button" aria-expanded="false" aria-controls="gameShelfList"><span class="shelfArrow" aria-hidden="true">‹</span>游<br>戏</button>
         <div class="gameShelfPanel">
@@ -1336,7 +1344,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.10.31.5';
+            const PAGE_VERSION = '2026.11.01.1';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -4243,6 +4251,43 @@
                 rotationBoardG.localToWorld(rotationBoardScreen.set(0,1.65,0));rotationBoardScreen.project(camera);
                 rotationBoardPrompt.style.left=((rotationBoardScreen.x*.5+.5)*innerWidth)+'px';rotationBoardPrompt.style.top=((-rotationBoardScreen.y*.5+.5)*innerHeight)+'px';
                 rotationBoardPrompt.classList.toggle('visible',rotationBoardScreen.z>-1&&rotationBoardScreen.z<1&&Math.abs(rotationBoardScreen.x)<1.02&&Math.abs(rotationBoardScreen.y)<1.02);
+            }
+
+            /* —— 二楼地毯前方的独立切割台：实物点击与 E 交互，不占原书桌 —— */
+            const SLICE_HOME=V(2.65,FY,2.2),sliceG=new THREE.Group();
+            sliceG.name='solid-slice-lab-entrance';sliceG.position.copy(SLICE_HOME);scene.add(sliceG);
+            for(const x of [-.59,.59])for(const z of [-.35,.35])put(edge(new THREE.BoxGeometry(.07,.86,.07),1,null,LITMAT(0x79583f)),x,.43,z,0,0,0,sliceG);
+            put(edge(new THREE.BoxGeometry(1.48,.10,1.00),1,null,LITMAT(0x4a807a)),0,.88,0,0,0,0,sliceG);
+            put(edge(new THREE.BoxGeometry(1.52,.035,1.04),1,null,LITMAT(0xc7a15e)),0,.945,0,0,0,0,sliceG);
+            const sliceDisplay=new THREE.Group();sliceDisplay.position.set(0,1.39,.04);sliceDisplay.rotation.set(0,.3,-.24);sliceG.add(sliceDisplay);
+            const sliceHalves=[];
+            for(const sign of [1,-1]){
+                const half=new THREE.Group();half.name=sign>0?'slice-upper-half':'slice-lower-half';sliceDisplay.add(half);sliceHalves.push({g:half,sign});
+                const body=new THREE.Mesh(new THREE.BoxGeometry(.70,.35,.70),new THREE.MeshBasicMaterial({color:sign>0?0x418ec4:0xe58665}));body.position.y=sign*.175;half.add(body);
+                body.add(new THREE.LineSegments(new THREE.EdgesGeometry(body.geometry),new THREE.LineBasicMaterial({color:0x2b4c5d})));
+                const cap=new THREE.Mesh(new THREE.PlaneGeometry(.70,.70),new THREE.MeshBasicMaterial({color:0xffd557,side:THREE.DoubleSide}));cap.rotation.x=-Math.PI/2;cap.position.y=-sign*.001;half.add(cap);
+            }
+            const slicePlane=new THREE.Mesh(new THREE.PlaneGeometry(1.03,.99),new THREE.MeshBasicMaterial({color:0xffd557,transparent:true,opacity:.24,side:THREE.DoubleSide,depthWrite:false}));slicePlane.rotation.x=-Math.PI/2;sliceDisplay.add(slicePlane);
+            const sliceCylinder=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.30,20),new THREE.MeshBasicMaterial({color:0x75b1ad}));sliceCylinder.position.set(-.53,1.115,-.19);sliceG.add(sliceCylinder);
+            const sliceCone=new THREE.Mesh(new THREE.ConeGeometry(.145,.34,20),new THREE.MeshBasicMaterial({color:0xd8ac58}));sliceCone.position.set(.53,1.135,-.19);sliceG.add(sliceCone);
+            const sliceLabelCanvas=document.createElement('canvas');sliceLabelCanvas.width=512;sliceLabelCanvas.height=128;const sliceLabelCtx=sliceLabelCanvas.getContext('2d');
+            sliceLabelCtx.fillStyle='#fff6d9';sliceLabelCtx.fillRect(0,0,512,128);sliceLabelCtx.fillStyle='#76521a';sliceLabelCtx.font='bold 54px Microsoft YaHei';sliceLabelCtx.textAlign='center';sliceLabelCtx.fillText('几何切割台',256,62);sliceLabelCtx.font='27px Microsoft YaHei';sliceLabelCtx.fillText('选立体 · 看截面',256,108);
+            const sliceLabel=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.265),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(sliceLabelCanvas),side:THREE.DoubleSide}));sliceLabel.position.set(0,.61,.51);sliceG.add(sliceLabel);
+            let sliceLaunching=false,sliceLaunch=0,sliceTimer=null;
+            const slicePrompt=document.getElementById('slicePrompt'),sliceScreen=V();sliceG.userData.aimLabel='启动几何切割台，进入立体切割实验室';sliceG.userData.sfx='magic';
+            function openSliceLab(playSound=true){
+                if(sliceLaunching)return;sliceLaunching=true;slicePrompt.classList.remove('visible');if(playSound)SND.play('magic');if(document.pointerLockElement)document.exitPointerLock();
+                sliceTimer=setTimeout(()=>{location.href=location.protocol==='file:'?'https://dangdanglaoshi.cn/solid-slice-lab/':new URL('solid-slice-lab/',location.href).href},geometryReduceMotion?80:1200);
+            }
+            regMagic(sliceG,()=>openSliceLab(false));slicePrompt.addEventListener('click',()=>openSliceLab(true));
+            addEventListener('pageshow',()=>{if(sliceTimer)clearTimeout(sliceTimer);sliceTimer=null;sliceLaunching=false;sliceLaunch=0;sliceG.scale.setScalar(1);sliceG.position.copy(SLICE_HOME);sliceHalves.forEach(h=>h.g.position.y=h.sign*.055)});
+            function updateSliceLab(dt,time){
+                sliceLaunch+=((sliceLaunching?1:0)-sliceLaunch)*Math.min(1,dt*6);const e=sliceLaunch*sliceLaunch*(3-2*sliceLaunch);
+                sliceHalves.forEach(h=>h.g.position.y=h.sign*(.055+e*.30));sliceDisplay.position.y=1.39+e*.14+(geometryReduceMotion?0:Math.sin(time*1.5)*.01);slicePlane.scale.setScalar(1+e*.2);sliceG.scale.setScalar(1+e*.10);
+                if(fullHouse||sliceLaunching||(viewMode==='fp'&&(player.pos.y<FY-.4||Math.hypot(player.pos.x-SLICE_HOME.x,player.pos.z-SLICE_HOME.z)>4))){slicePrompt.classList.remove('visible');return}
+                sliceG.localToWorld(sliceScreen.set(0,1.95,0));sliceScreen.project(camera);
+                const half=slicePrompt.offsetWidth/2+10;slicePrompt.style.left=Math.max(half,Math.min(innerWidth-half,(sliceScreen.x*.5+.5)*innerWidth))+'px';slicePrompt.style.top=((-sliceScreen.y*.5+.5)*innerHeight)+'px';
+                slicePrompt.classList.toggle('visible',sliceScreen.z>-1&&sliceScreen.z<1&&Math.abs(sliceScreen.x)<1.02&&Math.abs(sliceScreen.y)<1.02);
             }
 
             /* —— 门边独立立体几何展台：六个面沿公共棱展开，不占桌面和外墙 —— */
@@ -9498,6 +9543,7 @@
                 { x1: BEDX - 0.68, z1: BEDZ - 1.18, x2: BEDX + 0.68, z2: BEDZ + 1.13, top: FY + 0.85, bot: FY }, // 二楼大床
                 { x1: NSX - 0.29, z1: NSZ - 0.26, x2: NSX + 0.29, z2: NSZ + 0.26, top: FY + 0.60, bot: FY },    // 二楼床头柜
                 { x1: TBLX - 1.22, z1: TBLZ - 0.58, x2: TBLX + 1.22, z2: TBLZ + 0.58, top: FY + 0.80, bot: FY }, // 二楼书桌
+                { x1: SLICE_HOME.x-.77, z1: SLICE_HOME.z-.52, x2: SLICE_HOME.x+.77, z2: SLICE_HOME.z+.52, top: FY+1.82, bot: FY }, // 二楼几何切割台
                 { x1: -2.03, z1: 3.26, x2: -0.77, z2: 3.84, top: FY + 1.95, bot: FY },                 // 二楼衣柜（实心阻挡）
                 { x1: 2.22, z1: 3.53, x2: 2.88, z2: 3.68, top: FY + 1.85, bot: FY },                   // 二楼拱形全身镜（实心阻挡）
                 { x1: -3.58, z1: 2.28, x2: -2.40, z2: 3.48, top: FY + 2.0, bot: FY },                  // 二楼小黑板画架（实心阻挡）
@@ -9539,6 +9585,7 @@
                 { x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
                 { x: CAMP_HOME.x, z: CAMP_HOME.z, r: 1.7, label: '拼合积木，进入数学思维训练营', act: () => openMathCamp(true) },
                 { x: ROTATION_BOARD_HOME.x, z: ROTATION_BOARD_HOME.z, minY: FY-.4, r: 1.6, label: '展开旋转画板，进入交互几何画板', act: () => openRotationBoard(true) },
+                { x: SLICE_HOME.x, z: SLICE_HOME.z, minY: FY-.4, maxY: FY+1.5, r: 1.8, label: '启动几何切割台，进入立体切割实验室', act: () => openSliceLab(true) },
                 { x: SOLID_GEOMETRY_HOME.x, z: SOLID_GEOMETRY_HOME.z, maxY: 1.5, r: 2.3, label: '展开立体，进入立体图形观察站', act: () => openSolidGeometry(true) },
                 { x: FX, z: FZ, r: 2.0, label: '点燃 / 熄灭壁炉', act: toggleFire },
                 { x: 0, z: 0, r: 2.4, label: '点亮 / 熄灭魔法吊灯', act: toggleLamp },
@@ -11217,6 +11264,7 @@
                 updateMultiplePrompt();
                 updateMathCamp(dt,time);
                 updateRotationBoard(dt,time);
+                updateSliceLab(dt,time);
                 updateSolidGeometry(dt,time);
                 renderer.render(scene, camera);
             }
