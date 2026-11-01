@@ -800,6 +800,8 @@
             transition: opacity .22s ease, transform .22s cubic-bezier(.2, .8, .2, 1), background .2s;
             white-space: nowrap;
             user-select: none;
+            /* The label must never cover another model's click target. */
+            pointer-events: none;
         }
 
         #deckPrompt.visible,
@@ -1283,7 +1285,7 @@
     <div id="clock">10:00 · 晴</div>
     <div id="hint"></div>
     <div id="crosshair"></div>
-    <div id="lockTip">点击画面锁定鼠标 · Esc 退出</div>
+    <div id="lockTip">按住左键转动视角 · 对准物品后单击或按 E 交互</div>
     <div id="flashOverlay"></div>
     <div id="joyZone" aria-label="移动摇杆">
         <div id="joyBase"><div id="joyKnob"></div></div>
@@ -1344,7 +1346,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.11.01.1';
+            const PAGE_VERSION = '2026.11.01.2';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -1955,6 +1957,7 @@
                 put(woodBox(1.32, 0.07, 0.19), 0, 0.55, 0.13, 0, 0, 0, stand);
                 drawHomeworkPaper(student);
                 stand.userData.aimLabel = '查看' + student.name + '的作业';
+                student.stand = stand;
                 regMagic(stand, () => openHomeworkBoard(student));
             }
             if (location.protocol !== 'file:') {
@@ -9579,26 +9582,32 @@
             function toggleLamp() { lampLit = !lampLit; SND.play('lamp'); }
             const fireMagic = o => { SND.play(o.userData.sfx || 'toggle'); o.userData.onClick(); };
             const interactables = [
-                { x: DECK_HOME.x, z: DECK_HOME.z, r: 1.7, label: '拿起纸牌，进入24点游戏', act: start24PointGame },
-                { x: FACTOR_HOME.x, z: FACTOR_HOME.z, r: 1.6, label: '启动质因数分解机', act: () => startFactorPractice(true) },
-                { x: RUBIK_HOME.x, z: RUBIK_HOME.z, r: 1.6, label: '打开正方体涂色探索', act: () => startCubeColoring(true) },
-                { x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
-                { x: CAMP_HOME.x, z: CAMP_HOME.z, r: 1.7, label: '拼合积木，进入数学思维训练营', act: () => openMathCamp(true) },
-                { x: ROTATION_BOARD_HOME.x, z: ROTATION_BOARD_HOME.z, minY: FY-.4, r: 1.6, label: '展开旋转画板，进入交互几何画板', act: () => openRotationBoard(true) },
-                { x: SLICE_HOME.x, z: SLICE_HOME.z, minY: FY-.4, maxY: FY+1.5, r: 1.8, label: '启动几何切割台，进入立体切割实验室', act: () => openSliceLab(true) },
-                { x: SOLID_GEOMETRY_HOME.x, z: SOLID_GEOMETRY_HOME.z, maxY: 1.5, r: 2.3, label: '展开立体，进入立体图形观察站', act: () => openSolidGeometry(true) },
+                { root: deckG, prompt: deckPrompt, x: DECK_HOME.x, z: DECK_HOME.z, minY: FY-.4, r: 1.7, label: '拿起纸牌，进入24点游戏', act: start24PointGame },
+                { root: factorMachineG, prompt: factorPrompt, x: FACTOR_HOME.x, z: FACTOR_HOME.z, minY: FY-.4, r: 1.6, label: '启动质因数分解机', act: () => startFactorPractice(true) },
+                { root: rubikG, prompt: rubikPrompt, x: RUBIK_HOME.x, z: RUBIK_HOME.z, minY: FY-.4, r: 1.6, label: '打开正方体涂色探索', act: () => startCubeColoring(true) },
+                { root: geometryG, prompt: geometryPrompt, x: GEOMETRY_HOME.x, z: GEOMETRY_HOME.z, minY: FY-.4, r: 1.7, label: '展开尺规工具，进入平行与垂直实验室', act: () => openGeometryLab(true) },
+                { root: multipleG, prompt: multiplePrompt, x: MULTIPLE_HOME.x, z: MULTIPLE_HOME.z, minY: FY-.4, r: 1.7, label: '展开份数图，进入和倍差倍课堂', act: () => openMultipleLesson(true) },
+                { root: campG, prompt: campPrompt, x: CAMP_HOME.x, z: CAMP_HOME.z, minY: FY-.4, r: 1.7, label: '拼合积木，进入数学思维训练营', act: () => openMathCamp(true) },
+                { root: rotationBoardG, prompt: rotationBoardPrompt, x: ROTATION_BOARD_HOME.x, z: ROTATION_BOARD_HOME.z, minY: FY-.4, r: 1.6, label: '展开旋转画板，进入交互几何画板', act: () => openRotationBoard(true) },
+                { root: sliceG, prompt: slicePrompt, x: SLICE_HOME.x, z: SLICE_HOME.z, minY: FY-.4, maxY: FY+1.5, r: 1.8, label: '启动几何切割台，进入立体切割实验室', act: () => openSliceLab(true) },
+                { root: solidGeometryG, prompt: solidGeometryPrompt, x: SOLID_GEOMETRY_HOME.x, z: SOLID_GEOMETRY_HOME.z, maxY: 1.5, r: 2.3, label: '展开立体，进入立体图形观察站', act: () => openSolidGeometry(true) },
+                ...HOMEWORK_STUDENTS.map(s => ({root: s.stand, x: s.x, z: s.z, maxY: 1.5, r: 1.65, label: '查看' + s.name + '的作业', act: () => openHomeworkBoard(s)})),
                 { x: FX, z: FZ, r: 2.0, label: '点燃 / 熄灭壁炉', act: toggleFire },
                 { x: 0, z: 0, r: 2.4, label: '点亮 / 熄灭魔法吊灯', act: toggleLamp },
-                { x: 0, z: 4, r: 1.8, label: '打开 / 关上大门', act: () => toggleSpring(doorGroup) },
-                { x: WIN_F_L.c, z: 4, r: 1.6, label: '开 / 关前左窗', act: () => toggleSpring(winFL) },
-                { x: WIN_F_R.c, z: 4, r: 1.6, label: '开 / 关前右窗', act: () => toggleSpring(winFR) },
-                { x: -4, z: WIN_LEFT.c, r: 1.6, label: '开 / 关左侧窗', act: () => toggleSpring(winL) },
-                { x: 3.1, z: 6.3, r: 2.2, label: '编辑路牌文字', act: openSignEditor },
-                { x: 4, z: -1.5, r: 1.7, label: '开 / 关右侧窗', fh: true, act: () => toggleSpring(winR) },
-                { x: 1.5, z: -4, r: 1.7, label: '开 / 关后窗', fh: true, act: () => toggleSpring(winB) }
+                { x: 0, z: 4, maxY: 1.5, r: 1.8, label: '打开 / 关上大门', act: () => toggleSpring(doorGroup) },
+                { x: WIN_F_L.c, z: 4, maxY: 1.5, r: 1.6, label: '开 / 关前左窗', act: () => toggleSpring(winFL) },
+                { x: WIN_F_R.c, z: 4, maxY: 1.5, r: 1.6, label: '开 / 关前右窗', act: () => toggleSpring(winFR) },
+                { x: -4, z: WIN_LEFT.c, maxY: 1.5, r: 1.6, label: '开 / 关左侧窗', act: () => toggleSpring(winL) },
+                { x: 3.1, z: 6.3, maxY: 1.5, r: 2.2, label: '编辑路牌文字', act: openSignEditor },
+                { x: 4, z: -1.5, maxY: 1.5, r: 1.7, label: '开 / 关右侧窗', fh: true, act: () => toggleSpring(winR) },
+                { x: 1.5, z: -4, maxY: 1.5, r: 1.7, label: '开 / 关后窗', fh: true, act: () => toggleSpring(winB) }
             ];
             const hintEl = document.getElementById('hint'), crosshairEl = document.getElementById('crosshair'), lockTipEl = document.getElementById('lockTip');
-            let nearestInteract = null, aimHit = null; const raycaster = new THREE.Raycaster(); const CENTER = new THREE.Vector2(0, 0); const mouse = new THREE.Vector2();
+            let nearestInteract = null, aimHit = null, hoverHit = null, hoverPoint = null, lastInteractionCheck = -Infinity;
+            const raycaster = new THREE.Raycaster(), CENTER = new THREE.Vector2(0, 0);
+            const entryPrompts = interactables.filter(it => it.prompt);
+            // These bubbles are annotations; the real model and the game list remain the controls.
+            entryPrompts.forEach(it => { it.prompt.tabIndex = -1; it.prompt.setAttribute('aria-hidden', 'true'); });
             function ancestorVisible(o) { let p = o; while (p) { if (p.visible === false) return false; p = p.parent; } return true; }
             function sceneRayAction(point) {
                 raycaster.setFromCamera(point,camera);
@@ -9608,25 +9617,45 @@
                     {kind:'fire',hit:raycaster.intersectObjects(fireMeshes,false).find(h=>ancestorVisible(h.object))}
                 ].filter(item=>item.hit).sort((a,b)=>a.hit.distance-b.hit.distance)[0];
                 if(!nearest)return null;
-                if(nearest.kind==='hinge'){const g=nearest.hit.object.userData.hingeGroup;return {label:g.userData.aimLabel||'交互',act:()=>toggleSpring(g)}}
-                if(nearest.kind==='magic'){const g=nearest.hit.object.userData.magicRoot;return {label:g.userData.aimLabel||'交互',act:()=>fireMagic(g)}}
-                return {label:'点燃 / 熄灭壁炉',act:toggleFire};
+                const distance=nearest.hit.distance;
+                if(nearest.kind==='hinge'){const g=nearest.hit.object.userData.hingeGroup;return {root:g,distance,label:g.userData.aimLabel||'交互',act:()=>toggleSpring(g)}}
+                if(nearest.kind==='magic'){const g=nearest.hit.object.userData.magicRoot;return {root:g,distance,label:g.userData.aimLabel||'交互',act:()=>fireMagic(g)}}
+                return {distance,label:'点燃 / 熄灭壁炉',act:toggleFire};
             }
-            function aimRay() { return sceneRayAction(CENTER); }
+            function aimRay() { const hit=sceneRayAction(CENTER);return hit && hit.distance<=5 ? hit : null; }
             const isLocked = () => document.pointerLockElement === renderer.domElement;
-            function doInteract() { if (viewMode === 'fp' && (aimHit || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (nearestInteract) nearestInteract.act(); }
-            function updateInteractHint() {
-                if (performance.now() * 0.001 < hintOverrideUntil) { hintEl.innerHTML = hintOverrideText; hintEl.classList.add('show'); return; }
-                if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { aimHit = aimRay(); if (aimHit) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>准星</b> 或 <b>交互键</b> ' : '点击 <b>左键</b> ') + aimHit.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show'); return; }
-                aimHit = null; nearestInteract = null; let best = 1e9;
+            function updateInteractionContext(force=false) {
+                const now=performance.now();
+                if(!force && now-lastInteractionCheck<90)return;
+                lastInteractionCheck=now;
+                camera.updateMatrixWorld();
+                aimHit=viewMode==='fp' ? aimRay() : null;
+                hoverHit=viewMode!=='fp' && hoverPoint ? sceneRayAction(hoverPoint) : null;
+                nearestInteract=null;let best=Infinity;
                 for (const it of interactables) {
                     if (it.fh && !fullHouse) continue;
+                    if (it.prompt && fullHouse) continue;
                     if (it.minY !== undefined && player.pos.y < it.minY) continue;
                     if (it.maxY !== undefined && player.pos.y > it.maxY) continue;
                     const d = Math.hypot(player.pos.x - it.x, player.pos.z - it.z);
                     if (d < it.r && d < best) { best = d; nearestInteract = it; }
                 }
-                if (nearestInteract) { hintEl.innerHTML = (IS_TOUCH ? '点按 <b>交互键</b> ' : '按 <b>E</b> ') + nearestInteract.label; hintEl.classList.add('show'); } else hintEl.classList.remove('show');
+            }
+            function doInteract() {
+                updateInteractionContext(true);
+                const action=viewMode==='fp' ? aimHit : nearestInteract;
+                if(action)action.act();
+            }
+            function updateInteractHint() {
+                updateInteractionContext();
+                const focused=viewMode==='fp' ? aimHit : hoverHit || nearestInteract;
+                // One nearby/hovered/aimed label at a time, after each object's projection update.
+                for(const it of entryPrompts)if(it.root!==focused?.root)it.prompt.classList.remove('visible');
+                renderer.domElement.style.cursor=viewMode!=='fp' && hoverHit ? 'pointer' : '';
+                if (performance.now() * 0.001 < hintOverrideUntil) { hintEl.innerHTML = hintOverrideText; hintEl.classList.add('show'); return; }
+                const instruction=viewMode==='fp' ? (IS_TOUCH?'点按 <b>交互键</b> ':'单击 <b>左键</b> 或按 <b>E</b> ') : hoverHit ? '单击 <b>左键</b> ' : (IS_TOUCH?'点按 <b>交互键</b> ':'按 <b>E</b> ');
+                if(focused){hintEl.innerHTML=instruction+focused.label;hintEl.classList.add('show')}
+                else hintEl.classList.remove('show');
             }
 
             const keys = {}; const signInput = document.getElementById('signInput'); const signEditor = document.getElementById('signEditor'); const picInput = document.getElementById('picInput');
@@ -9637,7 +9666,7 @@
                 keys[e.code] = true;
                 if (e.code === 'KeyV' && viewMode !== 'fixed') setViewMode(viewMode === 'fp' ? 'tp' : 'fp');
                 if (e.code === 'Space') { e.preventDefault(); tryJump(); }
-                if (e.code === 'KeyE' && (nearestInteract || (viewMode === 'fp' && aimHit))) doInteract();
+                if (e.code === 'KeyE' && !e.repeat) doInteract();
                 if (e.code === 'Digit1' || e.code === 'Numpad1') selectSlot(1);
                 if (e.code === 'Digit2' || e.code === 'Numpad2') selectSlot(2);
                 if (e.code === 'KeyF') tryCast();
@@ -9679,7 +9708,11 @@
             document.getElementById('slot1').addEventListener('click', () => selectSlot(1));
             document.getElementById('slot2').addEventListener('click', () => selectSlot(2));
             const viewPan = V(0, 0, 0), panRight = V(0, 0, 0), panUp = V(0, 0, 0);
-            let dragInfo = null; const ptrs = new Map(); let pinchMode = false, pinchD = 0, pinchX = 0, pinchY = 0, didPinch = false;
+            let dragInfo = null, clickInfo = null; const ptrs = new Map(); let pinchMode = false, pinchD = 0, pinchX = 0, pinchY = 0, didPinch = false;
+            function pointerPosition(e) {
+                const rect=renderer.domElement.getBoundingClientRect();
+                return new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,1-(e.clientY-rect.top)/rect.height*2);
+            }
             function endViewDrag(e) {
                 ptrs.delete(e.pointerId);
                 if (ptrs.size < 2) pinchMode = false;
@@ -9705,11 +9738,18 @@
             renderer.domElement.addEventListener('pointerdown', e => {
                 if (e.button === 2) { tryCast(); return; }
                 if (e.pointerType === 'mouse' && e.button !== 0) return;
-                renderer.domElement.setPointerCapture(e.pointerId);
+                hoverPoint=null;hoverHit=null;
+                // Pointer lock and pointer capture cannot be used together in some browsers.
+                if(!isLocked())try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}
+                clickInfo={id:e.pointerId,x:e.clientX,y:e.clientY,moved:0};
                 ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinchD = Math.hypot(a.x - b.x, a.y - b.y); pinchX = (a.x + b.x) / 2; pinchY = (a.y + b.y) / 2; pinchMode = true; didPinch = true; dragInfo = null; pendYaw = 0; pendPitch = 0; } else if (ptrs.size === 1) { dragInfo = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; didPinch = false; }
             });
             renderer.domElement.addEventListener('pointermove', e => {
-                if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endViewDrag(e); return; }
+                if(clickInfo?.id===e.pointerId && !(viewMode==='fp' && isLocked()))clickInfo.moved=Math.max(clickInfo.moved,Math.hypot(e.clientX-clickInfo.x,e.clientY-clickInfo.y));
+                if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+                    // A zero-button move can precede pointerup. Stop the view drag, retain click intent.
+                    endViewDrag(e);hoverPoint=pointerPosition(e);return;
+                }
                 if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
                 if (pinchMode && ptrs.size >= 2) {
                     const [a, b] = [...ptrs.values()];
@@ -9724,14 +9764,26 @@
                 dragInfo.x = e.clientX; dragInfo.y = e.clientY; dragInfo.moved += Math.abs(dx) + Math.abs(dy);
                 pendYaw -= dx * 0.0055; pendPitch += dy * 0.0045 * (viewMode === 'fp' ? -1 : 1);
             });
-            renderer.domElement.addEventListener('pointerup', e => { const wasClick = dragInfo?.id === e.pointerId && dragInfo.moved < 6 && !didPinch; endViewDrag(e); if (!wasClick) return; if (viewMode === 'fp' && (isLocked() || IS_TOUCH)) { if (aimHit) aimHit.act(); return; } if (viewMode === 'fp' && !IS_TOUCH && !isLocked()) { renderer.domElement.requestPointerLock(); return; } mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1; const hit=sceneRayAction(mouse);if(hit)hit.act(); });
-            renderer.domElement.addEventListener('pointercancel', endViewDrag);
-            renderer.domElement.addEventListener('lostpointercapture', endViewDrag);
-            addEventListener('pointerup', endViewDrag);
-            function resetViewGesture() { ptrs.clear(); pinchMode = false; dragInfo = null; didPinch = false; pendYaw = 0; pendPitch = 0; }
+            renderer.domElement.addEventListener('pointerup', e => {
+                const travel=clickInfo ? Math.hypot(e.clientX-clickInfo.x,e.clientY-clickInfo.y) : Infinity;
+                const wasClick=e.button===0 && clickInfo?.id===e.pointerId && clickInfo.moved<6 && (isLocked()||travel<6) && !didPinch;
+                clickInfo=null;endViewDrag(e);
+                if(e.pointerType==='mouse')hoverPoint=pointerPosition(e);
+                if(!wasClick)return;
+                camera.updateMatrixWorld();
+                const hit=viewMode==='fp' ? aimRay() : sceneRayAction(pointerPosition(e));
+                if(hit)hit.act();
+            });
+            function cancelViewPointer(e){if(clickInfo?.id===e.pointerId)clickInfo=null;endViewDrag(e)}
+            renderer.domElement.addEventListener('pointercancel', cancelViewPointer);
+            renderer.domElement.addEventListener('lostpointercapture', cancelViewPointer);
+            renderer.domElement.addEventListener('pointerleave',()=>{hoverPoint=null;hoverHit=null});
+            addEventListener('pointerup', cancelViewPointer);
+            function resetViewGesture() { ptrs.clear(); pinchMode = false; dragInfo = null; clickInfo=null;hoverPoint=null;hoverHit=null; didPinch = false; pendYaw = 0; pendPitch = 0; }
             addEventListener('blur', resetViewGesture); addEventListener('resize', resetViewGesture);
+            document.addEventListener('visibilitychange',()=>{if(document.hidden)resetViewGesture()});
             document.addEventListener('mousemove', e => { if (isLocked() && viewMode === 'fp') { camYaw -= e.movementX * 0.0026; camPitch -= e.movementY * 0.0022; camPitch = Math.max(-1.2, Math.min(1.2, camPitch)); } });
-            document.addEventListener('pointerlockchange', () => { const locked = isLocked(); crosshairEl.classList.toggle('show', viewMode === 'fp' && (locked || IS_TOUCH)); lockTipEl.classList.toggle('show', viewMode === 'fp' && !locked && !IS_TOUCH); });
+            document.addEventListener('pointerlockchange', () => { resetViewGesture();crosshairEl.classList.toggle('show', viewMode === 'fp');lockTipEl.classList.remove('show'); });
             renderer.domElement.addEventListener('wheel', e => { if (viewMode === 'fixed') fixDist = Math.max(4, Math.min(40, fixDist + e.deltaY * 0.012)); else viewDist = Math.max(1.4, Math.min(7.0, viewDist + e.deltaY * 0.0025)); }, { passive: true });
             addEventListener('contextmenu', e => { if (e.target === renderer.domElement || e.target.closest('#joyZone, .touchBtn')) e.preventDefault(); });
 
@@ -9740,7 +9792,14 @@
             houseToggle.addEventListener('click', () => { SND.play('ui'); fullHouse = !fullHouse; houseToggle.classList.toggle('on', fullHouse); fullHouseGroup.visible = fullHouse; dashedGroup.visible = !fullHouse; });
             function resetCharacters() { player.pos.set(0, 0, 5.2); player.vy = 0; player.yaw = Math.PI; player.moveSpeed = 0; player.onGround = true; slimePet.pos.set(-0.62, 0, 5.72); slimePet.yaw = Math.PI; slimePet.speed = 0; camYaw = Math.PI; camPitch = 0.18; pendYaw = 0; pendPitch = 0; slime.squash = SLIME_FLAT; slime.squashV = 0; slime.wob = 0; slime.wobV = 0; }
             resetBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); resetCharacters(); });
-            function setViewMode(m) { viewMode = m; viewFixedBtn.classList.toggle('on', m === 'fixed'); viewTpBtn.classList.toggle('on', m === 'tp'); viewFpBtn.classList.toggle('on', m === 'fp'); slimeRoot.visible = true; avatarRoot.visible = m !== 'fp'; if (m === 'fixed') { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } else if (m === 'fp') { if (IS_TOUCH) crosshairEl.classList.add('show'); else lockTipEl.classList.add('show'); } else { if (document.pointerLockElement) document.exitPointerLock(); crosshairEl.classList.remove('show'); lockTipEl.classList.remove('show'); } }
+            function setViewMode(m) {
+                resetViewGesture();lastInteractionCheck=-Infinity;viewMode=m;
+                viewFixedBtn.classList.toggle('on',m==='fixed');viewTpBtn.classList.toggle('on',m==='tp');viewFpBtn.classList.toggle('on',m==='fp');
+                slimeRoot.visible=true;avatarRoot.visible=m!=='fp';
+                if(m!=='fp' && document.pointerLockElement)document.exitPointerLock();
+                crosshairEl.classList.toggle('show',m==='fp');lockTipEl.classList.remove('show');
+                if(m==='fp')showHintOverride(IS_TOUCH?'滑动转动视角 · 对准物品后点按交互键':'按住左键转动视角 · 对准物品后单击或按 E 交互');
+            }
             viewFixedBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('fixed'); }); viewTpBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('tp'); }); viewFpBtn.addEventListener('click', () => { SND.play('ui'); viewPan.set(0, 0, 0); setViewMode('fp'); });
             const sfxToggle = document.getElementById('sfxToggle'), sfxSlider = document.getElementById('sfxSlider');
             sfxToggle.addEventListener('click', () => { const on = !SND.isEnabled(); SND.setEnabled(on); sfxToggle.classList.toggle('on', on); if (on) SND.play('ui'); });
@@ -10316,7 +10375,7 @@
             function animate(t) {
                 requestAnimationFrame(animate);
                 const time = t * 0.001; const dt = Math.min(time - lastT, 0.05); lastT = time;
-                updateSprings(); updatePlayer(dt, time); updateWeatherSystem(dt, time); updateInteractHint();
+                updateSprings(); updatePlayer(dt, time); updateWeatherSystem(dt, time);
                 updateWand(dt, time);
                 updateBlast(dt, time);
 
@@ -11266,6 +11325,7 @@
                 updateRotationBoard(dt,time);
                 updateSliceLab(dt,time);
                 updateSolidGeometry(dt,time);
+                updateInteractHint();
                 renderer.render(scene, camera);
             }
             animate(0);
