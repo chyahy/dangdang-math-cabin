@@ -6,6 +6,8 @@
 
 访问：[当当老师数学小屋](https://dangdanglaoshi.cn/)（[GitHub Pages 备用入口](https://chyahy.github.io/dangdang-math-cabin/)）。
 
+首页可选择进入 [3D 小屋](https://dangdanglaoshi.cn/cabin.html)，或打开带封面、介绍与分类的 [数学游戏广场](https://dangdanglaoshi.cn/games/)。[入口与广场的修改、构建说明](apps/portal/README.md)。
+
 ## 内容
 
 - 数学魔法小屋

@@ -14,7 +14,7 @@ const path=require('node:path'),fs=require('node:fs/promises');
  async function ready(page){await page.waitForFunction(()=>window.qaScene?.getObjectByName('slice-upper-half')?.matrixWorld.elements[12]!==undefined && qaScene.getObjectByName('slice-upper-half').matrixWorld.elements[12]!==0)}
  async function hover(page){await ready(page);const p=await modelPoint(page);await page.mouse.move(p.x,p.y);await expect(page.locator('#slicePrompt')).toHaveClass(/visible/,{timeout:30000});return p}
  async function clickStand(page){const p=await hover(page);await page.mouse.click(p.x,p.y)}
- const url='http://127.0.0.1:4188/';
+ const url='http://127.0.0.1:4188/cabin.html';
  try{
   if(!process.argv.includes('--animation-only')){
   const {page,context}=await makePage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});

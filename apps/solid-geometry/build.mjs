@@ -7,7 +7,7 @@ let html=await fs.readFile(path.join(root,'index.html'),'utf8');
 const nets=await fs.readFile(path.join(root,'nets.js'),'utf8');
 html=html.replace('<script src="nets.js"></script>',()=>'<script>\n'+nets+'\n</script>');
 for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
-const cabin=await fs.readFile(path.join(repo,'site/index.html'),'utf8');
+const cabin=await fs.readFile(path.join(repo,'site/cabin.html'),'utf8');
 for(const match of cabin.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 const version=JSON.parse(await fs.readFile(path.join(repo,'site/version.json'),'utf8'));
 if(cabin.match(/const PAGE_VERSION = '([^']+)'/)?.[1]!==version.version)throw new Error('Cabin cache version mismatch');

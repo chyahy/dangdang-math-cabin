@@ -10,7 +10,7 @@ if(!(event.target instanceof HTMLScriptElement)||!event.target.src.includes('thr
 const t=window.THREE;
 for(const name of ['Scene','PerspectiveCamera']){const Original=t[name];t[name]=new Proxy(Original,{construct(target,args,newTarget){const obj=Reflect.construct(target,args,newTarget);window[name==='Scene'?'qaScene':'qaCamera']=obj;return obj}})}
 },true));
-const url='http://127.0.0.1:4186/';
+const url='http://127.0.0.1:4186/cabin.html';
 async function ready(p){await p.waitForFunction(()=>window.qaScene?.getObjectByName('solid-geometry-entrance')?.matrixWorld.elements[12]!==undefined && qaScene.getObjectByName('solid-geometry-entrance').matrixWorld.elements[12]!==0)}
 async function modelPoint(p){await ready(p);return p.evaluate(()=>{const g=qaScene.getObjectByName('solid-geometry-entrance'),v=g.localToWorld(new THREE.Vector3(0,1.55,0)).project(qaCamera);return {x:(v.x*.5+.5)*innerWidth,y:(-.5*v.y+.5)*innerHeight}})}
 async function hover(p){const v=await modelPoint(p);await p.mouse.move(v.x,v.y);await expect(p.locator('#solidGeometryPrompt')).toHaveClass(/visible/,{timeout:30000});return v}

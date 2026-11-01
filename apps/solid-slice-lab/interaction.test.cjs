@@ -7,7 +7,7 @@ const prompts='#deckPrompt.visible,#factorPrompt.visible,#rubikPrompt.visible,#g
  const server=createServer();await new Promise(r=>server.listen(4188,'127.0.0.1',r));
  const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']}),errors=[];
  const dir=path.resolve(__dirname,'../../.edgeone/cabin-interaction-qa');await fs.mkdir(dir,{recursive:true});
- const url='http://127.0.0.1:4188/';
+ const url='http://127.0.0.1:4188/cabin.html';
  async function makePage(options={}){
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block',...options}),page=await context.newPage();page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message));
   // Test-only closure access. All production input handlers remain unmodified.
