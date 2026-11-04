@@ -27,7 +27,7 @@ for(const relative of [...new Set([...gamePaths,'sum-difference-multiple/index.h
   if(next!==html)await fs.writeFile(filename,next);
 }
 const missing=[];
-for(const file of ['cabin-night.webp','math-island.webp','night-sky.webp','brand.webp','teacher.webp',...GAMES.map(game=>game.image)])try{await fs.access(path.join(assets,file))}catch{missing.push(file)}
+for(const file of ['cabin-night.webp','math-island.webp','night-sky.webp','brand.webp','teacher.webp','galaxy-background-v1.mp4',...GAMES.map(game=>game.image)])try{await fs.access(path.join(assets,file))}catch{missing.push(file)}
 if(missing.length)throw new Error('Missing portal image assets: '+missing.join(', '));
 const cabin=await fs.readFile(path.join(site,'cabin.html'),'utf8');for(const match of cabin.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 if(!cabin.includes(`const PAGE_VERSION = '${version}'`))throw new Error('Cabin version mismatch');

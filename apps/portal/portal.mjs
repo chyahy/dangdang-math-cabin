@@ -2,6 +2,31 @@ import {GAMES} from './catalog.mjs';
 
 const ROOT = new URL('../', import.meta.url);
 const page = document.body.dataset.page;
+if(page==='entry'){
+  const video=document.getElementById('entry-background-video'),backdrop=document.querySelector('.entry-video-backdrop'),toggle=document.getElementById('background-toggle');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let wantsMotion=true,started=false,playAttempt=0;
+  function staticBackground(){wantsMotion=false;playAttempt++;video.pause();backdrop.classList.remove('is-playing');toggle.textContent='切换动态背景'}
+  function playBackground(){
+    if(!wantsMotion || document.hidden || reduced.matches || navigator.connection?.saveData)return;
+    video.muted=true;
+    if(!video.hasAttribute('src'))video.src=new URL(video.dataset.src,ROOT).href;
+    const attempt=++playAttempt;
+    video.play()?.catch(error=>{if(attempt!==playAttempt || document.hidden || error.name==='AbortError')return;staticBackground();toggle.hidden=false});
+  }
+  video.addEventListener('playing',()=>{
+    if(!wantsMotion || reduced.matches || document.hidden){video.pause();return}
+    backdrop.classList.add('is-playing');toggle.hidden=false;toggle.textContent='切换静态背景';
+  });
+  video.addEventListener('error',()=>{staticBackground();toggle.hidden=true});
+  toggle.addEventListener('click',()=>{if(wantsMotion)staticBackground();else{wantsMotion=true;playBackground()}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){playAttempt++;video.pause()}else if(started)playBackground()});
+  addEventListener('pagehide',()=>{playAttempt++;video.pause()});
+  addEventListener('pageshow',()=>{if(started)playBackground()});
+  reduced.addEventListener('change',()=>{if(reduced.matches){staticBackground();toggle.hidden=true}});
+  function start(){started=true;playBackground()}
+  if(document.readyState==='complete')start();else addEventListener('load',start,{once:true});
+}
 if(page==='games'){
   const filters=[...document.querySelectorAll('[data-filter]')];
   const cards=[...document.querySelectorAll('[data-category]')];
