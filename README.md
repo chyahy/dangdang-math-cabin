@@ -15,6 +15,7 @@
 - 分解质因数
 - 正方体涂色探索
 - 有理数与数轴
+- 数轴实验室：自由拖动、相反数、绝对值、距离、加减法动画与15道探索挑战（[使用和开发说明](apps/number-line-lab/README.md)，独立路径 `/number-line-lab/`）
 - 平行与垂直实验室
 - 数学思维训练营：混合运算、算式合成与拆分（[开发与测试说明](apps/math-camp/README.md)）
 - 交互几何画板：自由绘图、顶点组合与精确旋转（[使用、开发与例5说明](apps/geometry-board/README.md)，独立路径 `/geometry-board/`）

@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 import {GAMES} from './catalog.mjs';
 const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),site=path.join(repo,'site');
 test('Every catalog item has an existing game, unique cover, and real rendered link',async()=>{
-  assert.equal(new Set(GAMES.map(g=>g.id)).size,12);
-  assert.equal(new Set(GAMES.map(g=>g.image)).size,12);
+  assert.equal(new Set(GAMES.map(g=>g.id)).size,13);
+  assert.equal(new Set(GAMES.map(g=>g.image)).size,13);
   const html=await fs.readFile(path.join(site,'games/index.html'),'utf8');
   for(const game of GAMES){
     await fs.access(path.join(site,game.path,game.path.endsWith('/')?'index.html':''));
@@ -35,7 +35,7 @@ test('Original game routes and their return integration remain present',async()=
   assert(cabin.includes(`const PAGE_VERSION = '${version}'`));
 });
 test('Catalog categories retain every game exactly once',()=>{
-  assert.equal(GAMES.filter(g=>g.category==='numbers').length,5);
+  assert.equal(GAMES.filter(g=>g.category==='numbers').length,6);
   assert.equal(GAMES.filter(g=>g.category==='geometry').length,7);
   assert(GAMES.every(g=>['numbers','geometry'].includes(g.category)));
 });

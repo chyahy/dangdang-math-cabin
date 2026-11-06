@@ -1,4 +1,5 @@
 export const GAMES = [
+  {id:'numberline',title:'数轴实验室',description:'拖动数与距离，探索相反数、绝对值和加减法。',category:'numbers',image:'game-numberline.webp',path:'number-line-lab/'},
   {id:'24',title:'24点游戏',description:'用四则运算，寻找不同解法。',category:'numbers',image:'game-24.webp',path:'magic-24/game.html'},
   {id:'solids',title:'立体图形观察站',description:'转一转、展开看，认识立体图形。',category:'geometry',image:'game-solids.webp',path:'solid-geometry/'},
   {id:'slice',title:'立体切割实验室',description:'移动切面，发现截面的形状。',category:'geometry',image:'game-slice.webp',path:'solid-slice-lab/'},
