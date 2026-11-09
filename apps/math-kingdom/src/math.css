@@ -7,3 +7,5 @@
 .numeric-keypad button[aria-label$=" 0"]{grid-column:span 2}.coin-flight{position:absolute;right:0;top:0;display:flex;align-items:center;gap:3px;pointer-events:none;color:#69441e;font:900 17px Consolas;animation:coinToPurse .48s steps(10) both}@keyframes coinToPurse{0%{transform:translate(-180px,110px);opacity:1}75%{opacity:1}100%{transform:translate(0,-12px);opacity:0}}
 
 .math-kingdom .battle-canvas canvas{width:100%!important;height:auto!important;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0!important}
+
+.bank-source-tabs{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.bank-source-tabs button{gap:12px;min-width:180px}.math-kingdom .bank-source-tabs button[aria-pressed=true],.math-kingdom .bank-source-tabs button[aria-pressed=true]:hover:not(:disabled){background:#456e66;color:#fff0c3;border-color:#29483f;box-shadow:inset 3px 3px #789b80,inset -3px -3px #305148,0 4px #263d35}.bank-source-tabs button>span{font:800 14px Consolas,monospace;background:#0002;padding:3px 8px}.bank-source-tabs button:focus-visible{outline:3px solid #c28c32;outline-offset:3px}
