@@ -1,0 +1,6 @@
+const http=require('node:http'),fs=require('node:fs/promises'),path=require('node:path'),cp=require('node:child_process');
+const root=path.resolve(__dirname,'../dist'),port=Number(process.env.PORT)||8918;
+const types={'.html':'text/html; charset=utf-8','.js':'application/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.wav':'audio/wav'};
+const server=http.createServer(async(req,res)=>{try{const raw=decodeURIComponent(new URL(req.url,'http://localhost').pathname),target=path.resolve(root,'.'+raw);if(target!==root&&!target.startsWith(root+path.sep)){res.writeHead(403).end();return}const stat=await fs.stat(target),filename=stat.isDirectory()?path.join(target,'index.html'):target;const bytes=await fs.readFile(filename);res.writeHead(200,{'Content-Type':types[path.extname(filename)]||'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(bytes)}catch{res.writeHead(404).end('Not found')}});
+server.listen(port,'127.0.0.1',()=>{const url='http://127.0.0.1:'+port+'/';console.log('Math Kingdom: '+url+' (Ctrl+C to stop)');if(process.argv.includes('--open')&&process.platform==='win32')cp.execFile('cmd',['/c','start','',url],{windowsHide:true},()=>{})});
+server.on('error',e=>{console.error('Cannot start local server:',e.message);process.exitCode=1});

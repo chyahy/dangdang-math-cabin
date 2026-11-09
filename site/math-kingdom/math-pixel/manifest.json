@@ -1,0 +1,490 @@
+{
+  "version": 1,
+  "original": true,
+  "pixelScale": 3,
+  "filtering": "NEAREST",
+  "smoothing": false,
+  "characterFrame": {
+    "width": 64,
+    "height": 44,
+    "foot": {
+      "x": 24,
+      "y": 41
+    }
+  },
+  "fighterSets": [
+    {
+      "team": "red",
+      "kind": "soldier",
+      "textureKey": "math-kingdom-pixel-v1-red-soldier",
+      "sheet": "red-soldier-sheet.png",
+      "atlas": "red-soldier-sheet.json",
+      "portrait": "red-soldier.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "defend": {
+          "frames": [
+            "defend-0",
+            "defend-1",
+            "defend-2",
+            "defend-3"
+          ],
+          "fps": 5,
+          "loop": true
+        }
+      }
+    },
+    {
+      "team": "red",
+      "kind": "archer",
+      "textureKey": "math-kingdom-pixel-v1-red-archer",
+      "sheet": "red-archer-sheet.png",
+      "atlas": "red-archer-sheet.json",
+      "portrait": "red-archer.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "aim": {
+          "frames": [
+            "aim-0",
+            "aim-1",
+            "aim-2",
+            "aim-3"
+          ],
+          "duration": 0.4,
+          "loop": false
+        }
+      }
+    },
+    {
+      "team": "red",
+      "kind": "knight",
+      "textureKey": "math-kingdom-pixel-v1-red-knight",
+      "sheet": "red-knight-sheet.png",
+      "atlas": "red-knight-sheet.json",
+      "portrait": "red-knight.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "defend": {
+          "frames": [
+            "defend-0",
+            "defend-1",
+            "defend-2",
+            "defend-3"
+          ],
+          "fps": 5,
+          "loop": true
+        }
+      }
+    },
+    {
+      "team": "blue",
+      "kind": "soldier",
+      "textureKey": "math-kingdom-pixel-v1-blue-soldier",
+      "sheet": "blue-soldier-sheet.png",
+      "atlas": "blue-soldier-sheet.json",
+      "portrait": "blue-soldier.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "defend": {
+          "frames": [
+            "defend-0",
+            "defend-1",
+            "defend-2",
+            "defend-3"
+          ],
+          "fps": 5,
+          "loop": true
+        }
+      }
+    },
+    {
+      "team": "blue",
+      "kind": "archer",
+      "textureKey": "math-kingdom-pixel-v1-blue-archer",
+      "sheet": "blue-archer-sheet.png",
+      "atlas": "blue-archer-sheet.json",
+      "portrait": "blue-archer.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "aim": {
+          "frames": [
+            "aim-0",
+            "aim-1",
+            "aim-2",
+            "aim-3"
+          ],
+          "duration": 0.4,
+          "loop": false
+        }
+      }
+    },
+    {
+      "team": "blue",
+      "kind": "knight",
+      "textureKey": "math-kingdom-pixel-v1-blue-knight",
+      "sheet": "blue-knight-sheet.png",
+      "atlas": "blue-knight-sheet.json",
+      "portrait": "blue-knight.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "defend": {
+          "frames": [
+            "defend-0",
+            "defend-1",
+            "defend-2",
+            "defend-3"
+          ],
+          "fps": 5,
+          "loop": true
+        }
+      }
+    }
+  ],
+  "castles": [
+    {
+      "team": "red",
+      "sheet": "red-castle-sheet.png",
+      "atlas": "red-castle-sheet.json",
+      "width": 80,
+      "height": 96,
+      "foot": {
+        "x": 40,
+        "y": 96
+      },
+      "healthLevels": 4,
+      "flagFrames": 4,
+      "destroyFrames": 4,
+      "destroyDuration": 0.7
+    },
+    {
+      "team": "blue",
+      "sheet": "blue-castle-sheet.png",
+      "atlas": "blue-castle-sheet.json",
+      "width": 80,
+      "height": 96,
+      "foot": {
+        "x": 40,
+        "y": 96
+      },
+      "healthLevels": 4,
+      "flagFrames": 4,
+      "destroyFrames": 4,
+      "destroyDuration": 0.7
+    }
+  ],
+  "arrow": {
+    "image": "arrow.png",
+    "width": 20,
+    "height": 7,
+    "origin": {
+      "x": 19,
+      "y": 3
+    }
+  }
+}
