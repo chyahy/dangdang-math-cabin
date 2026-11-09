@@ -1,7 +1,7 @@
 import type {Kind,Settings} from './types';
 export const WORLD={width:1920,height:450,left:195,right:1725,spawnLeft:265,spawnRight:1655};
 export const FIXED_STEP=1/30,MAX_UNITS=60,MAX_EVENTS=90,CASTLE_HP=150;
-export const PRICES:Record<Kind,number>={soldier:20,archer:35,knight:55};
+export const PRICES:Record<Kind,number>={soldier:20,archer:35,knight:100};
 export const KIND_NAMES:Record<Kind,string>={soldier:'小兵',archer:'弓箭手',knight:'重装骑士'};
 export const STATS:Record<Kind,{hp:number;damage:number;interval:number;speed:number;range:number;castleDamage:number;armor:number}>={
  soldier:{hp:42,damage:12,interval:.8,speed:112,range:65,castleDamage:10,armor:1},
