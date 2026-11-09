@@ -1,0 +1,5 @@
+import {it,expect} from 'vitest';import * as XLSX from 'xlsx';import {importFile} from './import';import {csv,errorCSV} from './db';
+const row={word:'lemon',meaning:'柠檬',grade:'四年级',unit:'水果',difficulty:1,segments:'le|mon'};
+it('真实xlsx文件读取、拆分、中文字段与数据校验',async()=>{const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,XLSX.utils.json_to_sheet([row]),'words');const bytes=XLSX.write(book,{type:'array',bookType:'xlsx'});const file=new File([bytes],'words.xlsx');const result=await importFile(file,[]);expect(result[0].word?.meaning).toBe('柠檬');expect(result[0].word?.segments).toEqual(['le','mon'])});
+it('CSV模板能正确导回，含中文及带逗号的释义',async()=>{const content=csv([Object.keys(row),Object.values({...row,meaning:'柠檬,水果'})]);const result=await importFile(new File([content],'words.csv'),[]);expect(result[0].word?.meaning).toBe('柠檬,水果')});
+it('错误词CSV保存数值、双引号与中文',()=>{const data=errorCSV([{word:'lemon',meaning:'柠檬"水果',count:2}]);expect(data).toContain('"柠檬""水果"');expect(data).toContain('"2"')});

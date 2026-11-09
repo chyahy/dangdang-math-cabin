@@ -1,4 +1,5 @@
 export const GAMES = [
+  {id:'wordkingdom',title:'单词王国',description:'双人拼词召唤士兵，守护自己的英语词汇王国。',category:'language',image:'game-wordkingdom.webp',path:'word-kingdom/'},
   {id:'numberline',title:'数轴实验室',description:'拖动数与距离，探索相反数、绝对值和加减法。',category:'numbers',image:'game-numberline.webp',path:'number-line-lab/'},
   {id:'24',title:'24点游戏',description:'用四则运算，寻找不同解法。',category:'numbers',image:'game-24.webp',path:'magic-24/game.html'},
   {id:'solids',title:'立体图形观察站',description:'转一转、展开看，认识立体图形。',category:'geometry',image:'game-solids.webp',path:'solid-geometry/'},

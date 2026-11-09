@@ -1,0 +1,14 @@
+import {useGame} from '../store';import type {Team} from '../engine/types';import {canAnswer} from '../engine/game';import {TouchButton} from './TouchButton';
+const titles={spell:'乱序拼词',meaning:'选择中文词义',missing:'缺字补全'};
+export function AnswerPanel({team}:{team:Team}){const state=useGame(),m=state.match!;const p=m.players[team],question=p.question,name=team==='red'?m.settings.redName:m.settings.blueName,enabled=canAnswer(m,team);const selected=question?.options.filter(o=>p.selected.includes(o.id));const spelling=p.selected.map(id=>question?.options.find(o=>o.id===id)?.text??'').join('');
+ return <section className={`answer-panel ${team} ${p.feedback?(p.feedback.correct?'correct':'incorrect'):''}`} aria-label={`${team==='red'?'红':'蓝'}队答题区`}>
+  <div className="answer-heading"><strong><span className="team-seal">{team==='red'?'R':'B'}</span>{name}</strong><span>{question?titles[question.type]:'本轮完成'}{p.cycle>0?` · 第${p.cycle+1}轮`:''}</span><b className="combo">{p.streak>0?`${p.streak} 连击`:'蓄力中'}</b></div>
+  {!question?<div className="bank-empty"><h2>本队题库已完成</h2><p>已停止出题，现有士兵继续战斗。下一局可切换“答完循环”。</p></div>:<>
+   <div className="prompt-row"><h2>{question.prompt}</h2><span>{question.type==='spell'?`${question.entry.word.length} 个字母`:`${question.entry.grade} · ${question.entry.unit}`}</span></div>
+   <div className={'answer-strip '+(p.feedback?'feedback':'')} aria-live="polite">{p.feedback?<><b>{p.feedback.message}</b>{!p.feedback.correct&&<span>{p.feedback.answer}</span>}</>:question.type==='spell'?<><span className="assembled">{spelling||'点击字母块，拼出单词'}</span><small>{p.selected.length} 块已选</small></>:<span className="assembled">{selected?.[0]?.text||'选择正确选项，再点确认'}</span>}</div>
+   <div className={'cards '+(question.type==='spell'?'letter-cards':'choice-cards')}>{question.options.map(card=><TouchButton key={card.id} className={p.selected.includes(card.id)?'picked':''} disabled={!enabled||p.selected.includes(card.id)} label={`${team==='red'?'红':'蓝'}队选项 ${card.text}`} onPress={()=>state.choose(team,card.id)}><span>{card.text}</span></TouchButton>)}</div>
+   <div className="answer-actions"><TouchButton disabled={!enabled||!p.selected.length} onPress={()=>state.undo(team)} label={`${team==='red'?'红':'蓝'}队退一步`}>退一步</TouchButton><TouchButton disabled={!enabled||!p.selected.length} onPress={()=>state.clear(team)} label={`${team==='red'?'红':'蓝'}队清空`}>清空</TouchButton><TouchButton className="submit" disabled={!enabled||!p.selected.length} onPress={()=>state.answer(team,question.id)} label={`${team==='red'?'红':'蓝'}队确认`}>确认召唤</TouchButton><TouchButton disabled={!enabled} onPress={()=>state.answer(team,question.id,true)} label={`${team==='red'?'红':'蓝'}队跳过`}>跳过</TouchButton></div>
+  </>}
+  {m.settings.inputMode==='turns'&&m.turn!==team&&m.phase==='RUNNING'&&<div className="turn-cover">等待对方作答 · 轮流模式</div>}
+ </section>
+}

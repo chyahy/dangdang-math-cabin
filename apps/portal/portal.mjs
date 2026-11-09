@@ -31,13 +31,13 @@ if(page==='games'){
   const filters=[...document.querySelectorAll('[data-filter]')];
   const cards=[...document.querySelectorAll('[data-category]')];
   function select(category,updateHistory=false){
-    if(!['all','numbers','geometry'].includes(category))category='all';
+    if(!['all','numbers','geometry','language'].includes(category))category='all';
     filters.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.filter===category)));
     let count=0;cards.forEach(card=>{
       card.hidden=category!=='all' && card.dataset.category!==category;if(!card.hidden)count++;
       const link=card.querySelector('a'),url=new URL(link.href);if(category==='all')url.searchParams.delete('category');else url.searchParams.set('category',category);link.href=url.href;
     });
-    document.getElementById('filter-status').textContent=`显示${count}个${category==='numbers'?'数与运算':category==='geometry'?'图形与几何':'数学'}游戏`;
+    document.getElementById('filter-status').textContent=`显示${count}个${category==='numbers'?'数与运算':category==='geometry'?'图形与几何':category==='language'?'英语词汇':'课堂'}游戏`;
     if(updateHistory){const url=new URL(location.href);if(category==='all')url.searchParams.delete('category');else url.searchParams.set('category',category);history.replaceState(null,'',url)}
   }
   filters.forEach(button=>button.addEventListener('click',()=>select(button.dataset.filter,true)));
@@ -49,7 +49,7 @@ if(page==='play'){
   const game=GAMES.find(game=>game.id===new URL(location.href).searchParams.get('game'));
   const frame=document.getElementById('game-frame'),invalid=document.getElementById('invalid-game'),loading=document.getElementById('game-loading');
   const category=new URL(location.href).searchParams.get('category'),galleryBack=new URL('games/',ROOT);
-  if(['numbers','geometry'].includes(category))galleryBack.searchParams.set('category',category);
+  if(['numbers','geometry','language'].includes(category))galleryBack.searchParams.set('category',category);
   document.querySelector('.play-back').href=galleryBack.href;
   if(!game){frame.hidden=true;loading.hidden=true;invalid.hidden=false;document.title='选择一个游戏｜当当老师'}
   else{

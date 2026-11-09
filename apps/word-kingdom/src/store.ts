@@ -1,0 +1,18 @@
+import {create} from 'zustand';
+import type {Match,RecordEntry,Settings,Team,Word} from './engine/types';
+import {DEFAULT_SETTINGS} from './engine/config';import {createMatch,pause,resume,selectCard,submit,tick} from './engine/game';import {BUILTIN_WORDS} from './questions/words';import {validateWord} from './questions/questions';import {readLocal,writeLocal} from './storage/db';
+type State={ready:boolean;words:Word[];settings:Settings;history:RecordEntry[];match:Match|null;revision:number;notice:string;screen:'menu'|'game'|'words'|'settings'|'history'|'help';setScreen:(screen:State['screen'])=>void;load:()=>Promise<void>;saveWords:(words:Word[])=>Promise<void>;saveSettings:(s:Settings)=>Promise<void>;start:()=>void;step:(dt:number)=>void;choose:(team:Team,id:string)=>void;undo:(team:Team)=>void;clear:(team:Team)=>void;answer:(team:Team,qid:string,skip?:boolean)=>void;pause:()=>void;resume:()=>void;note:(s:string)=>void};
+const report=(notice:string)=>useGame.setState({notice});
+export const useGame=create<State>((set,get)=>({
+ ready:false,words:BUILTIN_WORDS,settings:DEFAULT_SETTINGS,history:[],match:null,revision:0,notice:'',screen:'menu',setScreen:screen=>set({screen}),note:report,
+ load:async()=>{const [words,s,history]=await Promise.all([readLocal<Word[]>('words',BUILTIN_WORDS),readLocal<Settings>('settings',DEFAULT_SETTINGS),readLocal<RecordEntry[]>('history',[])]);const validWords=words.filter(w=>validateWord(w).errors.length===0);const settings={...DEFAULT_SETTINGS,...s,weights:{...DEFAULT_SETTINGS.weights,...s.weights}};if(![60,180,300].includes(settings.duration))settings.duration=180;set({ready:true,words:validWords.length?validWords:BUILTIN_WORDS,settings,history:Array.isArray(history)?history.slice(0,50):[]})},
+ saveWords:async words=>{try{await writeLocal('words',words);set({words})}catch{report('保存失败，浏览器本地存储可能已满。')}},
+ saveSettings:async settings=>{try{await writeLocal('settings',settings);set({settings})}catch{report('设置保存失败，请检查浏览器存储。')}},
+ start:()=>{try{const {words,settings}=get();set({match:createMatch(words,settings),screen:'game',revision:0,notice:''})}catch(e){report((e as Error).message)}},
+ step:dt=>{const m=get().match;if(!m)return;const previous=m.phase;tick(m,dt);if(m.phase==='FINISHED'&&!m.resultSaved){m.resultSaved=true;const result:RecordEntry={id:m.id,date:new Date().toISOString(),winner:m.winner==='draw'?'平局':m.winner==='red'?m.settings.redName:m.settings.blueName,reason:m.reason,duration:m.elapsed,redName:m.settings.redName,blueName:m.settings.blueName,players:structuredClone(m.players)};const history=[result,...get().history].slice(0,50);set({history});void writeLocal('history',history).catch(()=>report('本局已完成，但战绩未能保存到浏览器。'))}if(m.phase!=='PAUSED'||previous!==m.phase)set(s=>({revision:s.revision+1}))},
+ choose:(team,id)=>{const m=get().match;if(m){selectCard(m,team,id);set(s=>({revision:s.revision+1}))}},
+ undo:team=>{const m=get().match;if(m&&m.phase==='RUNNING'&&!m.players[team].feedback){m.players[team].selected.pop();set(s=>({revision:s.revision+1}))}},
+ clear:team=>{const m=get().match;if(m&&m.phase==='RUNNING'&&!m.players[team].feedback){m.players[team].selected=[];set(s=>({revision:s.revision+1}))}},
+ answer:(team,id,skip)=>{const m=get().match;if(m){submit(m,team,id,skip);set(s=>({revision:s.revision+1}))}},
+ pause:()=>{const m=get().match;if(m){pause(m);set(s=>({revision:s.revision+1}))}},resume:()=>{const m=get().match;if(m){resume(m);set(s=>({revision:s.revision+1}))}}
+}));
