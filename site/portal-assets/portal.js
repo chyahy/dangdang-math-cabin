@@ -1,4 +1,4 @@
-import {GAMES} from './catalog.js?v=2026.11.10.2';
+import {GAMES} from './catalog.js?v=2026.11.10.3';
 
 const ROOT = new URL('../', import.meta.url);
 const page = document.body.dataset.page;

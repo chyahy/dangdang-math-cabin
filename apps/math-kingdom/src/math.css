@@ -9,3 +9,20 @@
 .math-kingdom .battle-canvas canvas{width:100%!important;height:auto!important;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0!important}
 
 .bank-source-tabs{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.bank-source-tabs button{gap:12px;min-width:180px}.math-kingdom .bank-source-tabs button[aria-pressed=true],.math-kingdom .bank-source-tabs button[aria-pressed=true]:hover:not(:disabled){background:#456e66;color:#fff0c3;border-color:#29483f;box-shadow:inset 3px 3px #789b80,inset -3px -3px #305148,0 4px #263d35}.bank-source-tabs button>span{font:800 14px Consolas,monospace;background:#0002;padding:3px 8px}.bank-source-tabs button:focus-visible{outline:3px solid #c28c32;outline-offset:3px}
+
+/* Four army choices and one castle action share a compact command row. */
+.math-kingdom .barracks{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.math-kingdom .barracks button{gap:3px;padding:2px 3px;align-items:center;justify-content:center}
+.math-kingdom .barracks img{max-width:34%;height:90%}
+.math-kingdom .barracks b{font-size:clamp(9px,.79vw,16px)}
+.math-kingdom .barracks i{display:none}
+.math-kingdom .barracks small{font-size:clamp(11px,.9vw,20px)}
+.math-kingdom .castle-upgrade>svg{width:28%;max-height:60%;flex-shrink:0;image-rendering:pixelated}
+.math-kingdom .castle-upgrade{background:#c5b483;border-color:#5b6349}
+.math-kingdom .kingdom-summary>b>small{font:800 .7em Consolas,monospace;color:#ffe09b}
+@media(max-width:900px){.math-kingdom .barracks button{flex-direction:column;gap:0}.math-kingdom .barracks img{height:42%;max-width:55%}.math-kingdom .barracks button>span{gap:0}.math-kingdom .barracks b{font-size:9px}.math-kingdom .castle-upgrade>svg{height:35%;width:21px}.math-kingdom .barracks small{justify-content:center;font-size:10px}.math-kingdom .barracks small svg{width:11px}}
+
+.frost-status{color:#256b8a;font-weight:800}
+@media(max-width:900px) and (max-height:650px){.math-kingdom .barracks button{flex-direction:row;gap:2px}.math-kingdom .barracks img{height:80%;max-width:25%}.math-kingdom .castle-upgrade>svg{height:65%;width:18px;max-width:22%}}
+@media(max-width:900px) and (max-height:650px){.math-kingdom .barracks button{padding:1px 2px;border-width:2px}.math-kingdom .barracks b{line-height:1.05}.math-kingdom .barracks small{line-height:1.1}.math-kingdom .kingdom-status.blue{padding-right:80px}.math-kingdom .kingdom-summary>b{white-space:nowrap;font-size:12px}.math-kingdom .kingdom-status{min-width:0}.math-kingdom .kingdom-summary{min-width:0}.math-kingdom .kingdom-status .stat-number{display:none}}
+@media(max-width:900px) and (max-height:650px){.math-kingdom .math-panel{grid-template-rows:7% 26% 47% 17% 3%}.math-kingdom .math-question{padding:2px 0}.math-kingdom .question-meta{font-size:7.5px;line-height:1.1}.math-kingdom .math-question h2{font-size:18px;line-height:1.05;margin:1px 0}.math-kingdom .math-answer{padding:1px 6px;border-width:1px}.math-kingdom .math-answer>b{font-size:16px;line-height:1.1}.math-kingdom .math-answer>b>span{font-size:12px;line-height:1.1}}

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 export type Team = 'red' | 'blue';
-export type Kind = 'soldier' | 'archer' | 'knight';
+export type Kind = 'soldier' | 'archer' | 'knight' | 'mage';
 export type Pose = 'idle' | 'walk' | 'attack' | 'hurt' | 'death' | 'aim' | 'defend';
 type Point = readonly [number, number];
 type Container = Phaser.GameObjects.Container;
@@ -203,7 +203,36 @@ function head(p: Pixels, team: Team, kind: Kind, hurt: boolean): void {
   }
 }
 
+function mageFrame(p:Pixels,team:Team,state:Pose,frame:number):void{
+  const t=TEAM[team],ice='#94dfef',light='#e3fbf0',dark='#2e6485',robe='#497fba';
+  p.rect(ORIGIN_X-9,FOOT_Y,19,2,C.shadow);
+  const stride=state==='walk'?[0,1,1,0,-1,-1][frame]:0;
+  const cast=state==='attack'?[0,1,3,5,2,0][frame]:state==='aim'?2:0;
+  const fall=state==='death'?[.15,.55,1.08,Math.PI/2][frame]:0;
+  const bob=state==='walk'?Math.abs(stride):state==='idle'&&frame===2?1:0;
+  p.transform=(x,y)=>[ORIGIN_X+Math.cos(fall)*x-Math.sin(fall)*y,Math.min(FOOT_Y-1,FOOT_Y-bob+Math.sin(fall)*x+Math.cos(fall)*y)];
+  p.poly([[-5,-25],[-10,-21],[-12-stride,-4],[-7,-6],[-3,-4],[0,-11]],t.dark,C.ink);
+  p.rect(-5-stride,-3,5,3,C.boot,C.ink);p.rect(2+stride,-3,6,3,C.boot,C.ink);
+  p.poly([[-5,-23],[5,-23],[6,-13],[9,-4],[3,-6],[0,-4],[-5,-6],[-8,-4],[-6,-15]],robe,C.ink);
+  p.poly([[-3,-21],[0,-20],[0,-7],[-4,-8],[-5,-13]],dark);
+  p.line(2,-20,4,-8,ice);p.line(-7,-5,7,-5,light);p.rect(-5,-15,11,2,t.base);p.dot(0,-14,C.gold);
+  p.rect(-5,-31,11,10,C.skin,C.ink);p.rect(-4,-29,2,6,C.skinDark);p.dot(3,-27,C.ink);p.dot(4,-24,C.skinDark);
+  p.poly([[-8,-29],[-5,-35],[-1,-40],[3,-38],[7,-30],[10,-28],[5,-27],[-4,-27]],dark,C.ink);
+  p.poly([[-4,-34],[-1,-38],[3,-35],[6,-30],[-5,-30]],robe);
+  p.line(-7,-29,7,-29,ice,3);p.dot(0,-34,light);p.dot(-1,-33,light);p.dot(1,-33,light);p.dot(0,-32,light);
+  p.poly([[-5,-22],[0,-20],[6,-23],[5,-20],[0,-17],[-5,-19]],t.base,C.ink);p.dot(1,-19,t.trim);
+  arm(p,[-4,-21],[-8,-13+stride],dark,false,-1);
+  const staffX=12+Math.round(cast/2),staffY=-27-cast;
+  arm(p,[4,-21],[staffX,-17-cast/2],robe,false,1);
+  p.line(staffX,-3,staffX,staffY,C.woodDark,3);p.line(staffX,-4,staffX,staffY,C.woodLight);
+  p.poly([[staffX,staffY-9],[staffX+5,staffY-4],[staffX+3,staffY+2],[staffX-3,staffY+2],[staffX-5,staffY-4]],ice,C.ink);
+  p.line(staffX,staffY-7,staffX,staffY,light);p.line(staffX-3,staffY-3,staffX+3,staffY-3,light);
+  if(cast>0&&state!=='death'){p.dot(staffX+7,staffY-7,light);p.line(staffX+10,staffY-3,staffX+14,staffY-3,ice);p.dot(staffX+12,staffY-5,light);p.dot(staffX+12,staffY-1,light)}
+  if(state==='hurt'){p.line(-10,-25,-8,-23,C.cream);p.dot(-9,-28,ice)}
+}
+
 function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: number): void {
+  if(kind==='mage'){mageFrame(p,team,state,frame);return;}
   const t = TEAM[team], heavy = kind === 'knight', archer = kind === 'archer';
   // Shadow stays on the ground while the character's complete pose changes.
   p.rect(ORIGIN_X - 8, FOOT_Y, 17, 2, C.shadow);p.rect(ORIGIN_X - 5, FOOT_Y - 1, 11, 1, C.shadow);
@@ -304,7 +333,7 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
 function fighterTexture(scene: Phaser.Scene, team: Team, kind: Kind): string {
   const key = `math-kingdom-pixel-v1-${team}-${kind}`;
   if (scene.textures.exists(key)) return key;
-  const states = STATES.filter(state => state !== (kind === 'archer' ? 'defend' : 'aim'));
+  const states = STATES.filter(state => state !== (kind === 'archer'||kind==='mage' ? 'defend' : 'aim'));
   const total = states.reduce((n, state) => n + COUNTS[state], 0);
   const sheet = canvas(FW * total, FH);
   let index = 0;
@@ -327,7 +356,7 @@ export function createFighter(scene: Phaser.Scene, team: Team, kind: Kind): { ro
   root.add(sprite);
   let selected = '';
   function pose(state: Pose, t: number, direction: number): void {
-    if (state === 'aim' && kind !== 'archer' || state === 'defend' && kind === 'archer') state = 'idle';
+    if (state === 'aim' && kind !== 'archer'&&kind!=='mage' || state === 'defend' && (kind === 'archer'||kind==='mage')) state = 'idle';
     t = Number.isFinite(t) ? Math.max(0, t) : 0;
     let frame: number;
     if (state === 'walk') frame = Math.floor(t * (kind === 'knight' ? 8 : 10)) % COUNTS.walk;
@@ -485,21 +514,28 @@ function castleTexture(scene: Phaser.Scene, team: Team): string {
 }
 
 /** hp is 0..1; time is the simulation clock in seconds. Frozen time freezes all art. */
-export function createCastle(scene: Phaser.Scene, team: Team): { root: Container; damage: (hp: number, time: number) => void } {
+export function createCastle(scene: Phaser.Scene, team: Team): { root: Container; damage: (hp: number, time: number, level?:number) => void } {
   const key = castleTexture(scene, team);
   const root = scene.add.container(0, 0).setSize(240, 288).setData({ team, kind: 'castle', pixelScale: PIXEL_SCALE });
   const sprite = scene.add.sprite(0, 0, key, '0-0').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
-  root.add(sprite);
+  const fortifications=scene.add.graphics();root.add([sprite,fortifications]);
   let health = 1, flashUntil = -Infinity, destroyedAt: number | null = null, selected = '';
-  function damage(hp: number, time: number): void {
+  function damage(hp: number, time: number, level=1): void {
     hp = Phaser.Math.Clamp(Number.isFinite(hp) ? hp : 1, 0, 1);
     time = Number.isFinite(time) ? Math.max(0, time) : 0;
     if (hp < health) flashUntil = time + 0.1;
     if (hp > health) { flashUntil = -Infinity;destroyedAt = null; }
     if (hp === 0 && destroyedAt === null) destroyedAt = time;
     health = hp;
-    const level = hp > 0.75 ? 0 : hp > 0.5 ? 1 : hp > 0.25 ? 2 : 3;
-    const next = destroyedAt === null ? `${level}-${Math.floor(time * 5) % 4}` : `destroy-${Math.min(3, Math.floor(Math.max(0, time - destroyedAt) / 0.7 * 4))}`;
+    fortifications.clear();
+    if(hp>0&&level>1){
+      fortifications.lineStyle(6,0xd6b455).strokeRect(-82,-153,164,9);
+      fortifications.lineStyle(3,0xffecb3).lineBetween(-80,-156,80,-156);
+      for(let i=0;i<level-1;i++)fortifications.fillStyle(0xffdf87).fillRect(-8+(i-(level-2)/2)*24,-177,15,15);
+      if(level===3){fortifications.lineStyle(6,0xa9d9e3).lineBetween(-91,-120,-91,-12).lineBetween(91,-120,91,-12);fortifications.fillStyle(0xe7cf8f).fillRect(-97,-125,12,12).fillRect(85,-125,12,12)}
+    }
+    const damageLevel = hp > 0.75 ? 0 : hp > 0.5 ? 1 : hp > 0.25 ? 2 : 3;
+    const next = destroyedAt === null ? `${damageLevel}-${Math.floor(time * 5) % 4}` : `destroy-${Math.min(3, Math.floor(Math.max(0, time - destroyedAt) / 0.7 * 4))}`;
     if (next !== selected) { sprite.setFrame(next); selected = next; }
     if (time < flashUntil) sprite.setTintFill(0xffe4ae); else sprite.clearTint();
   }

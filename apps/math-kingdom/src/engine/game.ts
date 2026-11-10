@@ -1,6 +1,6 @@
-import {CASTLE_HP,FIXED_STEP,MAX_EVENTS,MAX_UNITS,PRICES,STATS,TOWER,WORLD} from './config';import type {BattleEvent,Entry,Kind,Match,Player,Settings,Team,Unit} from './types';import {judge,makeDeck,makeQuestion} from '../questions/questions';
+import {CASTLE_HP,FIXED_STEP,MAX_EVENTS,MAX_UNITS,PRICES,STATS,FROST,TOWER,CASTLE_LEVELS,castleStats,WORLD} from './config';import type {BattleEvent,Entry,Kind,Match,Player,Settings,Team,Unit} from './types';import {judge,makeDeck,makeQuestion} from '../questions/questions';
 export const enemy=(t:Team):Team=>t==='red'?'blue':'red';export const accuracy=(p:Player)=>p.correct/(p.correct+p.wrong+p.skipped||1);
-const player=():Player=>({hp:CASTLE_HP,coins:0,earned:0,spent:0,purchases:{soldier:0,archer:0,knight:0},smart:0,correct:0,wrong:0,skipped:0,streak:0,best:0,index:0,cycle:0,question:null,input:'',selected:null,feedback:null,errors:{},exhausted:false,lastPurchase:-1,autoIndex:0});
+const player=():Player=>({hp:CASTLE_HP,maxHp:CASTLE_HP,castleLevel:1,lastUpgrade:-1,coins:0,earned:0,spent:0,purchases:{soldier:0,archer:0,knight:0,mage:0},smart:0,correct:0,wrong:0,skipped:0,streak:0,best:0,index:0,cycle:0,question:null,input:'',selected:null,feedback:null,errors:{},exhausted:false,lastPurchase:-1,autoIndex:0});
 export function createMatch(entries:Entry[],settings:Settings,seed=Date.now()):Match{const deck=makeDeck(entries,settings,seed);if(!deck.length)throw Error('当前筛选没有可用题目，请调整年级、知识点、难度或题型比例。');const m:Match={id:crypto.randomUUID(),phase:'COUNTDOWN',resumePhase:'COUNTDOWN',countdown:3,elapsed:0,remaining:settings.duration,players:{red:player(),blue:player()},towers:{red:{cooldown:0,attackAt:-10},blue:{cooldown:0,attackAt:-10}},units:[],projectiles:[],events:[],nextId:1,deck,settings:structuredClone(settings),seed,winner:null,reason:'',turn:'red',resultSaved:false};for(const t of ['red','blue'] as Team[])nextQuestion(m,t);return m}
 function event(m:Match,data:Omit<BattleEvent,'id'|'time'>){m.events.push({...data,id:m.nextId++,time:m.elapsed});if(m.events.length>MAX_EVENTS)m.events.splice(0,m.events.length-MAX_EVENTS)}
 function nextQuestion(m:Match,t:Team){const p=m.players[t];if(p.index>=m.deck.length){if(m.settings.exhaustion==='stop'){p.question=null;p.exhausted=true;p.feedback=null;p.input='';p.selected=null;return}p.index=0;p.cycle++}p.question=makeQuestion(m.deck[p.index],p.index,p.cycle,m.seed,t);p.input='';p.selected=null;p.feedback=null}
@@ -8,7 +8,17 @@ export function canAnswer(m:Match,t:Team){return m.phase==='RUNNING'&&!m.players
 export function inputKey(m:Match,t:Team,key:string){if(!canAnswer(m,t))return;const p=m.players[t],q=p.question;if(!q||q.type==='method')return;if(key==='delete')p.input=p.input.slice(0,-1);else if(key==='clear')p.input='';else if(key==='-'){if(q.entry.grade==='初一')p.input=p.input.startsWith('-')?p.input.slice(1):'-'+p.input}else if(p.input.length<32&&(/^[0-9]$/.test(key)||q.entry.grade!=='四年级'&&['.','/'].includes(key))){const part=p.input.split('/').at(-1)||'';if(key==='.'&&part.includes('.')||key==='/'&&(p.input.includes('/')||!part||part==='-'))return;p.input+=key}}
 export function choose(m:Match,t:Team,id:string){const p=m.players[t];if(canAnswer(m,t)&&p.question?.type==='method'&&p.question.options.some(o=>o.id===id))p.selected=id}
 export function purchase(m:Match,t:Team,kind:Kind):boolean{const p=m.players[t];if(m.phase!=='RUNNING'||!PRICES[kind]||p.coins<PRICES[kind]||m.elapsed-p.lastPurchase<.22||m.units.filter(u=>u.team===t&&u.deathAt===null).length>=MAX_UNITS/2)return false;p.lastPurchase=m.elapsed;p.coins-=PRICES[kind];p.spent+=PRICES[kind];p.purchases[kind]++;summon(m,t,kind);return true}
-export function summon(m:Match,t:Team,kind:Kind){const id=m.nextId++,stats=STATS[kind];m.units.push({id,team:t,kind,x:t==='red'?WORLD.spawnLeft:WORLD.spawnRight,lane:id%3-1,hp:stats.hp,maxHp:stats.hp,cooldown:.2,state:'idle',stateUntil:0,deathAt:null,attackAt:-10});event(m,{type:'summon',team:t,x:t==='red'?WORLD.spawnLeft:WORLD.spawnRight,lane:id%3-1,kind})}
+export function upgradeCastle(m:Match,t:Team):boolean{
+ const p=m.players[t],next=CASTLE_LEVELS[p.castleLevel];
+ if(m.phase!=='RUNNING'||p.hp<=0||!next||p.coins<next.price||m.elapsed-p.lastUpgrade<.35)return false;
+ p.lastUpgrade=m.elapsed;p.coins-=next.price;p.spent+=next.price;
+ p.hp=Math.min(next.maxHp,p.hp+next.maxHp-p.maxHp);p.maxHp=next.maxHp;p.castleLevel=next.level;
+ m.towers[t].cooldown=Math.min(m.towers[t].cooldown,next.interval);
+ event(m,{type:'upgrade',team:t,x:t==='red'?WORLD.left:WORLD.right,lane:0});
+ return true;
+}
+export const movementSpeed=(u:Unit,time:number)=>STATS[u.kind].speed*(u.slowUntil>time?FROST.speedMultiplier:1);
+export function summon(m:Match,t:Team,kind:Kind){const id=m.nextId++,stats=STATS[kind];m.units.push({id,team:t,kind,x:t==='red'?WORLD.spawnLeft:WORLD.spawnRight,lane:id%3-1,hp:stats.hp,maxHp:stats.hp,cooldown:.2,state:'idle',stateUntil:0,deathAt:null,attackAt:-10,slowUntil:0});event(m,{type:'summon',team:t,x:t==='red'?WORLD.spawnLeft:WORLD.spawnRight,lane:id%3-1,kind})}
 export function submit(m:Match,t:Team,qid:string,skip=false):boolean|null{const p=m.players[t],q=p.question;if(!canAnswer(m,t)||!q||q.id!==qid||!skip&&!(q.type==='method'?p.selected:p.input))return null;const correct=!skip&&judge(q,p.input,p.selected);let coins=0;
  if(correct){p.correct++;p.streak++;p.best=Math.max(p.best,p.streak);coins=({1:15,2:20,3:30}[q.entry.difficulty]||15)+(p.streak%3===0?5:0);if(q.type==='method'){coins+=5;p.smart++}p.coins+=coins;p.earned+=coins;event(m,{type:'coin',team:t,x:t==='red'?270:1650,lane:0,amount:coins})}
  else{if(skip)p.skipped++;else p.wrong++;p.streak=0;const old=p.errors[q.entry.id];p.errors[q.entry.id]={prompt:q.prompt,answer:q.answer,topic:q.entry.topic,submitted:q.type==='method'?q.options.find(o=>o.id===p.selected)?.text||'未选':p.input,count:(old?.count||0)+1,skipped:skip}}
@@ -21,14 +31,14 @@ export function pause(m:Match){if(m.phase==='RUNNING'||m.phase==='COUNTDOWN'){m.
 /** Towers share the same projectile and armor rules as the army. */
 function fireTowers(m:Match,dt:number){
  for(const team of ['red','blue'] as Team[]){
-  const tower=m.towers[team];tower.cooldown=Math.max(0,tower.cooldown-dt);
+  const tower=m.towers[team],stats=castleStats(m.players[team].castleLevel);tower.cooldown=Math.max(0,tower.cooldown-dt);
   if(m.players[team].hp<=0||tower.cooldown>1e-8)continue;
   const x=team==='red'?WORLD.left:WORLD.right;
-  const target=m.units.filter(u=>u.team!==team&&u.deathAt===null&&u.hp>0&&Math.abs(u.x-x)<=TOWER.range)
+  const target=m.units.filter(u=>u.team!==team&&u.deathAt===null&&u.hp>0&&Math.abs(u.x-x)<=stats.range)
    .sort((a,b)=>Math.abs(a.x-x)-Math.abs(b.x-x)||a.id-b.id)[0];
   if(!target)continue;
-  tower.cooldown=TOWER.interval;tower.attackAt=m.elapsed;
-  m.projectiles.push({id:m.nextId++,team,source:'tower',x,startX:x,targetId:target.id,targetCastle:null,targetX:target.x,damage:TOWER.damage,castleDamage:0,lane:target.lane});
+  tower.cooldown=stats.interval;tower.attackAt=m.elapsed;
+  m.projectiles.push({id:m.nextId++,team,source:'tower',x,startX:x,targetId:target.id,targetCastle:null,targetX:target.x,damage:stats.damage,castleDamage:0,lane:target.lane});
   event(m,{type:'tower',team,x,lane:target.lane});
  }
 }
@@ -40,9 +50,9 @@ export function tick(m:Match,dt=FIXED_STEP){
  const living=m.units.filter(u=>u.deathAt===null),positions=new Map(living.map(u=>[u.id,u.x])),attacks:{target:Unit|null;castle:Team|null;damage:number;by:Team}[]=[];
  for(const u of living){const stats=STATS[u.kind],dir=u.team==='red'?1:-1,opponent=enemy(u.team);u.cooldown=Math.max(0,u.cooldown-dt);if((u.state==='hurt'||u.state==='defend')&&m.elapsed<u.stateUntil)continue;
  const foes=living.filter(f=>f.team!==u.team&&(positions.get(f.id)!-positions.get(u.id)!)*dir>=-35);foes.sort((a,b)=>Math.abs(a.x-u.x)-Math.abs(b.x-u.x));const target=foes[0],tx=target?positions.get(target.id)!:u.team==='red'?WORLD.right:WORLD.left;
- if(Math.abs(tx-u.x)<=stats.range+(target?0:30)){u.state=m.elapsed-u.attackAt<.36?'attack':u.kind==='archer'&&u.cooldown<.28?'aim':'idle';if(u.cooldown<=0){u.cooldown=stats.interval;u.state='attack';u.attackAt=m.elapsed;if(u.kind==='archer'){m.projectiles.push({id:m.nextId++,team:u.team,source:'unit',x:u.x,startX:u.x,targetId:target?.id??null,targetCastle:target?null:opponent,targetX:tx,damage:stats.damage,castleDamage:stats.castleDamage,lane:u.lane});event(m,{type:'arrow',team:u.team,x:u.x,lane:u.lane})}else{attacks.push({target:target||null,castle:target?null:opponent,damage:target?stats.damage:stats.castleDamage,by:u.team});event(m,{type:'sword',team:u.team,x:u.x,lane:u.lane})}}}
- else{u.state='walk';const peers=living.filter(v=>v.team===u.team&&v.lane===u.lane&&v.id!==u.id&&(positions.get(v.id)!-u.x)*dir>0),gap=peers.length?Math.min(...peers.map(v=>Math.abs(positions.get(v.id)!-u.x))):Infinity;u.x+=dir*Math.min(stats.speed*dt,Math.max(0,gap-50))}}
+ if(Math.abs(tx-u.x)<=stats.range+(target?0:30)){u.state=m.elapsed-u.attackAt<.36?'attack':(u.kind==='archer'||u.kind==='mage')&&u.cooldown<.28?'aim':'idle';if(u.cooldown<=0){u.cooldown=stats.interval;u.state='attack';u.attackAt=m.elapsed;if(u.kind==='archer'||u.kind==='mage'){m.projectiles.push({id:m.nextId++,team:u.team,source:'unit',effect:u.kind==='mage'?'frost':undefined,x:u.x,startX:u.x,targetId:target?.id??null,targetCastle:target?null:opponent,targetX:tx,damage:stats.damage,castleDamage:stats.castleDamage,lane:u.lane});event(m,{type:u.kind==='mage'?'frost':'arrow',team:u.team,x:u.x,lane:u.lane})}else{attacks.push({target:target||null,castle:target?null:opponent,damage:target?stats.damage:stats.castleDamage,by:u.team});event(m,{type:'sword',team:u.team,x:u.x,lane:u.lane})}}}
+ else{u.state='walk';const peers=living.filter(v=>v.team===u.team&&v.lane===u.lane&&v.id!==u.id&&(positions.get(v.id)!-u.x)*dir>0),gap=peers.length?Math.min(...peers.map(v=>Math.abs(positions.get(v.id)!-u.x))):Infinity;u.x+=dir*Math.min(movementSpeed(u,m.elapsed)*dt,Math.max(0,gap-50))}}
  for(const a of attacks)if(a.target)hurt(m,a.target,a.damage,a.by);else if(a.castle)castle(m,a.castle,a.damage);
- m.projectiles=m.projectiles.filter(p=>{const target=m.units.find(u=>u.id===p.targetId&&u.deathAt===null);if(p.targetId&&!target)return false;const tx=target?.x??p.targetX,dir=p.team==='red'?1:-1,next=p.x+dir*(p.source==='tower'?TOWER.projectileSpeed:720)*dt;p.targetX=tx;if((next-tx)*dir>=0||Math.abs(next-tx)<12){if(target)hurt(m,target,p.damage,p.team);else if(p.targetCastle)castle(m,p.targetCastle,p.castleDamage);return false}p.x=next;return true});
+ m.projectiles=m.projectiles.filter(p=>{const target=m.units.find(u=>u.id===p.targetId&&u.deathAt===null);if(p.targetId&&!target)return false;const tx=target?.x??p.targetX,dir=p.team==='red'?1:-1,next=p.x+dir*(p.source==='tower'?TOWER.projectileSpeed:p.effect==='frost'?FROST.projectileSpeed:720)*dt;p.targetX=tx;if((next-tx)*dir>=0||Math.abs(next-tx)<12){if(target){hurt(m,target,p.damage,p.team);if(p.effect==='frost'&&target.deathAt===null)target.slowUntil=Math.max(target.slowUntil,m.elapsed+FROST.duration)}else if(p.targetCastle)castle(m,p.targetCastle,p.castleDamage);return false}p.x=next;return true});
  m.units=m.units.filter(u=>u.deathAt===null||m.elapsed-u.deathAt<.65);if(m.players.red.hp<=0||m.players.blue.hp<=0)finish(m,'城堡被攻破');else if(m.remaining<=0)finish(m,'比赛时间结束');
 }

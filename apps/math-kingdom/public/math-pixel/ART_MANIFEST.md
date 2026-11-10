@@ -4,7 +4,7 @@
 
 ## 文件
 
-- 六套角色：`red-soldier`、`blue-soldier`、`red-archer`、`blue-archer`、`red-knight`、`blue-knight`。
+- 八套角色：`red-soldier`、`blue-soldier`、`red-archer`、`blue-archer`、`red-knight`、`blue-knight`、`red-mage`、`blue-mage`。
 - 每套 `*-sheet.png` 为独立透明 PNG 图集，`*-sheet.json` 为可直接交给 Phaser 的 JSON Hash Atlas。
 - 每套同名 `*.png`（例如 `red-soldier.png`）为 **64×64** 商店头像。头像使用最近邻2倍放大，包含头部与上半身，不是整张动画图集。
 - `red-castle-sheet.png`、`blue-castle-sheet.png` 及对应 JSON：城堡完整、损伤、旗帜、烟尘及倒旗坍塌图集。
@@ -69,3 +69,10 @@ arrow.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 已执行导出并目视检查角色验收图：头盔/绿色兜帽/重甲轮廓、短剑盾/弓/战锤金边大盾及红蓝差异均可辨认；脚底统一、攻击/拉弓/倒地姿态独立。已通过art.ts单文件TypeScript检查。
 
 限制：这是低分辨率侧视精灵，不含正面/背面八方向动作；头盔小装饰受像素预算限制。相机/场景位置仍由战场维护，应使用最近邻采样、整数像素对齐与无抗锯齿画布。PNG与运行时代码均无柔边缩放。
+
+
+## 冰冻法师扩展（2026-11-10）
+
+新增红蓝各1套冰冻法师（mage）：蓝色尖帽、长袍、阵营围领、冰晶法杖，原生64×44帧，共26帧，包含待机、行走、施法、受伤、死亡、蓄力。与原有三职业采用同一整数像素渲染器、脚底锚点和PNG导出流程。现在共8套角色图集及8张头像。另新增16×11透明冰晶弹道frost.png，由同一导出脚本生成。
+
+城堡升级的金色加固横梁、等级标记和3级支撑条由场景原生Graphics绘制，生命损伤与倒塌仍使用原图集。
