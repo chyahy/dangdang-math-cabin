@@ -1,22 +1,23 @@
 import Phaser from 'phaser';
 
 export type Team = 'red' | 'blue';
-export type Kind = 'soldier' | 'archer' | 'knight';
-type Pose = 'idle' | 'walk' | 'attack' | 'hurt' | 'death';
+export type Kind = 'soldier' | 'archer' | 'knight' | 'mage';
+export type Pose = 'idle' | 'walk' | 'attack' | 'hurt' | 'death' | 'aim' | 'defend';
 type Point = readonly [number, number];
 type Container = Phaser.GameObjects.Container;
 
 // Every primitive below is rasterised into integer pixels. There are no smooth
 // Canvas paths, gradients, resized vector textures, or per-pose Canvas allocations.
 const PIXEL_SCALE = 3;
-const FW = 56, FH = 40, ORIGIN_X = 20, FOOT_Y = 37;
-const COUNTS: Record<Pose, number> = { idle: 4, walk: 6, attack: 6, hurt: 2, death: 4 };
-const STATES: Pose[] = ['idle', 'walk', 'attack', 'hurt', 'death'];
+const FW = 64, FH = 44, ORIGIN_X = 24, FOOT_Y = 41;
+const COUNTS: Record<Pose, number> = { idle: 4, walk: 6, attack: 6, hurt: 2, death: 4, aim: 4, defend: 4 };
+const STATES: Pose[] = ['idle', 'walk', 'attack', 'hurt', 'death', 'aim', 'defend'];
 const C = {
   ink: '#19283b', deep: '#273c51', steelDark: '#526b7b', steel: '#94acb7', steelLight: '#d7e2d3',
   skinDark: '#aa7356', skin: '#e3ac78', skinLight: '#f4cd92',
   woodDark: '#513b35', wood: '#8b5938', woodLight: '#c58e4d', gold: '#e4b75b', cream: '#fff0bb',
   boot: '#353440', bootLight: '#66564b', shadow: '#17353266',
+  leafDark: '#2d5630', leaf: '#56823b', leafLight: '#94b94c', hoodTrim: '#d3df83',
 };
 const TEAM = {
   red: { dark: '#6a2e3d', base: '#b84847', light: '#ef7860', trim: '#f0c475', stone: '#a8a48d', stoneDark: '#717e7a', stoneLight: '#d6d1af' },
@@ -114,6 +115,16 @@ function arm(p: Pixels, shoulder: Point, hand: Point, color: string, heavy: bool
 
 function shield(p: Pixels, team: Team, x: number, y: number, heavy: boolean): void {
   const t = TEAM[team], r = heavy ? 6 : 5;
+  if (heavy) {
+    const outline: Point[] = team === 'red'
+      ? [[x - 9, y - 8], [x - 2, y - 11], [x + 8, y - 7], [x + 8, y + 5], [x, y + 12], [x - 9, y + 5]]
+      : [[x - 9, y - 9], [x + 8, y - 9], [x + 9, y + 3], [x + 2, y + 12], [x - 7, y + 7]];
+    p.poly(outline, C.gold, C.ink);
+    p.poly([[x - 6, y - 6], [x + 5, y - 6], [x + 6, y + 3], [x + 1, y + 8], [x - 6, y + 3]], t.base, C.woodDark);
+    p.line(x - 7, y - 6, x - 7, y + 3, C.cream);p.line(x - 5, y - 8, x + 4, y - 8, C.cream);
+    crest(p, team, x, y);p.dot(x - 6, y + 4, C.cream);p.dot(x + 6, y + 3, C.cream);
+    return;
+  }
   if (team === 'red') {
     p.poly([[x - r + 2, y - r], [x + r - 2, y - r], [x + r, y - r + 2], [x + r, y + r - 2], [x + r - 2, y + r], [x - r + 2, y + r], [x - r, y + r - 2], [x - r, y - r + 2]], t.base, C.ink);
     p.line(x - r + 2, y - r + 1, x + r - 2, y - r + 1, t.trim);
@@ -138,42 +149,90 @@ function sword(p: Pixels, hand: Point, angle: number, heavy: boolean, team: Team
   p.dot(...at(-3, 0), TEAM[team].light);
 }
 
+function hammer(p: Pixels, hand: Point, angle: number, team: Team): void {
+  const ux = Math.cos(angle), uy = Math.sin(angle), nx = -uy, ny = ux;
+  const at = (along: number, across: number): Point => [hand[0] + ux * along + nx * across, hand[1] + uy * along + ny * across];
+  p.line(...at(-3, 0), ...at(14, 0), C.ink, 3);p.line(...at(-2, 0), ...at(13, 0), C.woodLight);
+  p.line(...at(1, -1), ...at(1, 1), C.gold);p.dot(...at(-3, 0), C.gold);
+  p.poly([at(10, -5), at(16, -5), at(18, -3), at(18, 4), at(16, 6), at(10, 6), at(8, 4), at(8, -3)], C.steelDark, C.ink);
+  p.poly([at(10, -4), at(16, -4), at(17, -2), at(16, 3), at(10, 3), at(9, 1)], C.steel, C.gold);
+  p.line(...at(10, -3), ...at(15, -3), C.steelLight);p.line(...at(16, -1), ...at(16, 3), TEAM[team].light);
+  const center = at(13, -0.2);p.dot(center[0], center[1] - 1, C.cream);p.dot(center[0] - 1, center[1], C.gold);p.dot(center[0], center[1] + 1, C.gold);p.dot(center[0] + 1, center[1], C.gold);
+}
+
 function head(p: Pixels, team: Team, kind: Kind, hurt: boolean): void {
   const t = TEAM[team];
-  p.rect(-4, -28, 8, 8, hurt ? C.skinLight : C.skin, C.ink);
-  p.rect(-3, -26, 2, 5, C.skinDark);p.rect(3, -25, 2, 3, C.skin);p.dot(2, -25, C.ink);p.dot(3, -22, C.skinDark);
+  // The head is 12–15 native pixels high, roughly 40% of a standing figure.
+  p.rect(-5, -31, 11, 11, hurt ? C.skinLight : C.skin, C.ink);
+  p.rect(-4, -29, 2, 7, C.skinDark);p.rect(5, -28, 2, 4, C.skin);p.dot(3, -27, C.ink);p.dot(4, -24, C.skinDark);
+  p.rect(-1, -29, 4, 1, C.skinLight);
   if (kind === 'archer') {
     if (team === 'red') {
-      p.poly([[-6, -23], [-6, -28], [-2, -32], [3, -31], [6, -27], [2, -28], [-2, -28], [-3, -22]], t.dark, C.ink);
-      p.line(-4, -28, -1, -30, t.light);p.rect(-5, -23, 2, 6, t.base);p.dot(-4, -22, C.gold);
+      p.poly([[-8, -22], [-8, -31], [-2, -37], [5, -35], [9, -29], [5, -29], [1, -31], [-3, -30], [-4, -23], [-1, -20]], C.leafDark, C.ink);
+      p.poly([[-6, -30], [-2, -35], [4, -34], [6, -31], [1, -32], [-3, -31]], C.leaf);
+      p.line(-3, -32, 3, -33, C.leafLight);p.line(-4, -29, -4, -24, C.hoodTrim);
+      p.rect(-6, -22, 3, 5, t.base);p.rect(-3, -22, 9, 3, t.light);p.dot(-3, -21, C.gold);
     } else {
-      p.poly([[-6, -24], [-5, -29], [1, -32], [6, -29], [5, -26], [1, -28], [-3, -27], [-3, -22]], t.base, C.ink);
-      p.line(-3, -29, 1, -30, t.trim);p.line(-3, -27, -3, -23, t.trim);p.rect(-5, -23, 2, 6, t.dark);
-      p.rect(-3, -20, 7, 2, t.light);
+      p.poly([[-8, -23], [-7, -32], [0, -37], [7, -33], [9, -29], [5, -28], [1, -31], [-3, -30], [-4, -23], [-1, -20]], C.leaf, C.ink);
+      p.poly([[-5, -31], [0, -35], [6, -32], [2, -33], [-2, -30]], C.leafLight);
+      p.line(-4, -29, -4, -24, C.hoodTrim);p.line(-7, -27, -7, -23, C.leafDark);
+      p.rect(-5, -22, 3, 6, t.dark);p.rect(-3, -22, 9, 3, t.base);p.line(-2, -21, 5, -21, t.trim);
     }
   } else if (kind === 'knight') {
     if (team === 'red') {
-      p.rect(-5, -31, 11, 12, C.steelDark, C.ink);p.rect(-4, -30, 8, 3, C.steel);p.rect(-4, -27, 9, 2, C.ink);
-      p.rect(-3, -26, 7, 1, C.gold);p.line(0, -24, 0, -20, C.steelLight);p.dot(3, -22, C.ink);
-      p.poly([[-3, -32], [-5, -34], [2, -34], [6, -32]], t.light, C.ink);p.line(-2, -33, 2, -33, t.trim);
+      p.poly([[-7, -24], [-7, -32], [-3, -36], [5, -36], [9, -32], [9, -23], [4, -20], [-4, -21]], C.steelDark, C.ink);
+      p.rect(-5, -33, 10, 4, C.steel);p.rect(-5, -29, 12, 3, C.ink);p.line(-3, -28, 5, -28, C.gold);
+      p.line(2, -26, 2, -22, C.steelLight);p.dot(6, -24, C.ink);p.line(-3, -34, 4, -34, C.steelLight);
+      p.poly([[-3, -36], [-7, -38], [-2, -39], [5, -38], [9, -36], [3, -36]], t.light, C.ink);p.line(-2, -38, 4, -37, t.trim);
     } else {
-      p.poly([[-6, -28], [-3, -32], [3, -32], [7, -28], [6, -21], [1, -18], [-5, -21]], C.steel, C.ink);
-      p.rect(-3, -27, 9, 2, C.ink);p.line(-2, -26, 4, -26, t.light);p.line(2, -24, 2, -20, C.steelLight);
-      p.poly([[-4, -30], [-10, -33], [-8, -27], [-5, -25]], t.trim, C.ink);
-      p.poly([[0, -32], [2, -34], [5, -31]], t.light, C.ink);
+      p.poly([[-8, -30], [-3, -36], [5, -36], [10, -31], [8, -23], [2, -20], [-6, -22]], C.steel, C.ink);
+      p.rect(-4, -29, 12, 3, C.ink);p.line(-2, -28, 6, -28, t.light);p.line(3, -26, 3, -22, C.steelLight);
+      p.poly([[-5, -33], [-12, -37], [-11, -30], [-7, -26]], t.trim, C.ink);
+      p.poly([[0, -36], [3, -39], [7, -35]], t.light, C.ink);p.line(-1, -34, 4, -34, C.steelLight);
     }
   } else if (team === 'red') {
-    p.poly([[-5, -24], [-5, -29], [-2, -31], [3, -31], [6, -28], [5, -26], [-2, -26], [-2, -23]], C.steel, C.ink);
-    p.rect(-3, -32, 7, 2, t.base);p.rect(1, -31, 6, 2, t.light);p.rect(2, -26, 1, 5, C.steelDark);
-    p.line(-3, -29, 2, -29, C.steelLight);
+    p.poly([[-7, -24], [-7, -31], [-2, -35], [5, -35], [9, -31], [8, -27], [-2, -27], [-2, -23]], C.steel, C.ink);
+    p.poly([[-6, -32], [-2, -34], [5, -34], [6, -32]], C.steelLight);p.line(-5, -29, 7, -29, C.steelDark);
+    p.poly([[-4, -35], [-7, -38], [-1, -39], [6, -37], [8, -34], [1, -35]], t.base, C.ink);p.line(-2, -37, 4, -36, t.light);
+    p.rect(4, -27, 1, 5, C.steelDark);
   } else {
-    p.poly([[-5, -24], [-5, -29], [0, -31], [5, -29], [6, -26], [-2, -26], [-2, -23]], C.steel, C.ink);
-    p.poly([[-4, -29], [-9, -32], [-7, -27], [-4, -25]], t.trim, C.ink);
-    p.rect(1, -32, 2, 3, t.light);p.line(-2, -29, 2, -29, C.steelLight);
+    p.poly([[-7, -24], [-7, -31], [0, -35], [6, -34], [10, -29], [7, -27], [-2, -27], [-2, -23]], C.steel, C.ink);
+    p.poly([[-6, -32], [-12, -36], [-10, -29], [-6, -26]], t.trim, C.ink);
+    p.poly([[-2, -35], [1, -39], [6, -36], [6, -34]], t.base, C.ink);p.dot(2, -37, t.light);
+    p.line(-4, -31, 3, -33, C.steelLight);p.rect(5, -27, 1, 5, C.steelDark);
   }
 }
 
+function mageFrame(p:Pixels,team:Team,state:Pose,frame:number):void{
+  const t=TEAM[team],ice='#94dfef',light='#e3fbf0',dark='#2e6485',robe='#497fba';
+  p.rect(ORIGIN_X-9,FOOT_Y,19,2,C.shadow);
+  const stride=state==='walk'?[0,1,1,0,-1,-1][frame]:0;
+  const cast=state==='attack'?[0,1,3,5,2,0][frame]:state==='aim'?2:0;
+  const fall=state==='death'?[.15,.55,1.08,Math.PI/2][frame]:0;
+  const bob=state==='walk'?Math.abs(stride):state==='idle'&&frame===2?1:0;
+  p.transform=(x,y)=>[ORIGIN_X+Math.cos(fall)*x-Math.sin(fall)*y,Math.min(FOOT_Y-1,FOOT_Y-bob+Math.sin(fall)*x+Math.cos(fall)*y)];
+  p.poly([[-5,-25],[-10,-21],[-12-stride,-4],[-7,-6],[-3,-4],[0,-11]],t.dark,C.ink);
+  p.rect(-5-stride,-3,5,3,C.boot,C.ink);p.rect(2+stride,-3,6,3,C.boot,C.ink);
+  p.poly([[-5,-23],[5,-23],[6,-13],[9,-4],[3,-6],[0,-4],[-5,-6],[-8,-4],[-6,-15]],robe,C.ink);
+  p.poly([[-3,-21],[0,-20],[0,-7],[-4,-8],[-5,-13]],dark);
+  p.line(2,-20,4,-8,ice);p.line(-7,-5,7,-5,light);p.rect(-5,-15,11,2,t.base);p.dot(0,-14,C.gold);
+  p.rect(-5,-31,11,10,C.skin,C.ink);p.rect(-4,-29,2,6,C.skinDark);p.dot(3,-27,C.ink);p.dot(4,-24,C.skinDark);
+  p.poly([[-8,-29],[-5,-35],[-1,-40],[3,-38],[7,-30],[10,-28],[5,-27],[-4,-27]],dark,C.ink);
+  p.poly([[-4,-34],[-1,-38],[3,-35],[6,-30],[-5,-30]],robe);
+  p.line(-7,-29,7,-29,ice,3);p.dot(0,-34,light);p.dot(-1,-33,light);p.dot(1,-33,light);p.dot(0,-32,light);
+  p.poly([[-5,-22],[0,-20],[6,-23],[5,-20],[0,-17],[-5,-19]],t.base,C.ink);p.dot(1,-19,t.trim);
+  arm(p,[-4,-21],[-8,-13+stride],dark,false,-1);
+  const staffX=12+Math.round(cast/2),staffY=-27-cast;
+  arm(p,[4,-21],[staffX,-17-cast/2],robe,false,1);
+  p.line(staffX,-3,staffX,staffY,C.woodDark,3);p.line(staffX,-4,staffX,staffY,C.woodLight);
+  p.poly([[staffX,staffY-9],[staffX+5,staffY-4],[staffX+3,staffY+2],[staffX-3,staffY+2],[staffX-5,staffY-4]],ice,C.ink);
+  p.line(staffX,staffY-7,staffX,staffY,light);p.line(staffX-3,staffY-3,staffX+3,staffY-3,light);
+  if(cast>0&&state!=='death'){p.dot(staffX+7,staffY-7,light);p.line(staffX+10,staffY-3,staffX+14,staffY-3,ice);p.dot(staffX+12,staffY-5,light);p.dot(staffX+12,staffY-1,light)}
+  if(state==='hurt'){p.line(-10,-25,-8,-23,C.cream);p.dot(-9,-28,ice)}
+}
+
 function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: number): void {
+  if(kind==='mage'){mageFrame(p,team,state,frame);return;}
   const t = TEAM[team], heavy = kind === 'knight', archer = kind === 'archer';
   // Shadow stays on the ground while the character's complete pose changes.
   p.rect(ORIGIN_X - 8, FOOT_Y, 17, 2, C.shadow);p.rect(ORIGIN_X - 5, FOOT_Y - 1, 11, 1, C.shadow);
@@ -181,12 +240,13 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
   let dx = 0, fall = 0;
   if (state === 'walk') dy = [0, -1, -1, 0, -1, -1][frame];
   if (state === 'hurt') { dx = frame === 0 ? -2 : -1; dy = 1; }
+  if (state === 'defend') { dx = -1; dy = frame === 1 || frame === 2 ? 2 : 1; }
   if (state === 'death') { fall = [0.15, 0.55, 1.08, Math.PI / 2][frame]; dy = frame === 3 ? -2 : 0; }
   p.transform = (x, y) => [ORIGIN_X + dx + Math.cos(fall) * x - Math.sin(fall) * y, Math.min(FOOT_Y - 1, FOOT_Y + dy + Math.sin(fall) * x + Math.cos(fall) * y)];
   const stride = state === 'walk' ? [0, 1, 1, 0, -1, -1][frame] : 0;
   const capeWave = state === 'walk' ? [0, -1, -2, -1, 0, 1][frame] : frame % 2;
   // Red ragged capes and blue forked travelling cloaks have different silhouettes.
-  p.poly([[-4, -23], [-8, -21], [-11 + capeWave, -8], [-6, -10], [-3, -7], [0, -10], [1, -22]], t.dark, C.ink);
+  p.poly([[-4, -23], [-8, -21], [-13 + capeWave, -8], [-7, -9], [-3, -6], [0, -10], [1, -22]], archer ? t.base : t.dark, C.ink);
   if (team === 'red') p.line(-6, -18, -8 + capeWave, -10, t.base);
   else { p.line(-6, -19, -9 + capeWave, -9, t.light);p.dot(-4, -9, t.trim); }
   if (archer) {
@@ -202,8 +262,8 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
   const backHand: Point = archer ? [7, -18] : [-6, -13 + stride];
   arm(p, [-3, -21], backHand, t.dark, heavy, -1);
   // Torso, belt, shoulder armour and distinct tunic construction.
-  p.poly([[-5, -22], [5, -22], [6, -11], [-5, -10]], archer ? t.base : C.steelDark, C.ink);
-  p.poly([[-5, -12], [5, -12], [7, -7], [1, -8], [-3, -6], [-6, -8]], t.base, C.ink);
+  p.poly([[-5, -22], [5, -22], [6, -11], [-5, -10]], archer ? C.leaf : C.steelDark, C.ink);
+  p.poly([[-5, -12], [5, -12], [7, -7], [1, -8], [-3, -6], [-6, -8]], archer ? C.leafDark : t.base, C.ink);
   if (heavy) {
     p.poly([[-5, -22], [0, -24], [6, -21], [4, -13], [0, -11], [-4, -14]], C.steel, C.ink);
     p.line(-2, -21, 3, -21, C.steelLight);p.line(0, -20, 0, -14, C.steelDark);
@@ -211,7 +271,7 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
     p.dot(-6, -22, C.cream);p.dot(5, -22, C.cream);crest(p, team, 1, -17);
   } else if (archer) {
     p.line(-4, -21, 4, -13, C.woodDark, 3);p.line(-3, -21, 4, -14, C.woodLight);
-    p.rect(-3, -16, 2, 3, t.light);
+    p.rect(-3, -16, 2, 3, C.leafLight);p.rect(3, -19, 3, 4, t.base);p.dot(4, -18, t.trim);
   } else {
     p.rect(-2, -21, 4, 11, t.base);p.line(-4, -20, -4, -15, C.steelLight);p.dot(1, -17, t.trim);
   }
@@ -222,11 +282,12 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
   p.rect(frontFoot[0] - 1, frontFoot[1] - 1, heavy ? 6 : 5, 2, C.boot, C.ink);p.line(frontFoot[0], frontFoot[1], frontFoot[0] + 3, frontFoot[1], C.bootLight);
   head(p, team, kind, state === 'hurt');
   if (archer) {
-    const pull = state === 'attack' ? [0, 0.3, 0.7, 1, 0.1, 0][frame] : 0;
+    const pull = state === 'attack' ? [0, 0.3, 0.7, 1, 0.1, 0][frame] : state === 'aim' ? [0.6, 0.85, 1, 1][frame] : 0;
     const bowX = 13, bowY = -20;
-    arm(p, [4, -21], [bowX + 3, bowY], t.base, false, 1);
+    arm(p, [4, -21], [bowX + 3, bowY], C.leaf, false, 1);
     const stringX = bowX - 1 - Math.round(7 * pull);
-    arm(p, [1, -21], [state === 'attack' ? stringX : 8, bowY], t.dark, false, -1);
+    arm(p, [1, -21], [state === 'attack' || state === 'aim' ? stringX : 8, bowY], C.leafDark, false, -1);
+    p.rect(7, -22, 3, 3, t.base);p.dot(8, -22, t.trim);
     p.line(bowX - 1, bowY - 9, bowX + 3, bowY - 5, C.ink, 3);
     p.line(bowX + 3, bowY - 5, bowX + 4, bowY + 4, C.ink, 3);
     p.line(bowX + 4, bowY + 4, bowX - 1, bowY + 9, C.ink, 3);
@@ -247,12 +308,15 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
       bladeAngle = [-0.8, -2.1, -2.8, -0.2, 0.65, -0.55][frame];
     }
     if (state === 'hurt') shoulderAngle = -0.8;
+    if (state === 'defend') { shoulderAngle = 0.1; bladeAngle = -1.45; }
     const elbow = endpoint([5, -21], shoulderAngle, 6);
     const hand = endpoint(elbow, shoulderAngle - 0.45, 5);
     limb(p, [5, -21], elbow, heavy ? C.steel : t.base, heavy);limb(p, elbow, hand, C.steelDark, heavy);
     p.rect(hand[0] - 1, hand[1] - 1, 3, 3, C.skin, C.ink);
-    if (state !== 'death' || frame < 2) sword(p, hand, bladeAngle, heavy, team);
-    shield(p, team, -6, -15, heavy);
+    if (state !== 'death' || frame < 2) {
+      if (heavy) hammer(p, hand, bladeAngle, team);else sword(p, hand, bladeAngle, false, team);
+    }
+    shield(p, team, state === 'defend' ? [0, 2, 3, 2][frame] : -6, state === 'defend' ? -18 : -15, heavy);
     if (state === 'attack' && (frame === 3 || frame === 4)) {
       p.line(15, -27, 19, -23, C.cream);p.line(19, -23, 21, -18, C.gold);p.dot(20, -25, t.trim);
     }
@@ -262,23 +326,24 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
   }
   if (state === 'death' && frame > 1 && !archer) {
     p.transform = (x, y) => [ORIGIN_X + x, FOOT_Y + y];
-    sword(p, [7, -1], 0, heavy, team);
+    if (heavy) hammer(p, [7, -4], 0, team);else sword(p, [7, -1], 0, false, team);
   }
 }
 
 function fighterTexture(scene: Phaser.Scene, team: Team, kind: Kind): string {
-  const key = `word-kingdom-pixel-v2-${team}-${kind}`;
+  const key = `word-kingdom-pixel-v1-${team}-${kind}`;
   if (scene.textures.exists(key)) return key;
-  const total = STATES.reduce((n, state) => n + COUNTS[state], 0);
+  const states = STATES.filter(state => state !== (kind === 'archer'||kind==='mage' ? 'defend' : 'aim'));
+  const total = states.reduce((n, state) => n + COUNTS[state], 0);
   const sheet = canvas(FW * total, FH);
   let index = 0;
-  for (const state of STATES) for (let frame = 0; frame < COUNTS[state]; frame++, index++) {
+  for (const state of states) for (let frame = 0; frame < COUNTS[state]; frame++, index++) {
     fighterFrame(new Pixels(sheet.ctx, index * FW, 0, FW, FH), team, kind, state, frame);
   }
   const texture = scene.textures.addCanvas(key, sheet.canvas);
   if (!texture) throw new Error(`Cannot create pixel texture ${key}`);
   index = 0;
-  for (const state of STATES) for (let frame = 0; frame < COUNTS[state]; frame++, index++) texture.add(`${state}-${frame}`, 0, index * FW, 0, FW, FH);
+  for (const state of states) for (let frame = 0; frame < COUNTS[state]; frame++, index++) texture.add(`${state}-${frame}`, 0, index * FW, 0, FW, FH);
   texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
   return key;
 }
@@ -286,18 +351,21 @@ function fighterTexture(scene: Phaser.Scene, team: Team, kind: Kind): string {
 /** t: global seconds for idle/walk; elapsed state seconds for attack/hurt/death. */
 export function createFighter(scene: Phaser.Scene, team: Team, kind: Kind): { root: Container; pose: (state: Pose, t: number, direction: number) => void } {
   const key = fighterTexture(scene, team, kind);
-  const root = scene.add.container(0, 0).setSize(72, 99).setData({ team, kind, pixelScale: PIXEL_SCALE });
+  const root = scene.add.container(0, 0).setSize(kind === 'knight' ? 93 : 78, 117).setData({ team, kind, pixelScale: PIXEL_SCALE });
   const sprite = scene.add.sprite(0, 0, key, 'idle-0').setOrigin(ORIGIN_X / FW, FOOT_Y / FH).setScale(PIXEL_SCALE);
   root.add(sprite);
   let selected = '';
   function pose(state: Pose, t: number, direction: number): void {
+    if (state === 'aim' && kind !== 'archer'&&kind!=='mage' || state === 'defend' && (kind === 'archer'||kind==='mage')) state = 'idle';
     t = Number.isFinite(t) ? Math.max(0, t) : 0;
     let frame: number;
     if (state === 'walk') frame = Math.floor(t * (kind === 'knight' ? 8 : 10)) % COUNTS.walk;
     else if (state === 'idle') frame = Math.floor(t * 3) % COUNTS.idle;
     else if (state === 'attack') frame = Math.min(5, Math.floor(t / 0.32 * 6));
     else if (state === 'hurt') frame = Math.min(1, Math.floor(t / 0.16 * 2));
-    else frame = Math.min(3, Math.floor(t / 0.53 * 4));
+    else if (state === 'death') frame = Math.min(3, Math.floor(t / 0.53 * 4));
+    else if (state === 'aim') frame = Math.min(3, Math.floor(t / 0.4 * 4));
+    else frame = Math.floor(t * 5) % COUNTS.defend;
     const next = `${state}-${frame}`;
     if (next !== selected) { sprite.setFrame(next); selected = next; }
     // Battle.take may reset the external root to 1; the sprite's native 3x scale
@@ -344,7 +412,12 @@ function windowPixel(p: Pixels, x: number, y: number, lit: boolean): void {
   p.line(x - 2, y + 10, x + 2, y + 10, C.steelLight);
 }
 
-function flag(p: Pixels, x: number, y: number, team: Team, frame: number): void {
+function flag(p: Pixels, x: number, y: number, team: Team, frame: number, fall = 0): void {
+  const previous = p.transform;
+  if (fall) p.transform = (px, py) => {
+    const a = fall * 1.35, dx = px - x, dy = py - (y + 16);
+    return previous(x + Math.cos(a) * dx - Math.sin(a) * dy, y + 16 + Math.sin(a) * dx + Math.cos(a) * dy);
+  };
   const t = TEAM[team], wave = [0, 1, 0, -1][frame], tip = [1, 0, -1, 0][frame];
   p.line(x, y, x, y + 16, C.woodDark);p.dot(x, y, C.gold);
   const points: Point[] = team === 'red'
@@ -353,11 +426,14 @@ function flag(p: Pixels, x: number, y: number, team: Team, frame: number): void 
   p.poly(points, t.base, C.ink);p.line(x + 2, y + 3, x + 6, y + 3 + wave, t.light);
   if (team === 'red') p.rect(x + 4, y + 4 + wave, 2, 2, C.gold);
   else p.line(x + 4, y + 5 + wave, x + 6, y + 7 + wave, t.trim);
+  p.transform = previous;
 }
 
 function castleFrame(p: Pixels, team: Team, damage: number, frame: number): void {
   const t = TEAM[team];
   p.rect(4, 93, 72, 3, C.shadow);p.rect(2, 90, 76, 4, t.stoneDark, C.ink);p.line(4, 91, 75, 91, t.stoneLight);
+  const collapse = damage === 4 ? [0.1, 0.35, 0.68, 1][frame] : 0;
+  if (collapse) p.transform = (x, y) => [x + (y < 42 ? Math.sin(x * 0.19) * collapse * 4 : 0), 94 - (94 - y) * (1 - collapse * 0.72)];
   if (team === 'red') {
     stone(p, 19, 44, 43, 47, team);stone(p, 26, 37, 29, 50, team);
     for (let x = 25; x < 56; x += 7) stone(p, x, 33, 5, 7, team);
@@ -366,7 +442,7 @@ function castleFrame(p: Pixels, team: Team, damage: number, frame: number): void
       roof(p, x + 8, 14, 33, 13, team);p.line(x + 2, 74, x + 14, 74, t.stoneDark);
       windowPixel(p, x + 8, 44, damage < 3);windowPixel(p, x + 8, 69, damage < 2);
     }
-    flag(p, 15, 2, team, frame);flag(p, 65, 2, team, (frame + 2) % 4);
+    flag(p, 15, 2, team, frame, collapse);flag(p, 65, 2, team, (frame + 2) % 4, collapse * 0.9);
     p.poly([[34, 47], [47, 47], [47, 62], [40, 68], [34, 62]], t.base, C.ink);crest(p, team, 40, 55);
   } else {
     stone(p, 18, 49, 45, 42, team);stone(p, 27, 28, 27, 61, team);
@@ -377,7 +453,7 @@ function castleFrame(p: Pixels, team: Team, damage: number, frame: number): void
       roof(p, x + 7, 9, 36, 11, team);windowPixel(p, x + 7, 48, damage < 3);windowPixel(p, x + 7, 72, damage < 2);
       p.line(x + 2, 70, x + 11, 70, t.trim);
     }
-    flag(p, 39, 0, team, frame);flag(p, 68, 20, team, (frame + 1) % 4);
+    flag(p, 39, 0, team, frame, collapse);flag(p, 68, 20, team, (frame + 1) % 4, collapse * 0.9);
     p.poly([[33, 41], [47, 41], [47, 57], [40, 64], [33, 57]], t.dark, C.ink);crest(p, team, 40, 49);
   }
   // Stone arch and a visible iron-bound wooden gate, rather than a single block.
@@ -410,35 +486,56 @@ function castleFrame(p: Pixels, team: Team, damage: number, frame: number): void
     }
     p.rect(56 + frame % 2, 69, 3, 3, '#ec9b41');p.dot(57, 67 - frame % 2, '#ffe09a');
   }
+  if (collapse) {
+    p.transform = (x, y) => [x, y];
+    for (let i = 0; i < 10; i++) {
+      const xx = 10 + i * 6 + (i % 2 ? 2 : -2) * collapse;
+      const yy = 85 + (i % 3) * 2 - (1 - collapse) * (7 + i % 4 * 3);
+      p.rect(xx, yy, 5 + i % 2, 4, i % 2 ? t.stone : t.stoneDark, C.ink);p.line(xx + 1, yy + 1, xx + 3, yy + 1, t.stoneLight);
+    }
+    if (frame > 1) {
+      p.rect(6, 84, 12, 4, '#89999c');p.rect(63, 82, 11, 5, '#526776');p.rect(15, 80, 8, 4, '#a3aaa0');
+      p.line(22, 86, 33, 89, C.woodDark, 3);p.poly([[24, 87], [30, 85], [36, 90], [27, 91]], t.base, C.ink);
+    }
+  }
 }
 
 function castleTexture(scene: Phaser.Scene, team: Team): string {
-  const key = `word-kingdom-pixel-castle-v2-${team}`;
+  const key = `word-kingdom-pixel-castle-v1-${team}`;
   if (scene.textures.exists(key)) return key;
-  const sheet = canvas(80 * 4, 96 * 4);
-  for (let damage = 0; damage < 4; damage++) for (let frame = 0; frame < 4; frame++) castleFrame(new Pixels(sheet.ctx, frame * 80, damage * 96, 80, 96), team, damage, frame);
+  const sheet = canvas(80 * 4, 96 * 5);
+  for (let damage = 0; damage < 5; damage++) for (let frame = 0; frame < 4; frame++) castleFrame(new Pixels(sheet.ctx, frame * 80, damage * 96, 80, 96), team, damage, frame);
   const texture = scene.textures.addCanvas(key, sheet.canvas);
   if (!texture) throw new Error(`Cannot create pixel texture ${key}`);
   for (let damage = 0; damage < 4; damage++) for (let frame = 0; frame < 4; frame++) texture.add(`${damage}-${frame}`, 0, frame * 80, damage * 96, 80, 96);
+  for (let frame = 0; frame < 4; frame++) texture.add(`destroy-${frame}`, 0, frame * 80, 4 * 96, 80, 96);
   texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
   return key;
 }
 
 /** hp is 0..1; time is the simulation clock in seconds. Frozen time freezes all art. */
-export function createCastle(scene: Phaser.Scene, team: Team): { root: Container; damage: (hp: number, time: number) => void } {
+export function createCastle(scene: Phaser.Scene, team: Team): { root: Container; damage: (hp: number, time: number, level?:number) => void } {
   const key = castleTexture(scene, team);
   const root = scene.add.container(0, 0).setSize(240, 288).setData({ team, kind: 'castle', pixelScale: PIXEL_SCALE });
   const sprite = scene.add.sprite(0, 0, key, '0-0').setOrigin(0.5, 1).setScale(PIXEL_SCALE);
-  root.add(sprite);
-  let health = 1, flashUntil = -Infinity, selected = '';
-  function damage(hp: number, time: number): void {
+  const fortifications=scene.add.graphics();root.add([sprite,fortifications]);
+  let health = 1, flashUntil = -Infinity, destroyedAt: number | null = null, selected = '';
+  function damage(hp: number, time: number, level=1): void {
     hp = Phaser.Math.Clamp(Number.isFinite(hp) ? hp : 1, 0, 1);
     time = Number.isFinite(time) ? Math.max(0, time) : 0;
     if (hp < health) flashUntil = time + 0.1;
-    if (hp > health) flashUntil = -Infinity;
+    if (hp > health) { flashUntil = -Infinity;destroyedAt = null; }
+    if (hp === 0 && destroyedAt === null) destroyedAt = time;
     health = hp;
-    const level = hp > 0.75 ? 0 : hp > 0.5 ? 1 : hp > 0.25 ? 2 : 3;
-    const next = `${level}-${Math.floor(time * 5) % 4}`;
+    fortifications.clear();
+    if(hp>0&&level>1){
+      fortifications.lineStyle(6,0xd6b455).strokeRect(-82,-153,164,9);
+      fortifications.lineStyle(3,0xffecb3).lineBetween(-80,-156,80,-156);
+      for(let i=0;i<level-1;i++)fortifications.fillStyle(0xffdf87).fillRect(-8+(i-(level-2)/2)*24,-177,15,15);
+      if(level===3){fortifications.lineStyle(6,0xa9d9e3).lineBetween(-91,-120,-91,-12).lineBetween(91,-120,91,-12);fortifications.fillStyle(0xe7cf8f).fillRect(-97,-125,12,12).fillRect(85,-125,12,12)}
+    }
+    const damageLevel = hp > 0.75 ? 0 : hp > 0.5 ? 1 : hp > 0.25 ? 2 : 3;
+    const next = destroyedAt === null ? `${damageLevel}-${Math.floor(time * 5) % 4}` : `destroy-${Math.min(3, Math.floor(Math.max(0, time - destroyedAt) / 0.7 * 4))}`;
     if (next !== selected) { sprite.setFrame(next); selected = next; }
     if (time < flashUntil) sprite.setTintFill(0xffe4ae); else sprite.clearTint();
   }

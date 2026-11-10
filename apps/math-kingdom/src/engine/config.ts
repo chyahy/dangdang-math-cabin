@@ -9,7 +9,7 @@ export const CASTLE_LEVELS=[
  {level:3,price:160,maxHp:300,...TOWER,range:480,damage:22,interval:1.2}
 ] as const;
 export const castleStats=(level:number)=>CASTLE_LEVELS[Math.max(0,Math.min(2,level-1))];
-export const PRICES:Record<Kind,number>={soldier:20,archer:35,knight:100,mage:60};
+export const PRICES:Record<Kind,number>={soldier:20,archer:35,knight:100,mage:50};
 export const KIND_NAMES:Record<Kind,string>={soldier:'小兵',archer:'弓箭手',knight:'重装骑士',mage:'冰冻法师'};
 export const STATS:Record<Kind,{hp:number;damage:number;interval:number;speed:number;range:number;castleDamage:number;armor:number}>={
  soldier:{hp:42,damage:12,interval:.8,speed:112,range:65,castleDamage:10,armor:1},

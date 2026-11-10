@@ -7,9 +7,9 @@ function match(){const m=createMatch(BUILTIN_ENTRIES,DEFAULT_SETTINGS,7);m.phase
 function step(m:Match,seconds:number){for(let i=0;i<Math.ceil(seconds/FIXED_STEP);i++)tick(m)}
 function fighter(m:Match,team:Team,kind:'mage'|'knight'|'soldier',x:number){summon(m,team,kind);const u=m.units.at(-1)!;u.x=x;return u}
 describe('冰冻法师',()=>{
- it('60金币购买，金币不足不扣款，双方独立',()=>{
-  const m=match();m.players.red.coins=59;expect(purchase(m,'red','mage')).toBe(false);expect(m.players.red.coins).toBe(59);
-  m.players.red.coins=60;expect(purchase(m,'red','mage')).toBe(true);expect(m.players.red.coins).toBe(0);expect(m.players.red.purchases.mage).toBe(1);expect(m.players.blue.purchases.mage).toBe(0);
+ it('50金币购买，金币不足不扣款，双方独立',()=>{
+  const m=match();m.players.red.coins=49;expect(purchase(m,'red','mage')).toBe(false);expect(m.players.red.coins).toBe(49);
+  m.players.red.coins=50;expect(purchase(m,'red','mage')).toBe(true);expect(m.players.red.coins).toBe(0);expect(m.players.red.purchases.mage).toBe(1);expect(m.players.blue.purchases.mage).toBe(0);
  });
  it.each(['red','blue'] as Team[])('%s法师命中后才减速，护甲正确减伤',team=>{
   const m=match(),opponent=team==='red'?'blue':'red';
