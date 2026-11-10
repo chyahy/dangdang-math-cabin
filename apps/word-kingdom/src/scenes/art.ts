@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 export type Team = 'red' | 'blue';
-export type Kind = 'soldier' | 'archer' | 'knight' | 'mage';
+export type Kind = 'soldier' | 'archer' | 'knight' | 'mage' | 'teacher';
 export type Pose = 'idle' | 'walk' | 'attack' | 'hurt' | 'death' | 'aim' | 'defend';
 type Point = readonly [number, number];
 type Container = Phaser.GameObjects.Container;
@@ -231,7 +231,38 @@ function mageFrame(p:Pixels,team:Team,state:Pose,frame:number):void{
   if(state==='hurt'){p.line(-10,-25,-8,-23,C.cream);p.dot(-9,-28,ice)}
 }
 
+function teacherFrame(p:Pixels,team:Team,state:Pose,frame:number):void{
+  const t=TEAM[team],jacket='#303b51',shade='#202b3b',hair='#393a43';
+  p.rect(ORIGIN_X-9,FOOT_Y,20,2,C.shadow);
+  const stride=state==='walk'?[0,1,1,0,-1,-1][frame]:0;
+  const cast=state==='attack'?[0,2,5,5,2,0][frame]:state==='aim'?2:0;
+  const fall=state==='death'?[.1,.5,1.05,Math.PI/2][frame]:0;
+  p.transform=(x,y)=>[ORIGIN_X+Math.cos(fall)*x-Math.sin(fall)*y,Math.min(FOOT_Y-1,FOOT_Y+Math.sin(fall)*x+Math.cos(fall)*y-Math.abs(stride))];
+  limb(p,[-3,-11],[-3-stride*2,-6],shade,false);limb(p,[-3-stride*2,-6],[-4-stride*3,-1],jacket,false);
+  limb(p,[3,-11],[3+stride*2,-6],shade,false);limb(p,[3+stride*2,-6],[4+stride*3,-1],jacket,false);
+  p.rect(-6-stride*3,-2,6,2,C.boot,C.ink);p.line(-6-stride*3,0,-1-stride*3,0,C.steelLight);
+  p.rect(2+stride*3,-2,7,2,C.boot,C.ink);p.line(2+stride*3,0,8+stride*3,0,C.steelLight);
+  p.poly([[-6,-23],[5,-23],[7,-18],[6,-10],[-5,-10],[-7,-18]],jacket,C.ink);
+  p.line(-4,-21,-4,-13,shade,3);p.line(0,-22,0,-11,C.steelLight);p.dot(1,-21,C.gold);
+  p.line(-5,-20,-5,-16,t.base,2);p.line(5,-20,5,-16,t.base,2);
+  p.poly([[2,-19],[4,-19],[3,-17],[5,-17],[2,-14],[3,-17],[1,-17]],C.gold);
+  p.rect(-5,-32,12,10,C.skin,C.ink);p.rect(-4,-30,2,7,C.skinDark);p.dot(4,-24,C.skinDark);
+  p.poly([[-7,-29],[-7,-34],[-3,-38],[1,-36],[5,-37],[9,-33],[8,-29],[5,-31],[2,-30],[0,-33],[-3,-30],[-4,-26]],hair,C.ink);
+  p.line(-5,-34,-2,-36,'#85817a');p.line(0,-34,3,-35,'#73716c');p.line(4,-33,6,-32,'#73716c');
+  p.rect(-5,-30,6,5,'#f2d5a5',C.ink);p.rect(2,-30,6,5,'#f2d5a5',C.ink);p.line(0,-28,2,-28,C.ink,2);
+  p.dot(-2,-28,C.ink);p.dot(5,-28,C.ink);p.dot(-3,-29,C.cream);p.dot(4,-29,C.cream);
+  arm(p,[-4,-21],[-8,-13],jacket,false,-1);p.rect(-13,-17,7,10,t.base,C.ink);p.rect(-12,-16,4,7,C.cream);p.line(-10,-15,-10,-10,C.gold);
+  const sx=14+Math.round(cast/2),sy=-26-cast;
+  arm(p,[4,-21],[sx,-19-cast],jacket,false,1);p.rect(sx-1,-20-cast,3,3,C.skin,C.ink);
+  p.line(sx,-3,sx,sy,C.woodDark,3);p.line(sx,-3,sx,sy,C.gold);
+  p.poly([[sx,sy-7],[sx+4,sy-3],[sx+2,sy+1],[sx-2,sy+1],[sx-4,sy-3]],'#9579ce',C.ink);
+  p.poly([[sx,sy-6],[sx+2,sy-3],[sx,sy]],'#fff0b1');
+  if(cast>0&&state!=='death'){p.line(sx+2,sy-7,sx+8,sy-5,C.cream);p.line(sx+8,sy-5,sx+5,sy-2,C.gold);p.line(sx+5,sy-2,sx+12,sy,C.cream);p.dot(sx-5,sy-8,C.gold)}
+  if(state==='hurt'){p.line(-12,-29,-9,-26,C.cream);p.dot(-11,-24,C.gold)}
+}
+
 function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: number): void {
+  if(kind==='teacher'){teacherFrame(p,team,state,frame);return;}
   if(kind==='mage'){mageFrame(p,team,state,frame);return;}
   const t = TEAM[team], heavy = kind === 'knight', archer = kind === 'archer';
   // Shadow stays on the ground while the character's complete pose changes.
@@ -333,7 +364,7 @@ function fighterFrame(p: Pixels, team: Team, kind: Kind, state: Pose, frame: num
 function fighterTexture(scene: Phaser.Scene, team: Team, kind: Kind): string {
   const key = `word-kingdom-pixel-v1-${team}-${kind}`;
   if (scene.textures.exists(key)) return key;
-  const states = STATES.filter(state => state !== (kind === 'archer'||kind==='mage' ? 'defend' : 'aim'));
+  const states = STATES.filter(state => state !== (kind === 'archer'||kind==='mage'||kind==='teacher' ? 'defend' : 'aim'));
   const total = states.reduce((n, state) => n + COUNTS[state], 0);
   const sheet = canvas(FW * total, FH);
   let index = 0;
@@ -356,7 +387,7 @@ export function createFighter(scene: Phaser.Scene, team: Team, kind: Kind): { ro
   root.add(sprite);
   let selected = '';
   function pose(state: Pose, t: number, direction: number): void {
-    if (state === 'aim' && kind !== 'archer'&&kind!=='mage' || state === 'defend' && (kind === 'archer'||kind==='mage')) state = 'idle';
+    if (state === 'aim' && kind !== 'archer'&&kind!=='mage'&&kind!=='teacher' || state === 'defend' && (kind === 'archer'||kind==='mage'||kind==='teacher')) state = 'idle';
     t = Number.isFinite(t) ? Math.max(0, t) : 0;
     let frame: number;
     if (state === 'walk') frame = Math.floor(t * (kind === 'knight' ? 8 : 10)) % COUNTS.walk;

@@ -40,3 +40,7 @@
 .word-kingdom .word-question h2{font-size:clamp(18px,1.9vw,36px);line-height:1.15;letter-spacing:0;max-height:50%;overflow:auto}
 .word-kingdom .word-question .math-answer b{font-size:clamp(17px,1.6vw,30px);letter-spacing:1px}
 @media(max-height:650px) and (orientation:landscape){.word-kingdom .english-controls{grid-template-rows:minmax(0,1fr) 25px;padding:3px 0 6px;gap:5px}.word-kingdom .english-cards{gap:5px}.word-kingdom .english-cards button{font-size:17px;padding:1px}.word-kingdom .english-cards.choice-cards button{font-size:12px}.word-kingdom .english-actions{gap:5px}.word-kingdom .english-actions button{font-size:10px}.word-kingdom .word-question .math-answer b{font-size:14px}}
+
+.word-kingdom .barracks{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.word-kingdom .barracks img{max-width:29%}
+@media(max-width:900px) and (max-height:650px){.word-kingdom .barracks button{gap:1px;padding:1px;border-width:2px}.word-kingdom .barracks img{max-width:20%}.word-kingdom .castle-upgrade>svg{width:12px;max-width:20%}.word-kingdom .barracks b{font-size:8px}.word-kingdom .barracks small{font-size:9px}}

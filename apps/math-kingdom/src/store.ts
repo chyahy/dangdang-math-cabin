@@ -11,7 +11,7 @@ export const useGame=create<State>((set,get)=>{const update=()=>set(s=>({revisio
   if(seeded.changed)try{await writeLocalBatch([['entries',seeded.entries],['questionPacks',seeded.appliedPacks]])}catch{notice='40道口算题已加载，但未能保存到此浏览器。请检查本地存储。'}
   const settings={...DEFAULT_SETTINGS,...s,weights:{...DEFAULT_SETTINGS.weights,...s.weights}};
   if(![120,180,240,300].includes(settings.duration))settings.duration=240;
-  if(!settings.autoOrder?.length||settings.autoOrder.some(k=>!['soldier','archer','knight','mage'].includes(k)))settings.autoOrder=['soldier','archer','knight'];
+  if(!settings.autoOrder?.length||settings.autoOrder.some(k=>!['soldier','archer','knight','mage','teacher'].includes(k)))settings.autoOrder=['soldier','archer','knight'];
   set({ready:true,entries:seeded.entries,settings,history:Array.isArray(h)?h.slice(0,50):[],notice});
  },
  saveEntries:async entries=>{try{await writeLocal('entries',entries);set({entries})}catch{get().note('题库保存失败，请检查浏览器本地存储。')}},saveSettings:async settings=>{try{await writeLocal('settings',settings);set({settings})}catch{get().note('设置保存失败。')}},

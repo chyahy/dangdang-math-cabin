@@ -59,10 +59,10 @@ function frameData(x, y, w, h) { return { frame: { x, y, w, h }, rotated: false,
 await fs.mkdir(out, { recursive: true });
 const total = 26;
 const manifest = { version: 1, original: true, pixelScale: 3, filtering: 'NEAREST', smoothing: false, characterFrame: { width: art.FW, height: art.FH, foot: { x: art.ORIGIN_X, y: art.FOOT_Y } }, fighterSets: [], castles: [], arrow: { image: 'arrow.png', width: 20, height: 7, origin: { x: 19, y: 3 } } };
-const preview = new Surface(art.FW * 6 * 3, art.FH * 8 * 3);let row = 0;
-for (const team of ['red', 'blue']) for (const kind of ['soldier', 'archer', 'knight', 'mage']) {
+const preview = new Surface(art.FW * 6 * 3, art.FH * 10 * 3);let row = 0;
+for (const team of ['red', 'blue']) for (const kind of ['soldier', 'archer', 'knight', 'mage', 'teacher']) {
   const stem = `${team}-${kind}`, sheet = new Surface(art.FW * total, art.FH), frames = {}, states = {};let index = 0;
-  for (const state of art.STATES.filter(state => state !== ((kind === 'archer'||kind==='mage') ? 'defend' : 'aim'))) {
+  for (const state of art.STATES.filter(state => state !== ((kind === 'archer'||kind==='mage'||kind==='teacher') ? 'defend' : 'aim'))) {
     const names = [];
     for (let f = 0; f < art.COUNTS[state]; f++, index++) {
       art.fighterFrame(new art.Pixels(sheet, index * art.FW, 0, art.FW, art.FH), team, kind, state, f);
@@ -72,7 +72,7 @@ for (const team of ['red', 'blue']) for (const kind of ['soldier', 'archer', 'kn
   }
   await save(stem + '-sheet.png', sheet);await fs.writeFile(path.join(out, stem + '-sheet.json'), JSON.stringify(atlas(frames, stem + '-sheet.png', sheet.width, sheet.height), null, 2) + '\n');
   const portrait = new Surface(64, 64);copy(sheet, portrait, 8, 0, 32, 32, 0, 0, 2);await save(stem + '.png', portrait);
-  const examples = ['idle-0', 'walk-1', 'attack-3', 'hurt-0', 'death-3', (kind === 'archer'||kind==='mage') ? 'aim-3' : 'defend-2'];
+  const examples = ['idle-0', 'walk-1', 'attack-3', 'hurt-0', 'death-3', (kind === 'archer'||kind==='mage'||kind==='teacher') ? 'aim-3' : 'defend-2'];
   examples.forEach((name, column) => copy(sheet, preview, frames[name].frame.x, 0, art.FW, art.FH, column * art.FW * 3, row * art.FH * 3, 3));row++;
   manifest.fighterSets.push({ team, kind, textureKey: `math-kingdom-pixel-v1-${team}-${kind}`, sheet: stem + '-sheet.png', atlas: stem + '-sheet.json', portrait: stem + '.png', states });
 }
@@ -96,4 +96,4 @@ fp.line(4,5,12,5,'#e3fbf0');fp.line(8,2,8,8,'#e3fbf0');fp.dot(7,4,'#ffffff');
 await save('frost.png', frost);manifest.frost={image:'frost.png',width:16,height:11};
 await save('arrow.png', arrow);await save('preview.png', preview);
 await fs.writeFile(path.join(out, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
-console.log(`Exported ${manifest.fighterSets.length} original fighter sheets (${total} frames each), eight portraits, two castle sheets (20 frames each), arrow and manifest to ${out}`);
+console.log(`Exported ${manifest.fighterSets.length} original fighter sheets (${total} frames each), ten portraits, two castle sheets (20 frames each), arrow and manifest to ${out}`);

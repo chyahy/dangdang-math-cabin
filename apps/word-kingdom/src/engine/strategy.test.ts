@@ -1,6 +1,6 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import {createMatch,finish,pause,purchase,reward,submit,summon,tick} from './game';
-import {CASTLE_LEVELS,DEFAULT_SETTINGS,FIXED_STEP,FROST,MAX_UNITS,PRICES,STATS,TOWER} from './config';
+import {CASTLE_LEVELS,DEFAULT_SETTINGS,FIXED_STEP,FROST,LIGHTNING,MAX_UNITS,PRICES,STATS,TOWER} from './config';
 import * as math from '../../../math-kingdom/src/engine/config';
 import {BUILTIN_WORDS} from '../questions/words';
 import {filterWords} from '../questions/questions';
@@ -8,8 +8,8 @@ const match=()=>{const m=createMatch(BUILTIN_WORDS,DEFAULT_SETTINGS,23);m.phase=
 afterEach(()=>vi.unstubAllGlobals());
 describe('数学与英语版策略功能一致',()=>{
  it('四兵种、50金币法师、护甲、冰冻、箭塔和升级参数完全一致',()=>{
-  expect(PRICES).toEqual(math.PRICES);expect(PRICES.mage).toBe(50);expect(PRICES.knight).toBe(100);
-  expect(STATS).toEqual(math.STATS);expect(FROST).toEqual(math.FROST);expect(TOWER).toEqual(math.TOWER);expect(CASTLE_LEVELS).toEqual(math.CASTLE_LEVELS);expect(MAX_UNITS).toBe(math.MAX_UNITS);
+  expect(PRICES).toEqual(math.PRICES);expect(PRICES.teacher).toBe(200);expect(PRICES.mage).toBe(50);expect(PRICES.knight).toBe(100);
+  expect(STATS).toEqual(math.STATS);expect(FROST).toEqual(math.FROST);expect(LIGHTNING).toEqual(math.LIGHTNING);expect(TOWER).toEqual(math.TOWER);expect(CASTLE_LEVELS).toEqual(math.CASTLE_LEVELS);expect(MAX_UNITS).toBe(math.MAX_UNITS);
  });
  it.each([1,2,3])('难度%s奖励15/20/30，每3连击额外5，无直接召唤',difficulty=>{
   const m=match();m.players.red.question!.entry={...m.players.red.question!.entry,difficulty};

@@ -60,8 +60,21 @@ class Arena extends Phaser.Scene {
   }
   for(const ev of m.events)if(ev.id>this.lastId){this.effect(ev);this.lastId=ev.id}
   const visualDt=m.phase==='PAUSED'||m.phase==='FINISHED'?0:dt;this.particles.clear();for(const p of this.puffs){p.life-=visualDt;p.x+=p.vx*visualDt;p.y+=p.vy*visualDt;p.vy+=150*visualDt;this.particles.fillStyle(p.color,Math.max(0,p.life/p.max)).fillRect(Math.round(p.x/3)*3,Math.round(p.y/3)*3,6,6)}this.puffs=this.puffs.filter(p=>p.life>0);
-  this.effects=this.effects.filter(ev=>time-ev.time<.25);for(const ev of this.effects){this.particles.lineStyle(5,0xffe7a8,.85);this.particles.beginPath();this.particles.moveTo(ev.x,30);this.particles.lineTo(ev.x-35,130);this.particles.lineTo(ev.x+25,125);this.particles.lineTo(ev.x-15,230);this.particles.lineTo(ev.x+17,225);this.particles.lineTo(ev.x,365);this.particles.strokePath()}
+  this.effects=this.effects.filter(ev=>time-ev.time<.35);
+  for(const ev of this.effects){
+   const endY=335+ev.lane*9,color=ev.team==='red'?0xffd778:0xb7dcff;
+   if(ev.fromX!==undefined){
+    const startY=ev.fromY??320+(ev.fromLane??0)*9;
+    for(const [width,tint] of [[12,color],[4,0xfffee3]]){
+     this.particles.lineStyle(width,tint,.9);this.particles.beginPath();this.particles.moveTo(ev.fromX,startY);
+     for(let i=1;i<7;i++){const progress=i/7;this.particles.lineTo(ev.fromX+(ev.x-ev.fromX)*progress,startY+(endY-startY)*progress+(i%2?15:-15))}
+     this.particles.lineTo(ev.x,endY);this.particles.strokePath();
+    }
+   }
+   this.particles.lineStyle(7,color,.85);this.particles.beginPath();this.particles.moveTo(ev.x-12,180);this.particles.lineTo(ev.x+9,228);this.particles.lineTo(ev.x-13,225);this.particles.lineTo(ev.x+10,280);this.particles.lineTo(ev.x-10,278);this.particles.lineTo(ev.x,endY+12);this.particles.strokePath();
+   this.particles.fillStyle(0xfff6c5,.6).fillRect(ev.x-21,endY-9,42,18);
+  }
   this.floating=this.floating.filter(f=>{f.life-=visualDt;f.text.y-=visualDt*42;f.text.setAlpha(Math.max(0,f.life/.8));if(f.life<=0){f.text.setVisible(false);this.freeTexts.push(f.text);return false}return true});
  }
 }
-export function Battle(){const parent=useRef<HTMLDivElement>(null);useEffect(()=>{if(!parent.current)return;const game=new Phaser.Game({type:Phaser.AUTO,parent:parent.current,width:WORLD.width/3,height:90,backgroundColor:'#7eb3ac',transparent:false,render:{antialias:false,pixelArt:true,roundPixels:true},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Arena],audio:{noAudio:true},fps:{target:60,limit:60,min:30,forceSetTimeOut:true}});return()=>game.destroy(true)},[]);return <div ref={parent} className="battle-canvas" aria-label="红蓝王国像素战场，士兵自动移动、战斗并攻城，冰冻法师命中减速，双方箭塔自动防守，城堡可升级" role="img"/>}
+export function Battle(){const parent=useRef<HTMLDivElement>(null);useEffect(()=>{if(!parent.current)return;const game=new Phaser.Game({type:Phaser.AUTO,parent:parent.current,width:WORLD.width/3,height:90,backgroundColor:'#7eb3ac',transparent:false,render:{antialias:false,pixelArt:true,roundPixels:true},scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},scene:[Arena],audio:{noAudio:true},fps:{target:60,limit:60,min:30,forceSetTimeOut:true}});return()=>game.destroy(true)},[]);return <div ref={parent} className="battle-canvas" aria-label="红蓝王国像素战场，士兵自动移动、战斗并攻城，冰冻法师命中减速，当当老师释放连锁雷电，双方箭塔自动防守，城堡可升级" role="img"/>}

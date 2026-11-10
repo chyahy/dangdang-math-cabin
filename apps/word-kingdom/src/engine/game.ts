@@ -1,10 +1,10 @@
-import {CASTLE_HP,FIXED_STEP,MAX_EVENTS,MAX_UNITS,PRICES,STATS,FROST,TOWER,CASTLE_LEVELS,castleStats,WORLD} from './config';import type {BattleEvent,Word,Kind,Match,Player,Settings,Team,Unit} from './types';import {filterWords,judge,makeQuestion,rng,shuffle,typesFor} from '../questions/questions';
+import {CASTLE_HP,FIXED_STEP,MAX_EVENTS,MAX_UNITS,PRICES,STATS,FROST,LIGHTNING,TOWER,CASTLE_LEVELS,castleStats,WORLD} from './config';import type {BattleEvent,Word,Kind,Match,Player,Settings,Team,Unit} from './types';import {filterWords,judge,makeQuestion,rng,shuffle,typesFor} from '../questions/questions';
 export const enemy=(t:Team):Team=>t==='red'?'blue':'red';export const accuracy=(p:Player)=>p.correct/(p.correct+p.wrong+p.skipped||1);
-const player=():Player=>({hp:CASTLE_HP,maxHp:CASTLE_HP,castleLevel:1,lastUpgrade:-1,coins:0,earned:0,spent:0,purchases:{soldier:0,archer:0,knight:0,mage:0},correct:0,wrong:0,skipped:0,streak:0,best:0,index:0,cycle:0,question:null,selected:[],feedback:null,errors:{},exhausted:false,lastPurchase:-1,autoIndex:0});
+const player=():Player=>({hp:CASTLE_HP,maxHp:CASTLE_HP,castleLevel:1,lastUpgrade:-1,coins:0,earned:0,spent:0,purchases:{soldier:0,archer:0,knight:0,mage:0,teacher:0},correct:0,wrong:0,skipped:0,streak:0,best:0,index:0,cycle:0,question:null,selected:[],feedback:null,errors:{},exhausted:false,lastPurchase:-1,autoIndex:0});
 export function createMatch(words:Word[],settings:Settings,seed=Date.now()):Match{
  if(!Object.values(settings.weights).some(v=>v>0))throw Error('至少启用一种英语题型。');
  const bank=filterWords(words,settings);if(!bank.length)throw Error('当前筛选没有单词，请先调整词库。');
- const m:Match={id:crypto.randomUUID(),phase:'COUNTDOWN',resumePhase:'COUNTDOWN',countdown:3,elapsed:0,remaining:settings.duration,players:{red:player(),blue:player()},towers:{red:{cooldown:0,attackAt:-10},blue:{cooldown:0,attackAt:-10}},units:[],projectiles:[],events:[],nextId:1,deck:shuffle(bank,rng(seed)),typeDeck:typesFor(settings,seed+20),settings:structuredClone(settings),seed,winner:null,reason:'',turn:'red',resultSaved:false};
+ const m:Match={id:crypto.randomUUID(),phase:'COUNTDOWN',resumePhase:'COUNTDOWN',countdown:3,elapsed:0,remaining:settings.duration,players:{red:player(),blue:player()},towers:{red:{cooldown:0,attackAt:-10},blue:{cooldown:0,attackAt:-10}},units:[],projectiles:[],spells:[],events:[],nextId:1,deck:shuffle(bank,rng(seed)),typeDeck:typesFor(settings,seed+20),settings:structuredClone(settings),seed,winner:null,reason:'',turn:'red',resultSaved:false};
  for(const t of ['red','blue'] as Team[])nextQuestion(m,t);return m;
 }
 function event(m:Match,data:Omit<BattleEvent,'id'|'time'>){m.events.push({...data,id:m.nextId++,time:m.elapsed});if(m.events.length>MAX_EVENTS)m.events.splice(0,m.events.length-MAX_EVENTS)}
@@ -54,6 +54,31 @@ function fireTowers(m:Match,dt:number){
   event(m,{type:'tower',team,x,lane:target.lane});
  }
 }
+/** Resolve short lightning wind-ups; only living casters and targets can participate. */
+function resolveLightning(m:Match){
+ const hits:{team:Team;target:Unit|null;castle:Team|null;x:number;lane:number;fromX:number;fromY:number;fromLane:number;damage:number}[]=[];
+ m.spells=m.spells.filter(spell=>{
+  const caster=m.units.find(u=>u.id===spell.casterId&&u.deathAt===null&&u.hp>0);
+  const primary=spell.targetId===null?null:m.units.find(u=>u.id===spell.targetId&&u.deathAt===null&&u.hp>0&&u.team!==spell.team);
+  if(!caster||spell.targetId!==null&&!primary)return false;
+  if(m.elapsed+1e-8<spell.resolveAt)return true;
+  const stats=STATS.teacher;
+  if(primary){
+   const nearby=m.units.filter(u=>u.team!==spell.team&&u.id!==primary.id&&u.deathAt===null&&u.hp>0&&Math.abs(u.x-primary.x)<=LIGHTNING.radius)
+    .sort((a,b)=>Math.abs(a.x-primary.x)-Math.abs(b.x-primary.x)||a.id-b.id).slice(0,LIGHTNING.maxTargets-1);
+   for(const [i,target] of [primary,...nearby].entries()){
+    const from=i===0?caster:primary;
+    hits.push({team:spell.team,target,castle:null,x:target.x,lane:target.lane,fromX:from.x+(i===0?(spell.team==='red'?45:-45):0),fromY:(i===0?280:335)+from.lane*9,fromLane:from.lane,damage:i===0?stats.damage:Math.round(stats.damage*LIGHTNING.chainMultiplier)});
+   }
+  }else if(spell.targetCastle&&m.players[spell.targetCastle].hp>0){
+   hits.push({team:spell.team,target:null,castle:spell.targetCastle,x:spell.targetX,lane:0,fromX:caster.x+(spell.team==='red'?45:-45),fromY:280+caster.lane*9,fromLane:caster.lane,damage:stats.castleDamage});
+  }
+  return false;
+ });
+ // Capture all completed casts before damage, so simultaneous lightning is symmetric.
+ for(const hit of hits){event(m,{type:'lightning',team:hit.team,x:hit.x,lane:hit.lane,fromX:hit.fromX,fromY:hit.fromY,fromLane:hit.fromLane,kind:'teacher'});if(hit.target)hurt(m,hit.target,hit.damage,hit.team);else if(hit.castle)castle(m,hit.castle,hit.damage)}
+}
+
 export function tick(m:Match,dt=FIXED_STEP){
  if(!Number.isFinite(dt)||dt<=0)return;if(m.phase==='COUNTDOWN'){m.countdown=Math.max(0,m.countdown-dt);if(m.countdown<1e-8){m.countdown=0;m.phase='RUNNING'}return}if(m.phase!=='RUNNING')return;
  const before=Math.ceil(m.remaining);m.elapsed+=dt;m.remaining=Math.max(0,m.settings.duration-m.elapsed);if(before!==Math.ceil(m.remaining)&&m.remaining<=10)event(m,{type:'tick',team:'red',x:960,lane:0});
@@ -62,9 +87,10 @@ export function tick(m:Match,dt=FIXED_STEP){
  const living=m.units.filter(u=>u.deathAt===null),positions=new Map(living.map(u=>[u.id,u.x])),attacks:{target:Unit|null;castle:Team|null;damage:number;by:Team}[]=[];
  for(const u of living){const stats=STATS[u.kind],dir=u.team==='red'?1:-1,opponent=enemy(u.team);u.cooldown=Math.max(0,u.cooldown-dt);if((u.state==='hurt'||u.state==='defend')&&m.elapsed<u.stateUntil)continue;
  const foes=living.filter(f=>f.team!==u.team&&(positions.get(f.id)!-positions.get(u.id)!)*dir>=-35);foes.sort((a,b)=>Math.abs(a.x-u.x)-Math.abs(b.x-u.x));const target=foes[0],tx=target?positions.get(target.id)!:u.team==='red'?WORLD.right:WORLD.left;
- if(Math.abs(tx-u.x)<=stats.range+(target?0:30)){u.state=m.elapsed-u.attackAt<.36?'attack':(u.kind==='archer'||u.kind==='mage')&&u.cooldown<.28?'aim':'idle';if(u.cooldown<=0){u.cooldown=stats.interval;u.state='attack';u.attackAt=m.elapsed;if(u.kind==='archer'||u.kind==='mage'){m.projectiles.push({id:m.nextId++,team:u.team,source:'unit',effect:u.kind==='mage'?'frost':undefined,x:u.x,startX:u.x,targetId:target?.id??null,targetCastle:target?null:opponent,targetX:tx,damage:stats.damage,castleDamage:stats.castleDamage,lane:u.lane});event(m,{type:u.kind==='mage'?'frost':'arrow',team:u.team,x:u.x,lane:u.lane})}else{attacks.push({target:target||null,castle:target?null:opponent,damage:target?stats.damage:stats.castleDamage,by:u.team});event(m,{type:'sword',team:u.team,x:u.x,lane:u.lane})}}}
+ if(Math.abs(tx-u.x)<=stats.range+(target?0:30)){u.state=m.elapsed-u.attackAt<.36?'attack':(u.kind==='archer'||u.kind==='mage'||u.kind==='teacher')&&u.cooldown<.28?'aim':'idle';if(u.cooldown<=0){u.cooldown=stats.interval;u.state='attack';u.attackAt=m.elapsed;if(u.kind==='teacher'){m.spells.push({id:m.nextId++,team:u.team,casterId:u.id,targetId:target?.id??null,targetCastle:target?null:opponent,targetX:tx,lane:target?.lane??u.lane,resolveAt:m.elapsed+LIGHTNING.castDelay})}else if(u.kind==='archer'||u.kind==='mage'){m.projectiles.push({id:m.nextId++,team:u.team,source:'unit',effect:u.kind==='mage'?'frost':undefined,x:u.x,startX:u.x,targetId:target?.id??null,targetCastle:target?null:opponent,targetX:tx,damage:stats.damage,castleDamage:stats.castleDamage,lane:u.lane});event(m,{type:u.kind==='mage'?'frost':'arrow',team:u.team,x:u.x,lane:u.lane})}else{attacks.push({target:target||null,castle:target?null:opponent,damage:target?stats.damage:stats.castleDamage,by:u.team});event(m,{type:'sword',team:u.team,x:u.x,lane:u.lane})}}}
  else{u.state='walk';const peers=living.filter(v=>v.team===u.team&&v.lane===u.lane&&v.id!==u.id&&(positions.get(v.id)!-u.x)*dir>0),gap=peers.length?Math.min(...peers.map(v=>Math.abs(positions.get(v.id)!-u.x))):Infinity;u.x+=dir*Math.min(movementSpeed(u,m.elapsed)*dt,Math.max(0,gap-50))}}
  for(const a of attacks)if(a.target)hurt(m,a.target,a.damage,a.by);else if(a.castle)castle(m,a.castle,a.damage);
  m.projectiles=m.projectiles.filter(p=>{const target=m.units.find(u=>u.id===p.targetId&&u.deathAt===null);if(p.targetId&&!target)return false;const tx=target?.x??p.targetX,dir=p.team==='red'?1:-1,next=p.x+dir*(p.source==='tower'?TOWER.projectileSpeed:p.effect==='frost'?FROST.projectileSpeed:720)*dt;p.targetX=tx;if((next-tx)*dir>=0||Math.abs(next-tx)<12){if(target){hurt(m,target,p.damage,p.team);if(p.effect==='frost'&&target.deathAt===null)target.slowUntil=Math.max(target.slowUntil,m.elapsed+FROST.duration)}else if(p.targetCastle)castle(m,p.targetCastle,p.castleDamage);return false}p.x=next;return true});
+ resolveLightning(m);
  m.units=m.units.filter(u=>u.deathAt===null||m.elapsed-u.deathAt<.65);if(m.players.red.hp<=0||m.players.blue.hp<=0)finish(m,'城堡被攻破');else if(m.remaining<=0)finish(m,'比赛时间结束');
 }

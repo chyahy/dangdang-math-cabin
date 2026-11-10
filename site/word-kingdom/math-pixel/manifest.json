@@ -302,6 +302,78 @@
       }
     },
     {
+      "team": "red",
+      "kind": "teacher",
+      "textureKey": "word-kingdom-pixel-v1-red-teacher",
+      "sheet": "red-teacher-sheet.png",
+      "atlas": "red-teacher-sheet.json",
+      "portrait": "red-teacher.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "aim": {
+          "frames": [
+            "aim-0",
+            "aim-1",
+            "aim-2",
+            "aim-3"
+          ],
+          "duration": 0.4,
+          "loop": false
+        }
+      }
+    },
+    {
       "team": "blue",
       "kind": "soldier",
       "textureKey": "word-kingdom-pixel-v1-blue-soldier",
@@ -524,6 +596,78 @@
       "sheet": "blue-mage-sheet.png",
       "atlas": "blue-mage-sheet.json",
       "portrait": "blue-mage.png",
+      "states": {
+        "idle": {
+          "frames": [
+            "idle-0",
+            "idle-1",
+            "idle-2",
+            "idle-3"
+          ],
+          "fps": 3,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "walk-0",
+            "walk-1",
+            "walk-2",
+            "walk-3",
+            "walk-4",
+            "walk-5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "frames": [
+            "attack-0",
+            "attack-1",
+            "attack-2",
+            "attack-3",
+            "attack-4",
+            "attack-5"
+          ],
+          "duration": 0.32,
+          "loop": false
+        },
+        "hurt": {
+          "frames": [
+            "hurt-0",
+            "hurt-1"
+          ],
+          "duration": 0.16,
+          "loop": false
+        },
+        "death": {
+          "frames": [
+            "death-0",
+            "death-1",
+            "death-2",
+            "death-3"
+          ],
+          "duration": 0.53,
+          "loop": false
+        },
+        "aim": {
+          "frames": [
+            "aim-0",
+            "aim-1",
+            "aim-2",
+            "aim-3"
+          ],
+          "duration": 0.4,
+          "loop": false
+        }
+      }
+    },
+    {
+      "team": "blue",
+      "kind": "teacher",
+      "textureKey": "word-kingdom-pixel-v1-blue-teacher",
+      "sheet": "blue-teacher-sheet.png",
+      "atlas": "blue-teacher-sheet.json",
+      "portrait": "blue-teacher.png",
       "states": {
         "idle": {
           "frames": [

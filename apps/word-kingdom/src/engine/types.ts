@@ -1,4 +1,4 @@
-export type Team='red'|'blue';export type Kind='soldier'|'archer'|'knight'|'mage';
+export type Team='red'|'blue';export type Kind='soldier'|'archer'|'knight'|'mage'|'teacher';
 export type Phase='CONFIG'|'COUNTDOWN'|'RUNNING'|'PAUSED'|'FINISHED';
 export type Word={id:string;word:string;meaning:string;grade:string;unit:string;difficulty:number;segments:string[];distractors:string[];acceptedAnswers:string[]};
 export type QuestionType='spell'|'meaning'|'missing';
@@ -9,8 +9,9 @@ export type Mistake={word:string;meaning:string;count:number;submitted?:string;s
 export type Player={hp:number;maxHp:number;castleLevel:number;lastUpgrade:number;coins:number;earned:number;spent:number;purchases:Record<Kind,number>;correct:number;wrong:number;skipped:number;streak:number;best:number;index:number;cycle:number;question:Question|null;selected:string[];feedback:Feedback|null;errors:Record<string,Mistake>;exhausted:boolean;lastPurchase:number;autoIndex:number};
 export type Unit={id:number;team:Team;kind:Kind;x:number;lane:number;hp:number;maxHp:number;cooldown:number;state:'idle'|'walk'|'attack'|'aim'|'defend'|'hurt'|'death';stateUntil:number;deathAt:number|null;attackAt:number;slowUntil:number};
 export type Projectile={id:number;team:Team;source:'unit'|'tower';effect?:'frost';x:number;startX:number;targetId:number|null;targetCastle:Team|null;targetX:number;damage:number;castleDamage:number;lane:number};
+export type LightningCast={id:number;team:Team;casterId:number;targetId:number|null;targetCastle:Team|null;targetX:number;lane:number;resolveAt:number};
 export type Tower={cooldown:number;attackAt:number};
-export type BattleEvent={id:number;type:'summon'|'hit'|'sword'|'arrow'|'tower'|'frost'|'upgrade'|'lightning'|'castle'|'death'|'correct'|'wrong'|'tick'|'finish'|'coin'|'block';team:Team;x:number;lane:number;amount?:number;kind?:Kind;time:number};
+export type BattleEvent={id:number;type:'summon'|'hit'|'sword'|'arrow'|'tower'|'frost'|'upgrade'|'lightning'|'castle'|'death'|'correct'|'wrong'|'tick'|'finish'|'coin'|'block';team:Team;x:number;lane:number;amount?:number;kind?:Kind;fromX?:number;fromY?:number;fromLane?:number;time:number};
 export type Settings={redName:string;blueName:string;duration:number;bank:'all'|'builtin'|'custom';grade:string;unit:string;difficulty:number;weights:Record<QuestionType,number>;music:number;sfx:number;effects:'low'|'high';inputMode:'simultaneous'|'turns';exhaustion:'cycle'|'stop';deployment:'strategy'|'auto';autoOrder:Kind[]};
-export type Match={id:string;phase:Phase;resumePhase:'COUNTDOWN'|'RUNNING';countdown:number;elapsed:number;remaining:number;players:Record<Team,Player>;towers:Record<Team,Tower>;units:Unit[];projectiles:Projectile[];events:BattleEvent[];nextId:number;deck:Word[];typeDeck:QuestionType[];settings:Settings;seed:number;winner:Team|'draw'|null;reason:string;turn:Team;resultSaved:boolean};
+export type Match={id:string;phase:Phase;resumePhase:'COUNTDOWN'|'RUNNING';countdown:number;elapsed:number;remaining:number;players:Record<Team,Player>;towers:Record<Team,Tower>;units:Unit[];projectiles:Projectile[];spells:LightningCast[];events:BattleEvent[];nextId:number;deck:Word[];typeDeck:QuestionType[];settings:Settings;seed:number;winner:Team|'draw'|null;reason:string;turn:Team;resultSaved:boolean};
 export type RecordEntry={id:string;date:string;winner:string;reason:string;duration:number;redName:string;blueName:string;players:Record<Team,Player>};
