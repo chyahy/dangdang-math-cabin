@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="乐乐喝果汁，两只同样大的杯子展示果汁与水的分量">
+<rect width="960" height="600" fill="#efebf8"/>
+<rect x="40" y="38" width="880" height="524" rx="36" fill="#fff"/>
+<rect x="68" y="151" width="824" height="346" rx="25" fill="#302c48"/>
+<g font-family="Microsoft YaHei,sans-serif"><text x="78" y="98" font-size="34" font-weight="700" fill="#302c48">乐乐喝果汁</text><text x="80" y="130" font-size="16" fill="#766a8c">这一口，果汁和水各有多少？</text>
+<text x="235" y="190" font-size="18" fill="#e2d8f5">杯中剩余</text><text x="623" y="190" font-size="18" fill="#e2d8f5">本次喝掉</text>
+<g stroke="#fff" stroke-width="7" fill="none"><path d="M210 214V447Q210 458 223 458H377Q390 458 390 447V214"/><path d="M590 214V447Q590 458 603 458H757Q770 458 770 447V214"/><path d="M201 214H399M581 214H779" stroke-linecap="round"/></g>
+<path d="M214 334H300V454H214Z" fill="#ffd258"/><path d="M300 334H386V454H300Z" fill="#ab95f1"/>
+<path d="M594 334H680V454H594Z" fill="#ffd258"/><path d="M680 334H766V454H680Z" fill="#ab95f1"/>
+<g stroke="#ffffff32"><path d="M214 244H386M214 274H386M214 304H386M214 334H386M214 364H386M214 394H386M214 424H386"/><path d="M594 244H766M594 274H766M594 304H766M594 334H766M594 364H766M594 394H766M594 424H766"/></g>
+<g font-size="24" font-weight="700"><text x="235" y="400" fill="#624500">1/4</text><text x="322" y="400" fill="#38245c">1/4</text><text x="615" y="400" fill="#624500">1/4</text><text x="702" y="400" fill="#38245c">1/4</text></g>
+<g stroke="#cabee0" stroke-width="2"><path d="M180 214V454"/><path d="M171 214H189M171 244H189M171 274H189M171 304H189M171 334H189M171 364H189M171 394H189M171 424H189"/></g><circle cx="180" cy="334" r="12" fill="#ffd258" stroke="#302c48" stroke-width="3"/>
+<g fill="#e0d4f0" font-size="13"><text x="130" y="219">8/8</text><text x="130" y="339">4/8</text><text x="130" y="429">1/8</text></g>
+<path d="M453 333H512M496 317L513 333L496 349" stroke="#c4b3e9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<rect x="705" y="69" width="150" height="42" rx="21" fill="#f1edfa"/><text x="730" y="96" font-size="17" fill="#6550b9">当当老师小课堂</text>
+<rect x="80" y="517" width="14" height="14" rx="4" fill="#ffd258"/><text x="105" y="530" font-size="16" fill="#675d79">果汁</text><rect x="179" y="517" width="14" height="14" rx="4" fill="#ab95f1"/><text x="204" y="530" font-size="16" fill="#675d79">水</text><text x="536" y="530" font-size="16" fill="#675d79">八等分选择 · 连续实验 · 精确分数</text></g>
+</svg>

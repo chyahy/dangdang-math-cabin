@@ -1,4 +1,5 @@
 export const GAMES = [
+  {id:'juice',title:'乐乐喝果汁',description:'选一口、兑满水，对照两只杯子，看懂果汁与水的分数变化。',category:'numbers',image:'game-juice.svg',path:'juice-fractions/'},
   {id:'mathkingdom',title:'数学王国',description:'计算赢金币，选购像素军队，展开双人运算攻城战。',category:'numbers',image:'game-mathkingdom.webp',path:'math-kingdom/'},
   {id:'wordkingdom',title:'单词王国',description:'答题赢金币，招募冰冻法师，升级城堡进行英语攻防。',category:'language',image:'game-wordkingdom-pixel-v2.webp',path:'word-kingdom/'},
   {id:'numberline',title:'数轴实验室',description:'拖动数与距离，探索相反数、绝对值和加减法。',category:'numbers',image:'game-numberline.webp',path:'number-line-lab/'},

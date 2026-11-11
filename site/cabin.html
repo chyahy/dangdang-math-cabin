@@ -1321,6 +1321,7 @@
         <div class="gameShelfPanel">
             <h2 class="gameShelfTitle">课堂游戏</h2>
             <nav id="gameShelfList" class="gameShelfList" aria-label="选择游戏">
+                <a class="gameShelfLink" href="juice-fractions/"><span class="gameShelfIcon">⅛</span><span>乐乐喝果汁</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="magic-24/game.html"><span class="gameShelfIcon">24</span><span>24点游戏</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="prime-factor/?v=2026.09.18.2" data-live="https://chyahy.github.io/software-picks/prime-factor/?v=2026.09.18.2"><span class="gameShelfIcon">2×</span><span>分解质因数</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="cube-coloring/?v=2026.09.18.1" data-live="https://chyahy.github.io/software-picks/cube-coloring/?v=2026.09.18.1"><span class="gameShelfIcon">立方</span><span>正方体涂色</span><span class="gameShelfGo">›</span></a>
@@ -1361,7 +1362,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.11.10.5';
+            const PAGE_VERSION = '2026.11.11.1';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -4182,6 +4183,26 @@
                 geometryPrompt.style.top = ((-.5 * geometryScreenPos.y + .5) * innerHeight) + 'px';
                 geometryPrompt.classList.toggle('visible', visible);
             }
+
+            /* —— 乐乐喝果汁：二楼左墙的小饮品实验架，入口文字按悬停/靠近显示 —— */
+            const JUICE_HOME=V(-3.67,FY+.85,.65),juiceG=new THREE.Group();
+            juiceG.name='juice-fractions-entrance';juiceG.position.copy(JUICE_HOME);juiceG.rotation.y=Math.PI/2;scene.add(juiceG);
+            put(edge(new THREE.BoxGeometry(1.18,.07,.47),1,null,LITMAT(0x987653)),0,0,0,0,0,0,juiceG);
+            for(const x of [-.43,.43])put(edge(new THREE.BoxGeometry(.055,.25,.26),1,null,LITMAT(0x655079)),x,-.15,-.08,0,0,0,juiceG);
+            const juiceCups=[];
+            for(const x of [-.28,.28]){
+                const cup=new THREE.Group();cup.position.set(x,.055,0);juiceG.add(cup);juiceCups.push(cup);
+                const glass=new THREE.Mesh(new THREE.BoxGeometry(.30,.42,.26),new THREE.MeshBasicMaterial({color:0xeae4fa,transparent:true,opacity:.13,depthWrite:false}));glass.position.y=.21;cup.add(glass);
+                const rim=new THREE.LineSegments(new THREE.EdgesGeometry(glass.geometry),new THREE.LineBasicMaterial({color:0xfff9ea}));rim.position.y=.21;cup.add(rim);
+                for(const [dx,color] of [[-.066,0xffd258],[.066,0xab95f1]])put(new THREE.Mesh(new THREE.BoxGeometry(.132,.205,.23),LITMAT(color)),dx,.108,0,0,0,0,cup);
+            }
+            const juiceBadgeCanvas=document.createElement('canvas');juiceBadgeCanvas.width=128;juiceBadgeCanvas.height=128;
+            const juiceBadgeContext=juiceBadgeCanvas.getContext('2d');juiceBadgeContext.fillStyle='#6550b9';juiceBadgeContext.fillRect(0,0,128,128);juiceBadgeContext.fillStyle='#fff';juiceBadgeContext.font='bold 84px sans-serif';juiceBadgeContext.textAlign='center';juiceBadgeContext.fillText('⅛',64,94);
+            const juiceBadge=new THREE.Mesh(new THREE.PlaneGeometry(.21,.21),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(juiceBadgeCanvas)}));juiceBadge.position.set(0,.15,.245);juiceG.add(juiceBadge);
+            juiceG.userData.aimLabel='拿起果汁杯，进入乐乐喝果汁';juiceG.userData.sfx='magic';let juiceLaunching=false,juiceTimer=null;
+            function openJuiceLesson(playSound=true){if(juiceLaunching)return;juiceLaunching=true;if(playSound)SND.play('magic');juiceCups.forEach((cup,i)=>{cup.rotation.z=i?-.12:.12;cup.position.y=.14});juiceTimer=setTimeout(()=>{location.href=location.protocol==='file:'?'https://dangdanglaoshi.cn/juice-fractions/':new URL('juice-fractions/',location.href).href},650)}
+            regMagic(juiceG,()=>openJuiceLesson(false));
+            addEventListener('pageshow',()=>{if(juiceTimer)clearTimeout(juiceTimer);juiceLaunching=false;juiceCups.forEach(cup=>{cup.rotation.z=0;cup.position.y=.055})});
 
             /* —— 和倍差倍课堂：二楼后墙的份数图卷轴 —— */
             const multipleG = new THREE.Group();
@@ -9618,6 +9639,7 @@
             function toggleLamp() { lampLit = !lampLit; SND.play('lamp'); }
             const fireMagic = o => { SND.play(o.userData.sfx || 'toggle'); o.userData.onClick(); };
             const interactables = [
+                { root: juiceG, x: JUICE_HOME.x, z: JUICE_HOME.z, minY: FY-.4, maxY: FY+1.5, r: 1.7, label: '拿起果汁杯，进入乐乐喝果汁', act: () => openJuiceLesson(true) },
                 { root: deckG, prompt: deckPrompt, x: DECK_HOME.x, z: DECK_HOME.z, minY: FY-.4, r: 1.7, label: '拿起纸牌，进入24点游戏', act: start24PointGame },
                 { root: factorMachineG, prompt: factorPrompt, x: FACTOR_HOME.x, z: FACTOR_HOME.z, minY: FY-.4, r: 1.6, label: '启动质因数分解机', act: () => startFactorPractice(true) },
                 { root: rubikG, prompt: rubikPrompt, x: RUBIK_HOME.x, z: RUBIK_HOME.z, minY: FY-.4, r: 1.6, label: '打开正方体涂色探索', act: () => startCubeColoring(true) },
