@@ -14,6 +14,55 @@
 @media(max-width:1180px){:root{--cup-w:200px;--cup-h:290px}.shell{padding:16px}.top{padding:14px 20px}main{grid-template-columns:1fr 1fr}.left{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:18px 22px}.left .panel-title,.left .question,.selected-card{grid-column:1}.left .actions{grid-column:2;grid-row:1/4;align-content:center}.left .switches{grid-column:1;margin-top:0}.left .step-controls,.left .notice,.left .bottom-actions{grid-column:2}.left .step-controls{grid-row:4/6;align-self:start}.left .notice{grid-row:6}.left .bottom-actions{grid-row:7}.switch-note{display:none}.stage{height:370px}.slider-side{top:26px}.quantity strong{font-size:21px}}
 @media(max-width:650px){:root{--cup-w:160px;--cup-h:250px}.top{padding:12px}.brand{gap:9px}.brand-mark{width:38px;height:38px;font-size:23px}h1{font-size:20px}h1 small{display:block;font-size:11px;margin:3px 0 0}.eyebrow{display:none}.top-actions{gap:2px}.top-actions .home{display:none}.shell{padding:12px}.intro{align-items:flex-start;gap:8px}.intro p{font-size:12px}.legend{gap:8px;font-size:12px}main{grid-template-columns:1fr;gap:12px}.left{display:block;padding:18px}.left .question{font-size:14px}.selected-card{padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}.selected-card strong{font-size:25px;margin:0}.selected-card small{display:none}.actions{grid-template-columns:1fr 1fr}.actions button{font-size:14px;padding:10px 7px}.switches{display:flex;justify-content:space-between;gap:10px;padding-top:14px!important;margin-top:14px!important;font-size:13px}.notice{min-height:0;margin-top:12px;font-size:13px}.bottom-actions{margin-top:10px}.bottom-actions button{font-size:12px;min-height:40px}.panel-title{margin-bottom:10px}.cup-head{padding:16px 18px 12px}.stage{height:330px;padding-top:26px;padding-bottom:54px}.stage.current{padding-left:100px}.slider-side{top:26px;right:calc(50% + var(--cup-w)/2 - 41px)}.glass-data{padding:14px 18px}.stats{grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.stat{padding:12px}.stat strong{font-size:21px}.lesson-foot{align-items:flex-start}.lesson-foot button{white-space:nowrap}.right .stage:before{left:30px}.step-controls{margin-top:10px}.quantity strong{font-size:23px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+/* 在原卡片与双杯布局上扩展：两个标尺不承担液体几何坐标。 */
+main{grid-template-columns:minmax(250px,.75fr) minmax(440px,1.35fr) minmax(330px,1fr)}
+.stage,.stage.current{height:calc(var(--cup-h) + 140px);padding:70px 0}
+.slider-side{top:70px;width:106px;right:auto;height:var(--cup-h)}
+.drink-ruler{right:calc(50% + var(--cup-w)/2 + 8px)}
+.remain-ruler{left:calc(50% + var(--cup-w)/2 + 8px)}
+.slider-side:after{right:8px;left:auto;top:0;bottom:0}
+.remain-ruler:after{left:8px;right:auto}
+.slider-side .tick{top:var(--tick-y);bottom:auto;transform:translateY(-50%);right:0;width:106px;height:30px;min-height:30px;line-height:30px;padding:0 30px 0 0;font-size:12px}
+.slider-side .tick:after{right:1px;top:14px;width:14px}
+.remain-ruler .tick{text-align:left;padding:0 0 0 30px;left:0;right:auto}
+.remain-ruler .tick:after{left:1px;right:auto}
+.slider-side .thumb{top:0;bottom:auto;right:-4px;width:28px;height:28px;transform:translateY(-50%)}
+.remain-ruler .thumb{left:-4px;right:auto;background:#c9b5ff;box-shadow:0 0 0 1px #e5dbff}
+.ruler-title{position:absolute;left:0;right:20px;top:-33px;text-align:right;color:#ffe399;font-weight:700;font-size:12px;white-space:nowrap}
+.remain-ruler .ruler-title{top:-33px;left:20px;right:0;text-align:left;color:#d8c8ff}
+.zero-tick{position:absolute;transform:translateY(-50%);top:0;right:0;min-height:28px;height:28px;border:1px solid #ffffff30;border-radius:6px;background:transparent;color:#e0d9ed;font-size:11px;padding:2px 28px 2px 7px;white-space:nowrap}
+.remain-ruler .zero-tick{top:100%;transform:translateY(-50%);left:0;right:auto;padding:2px 7px 2px 28px}
+.zero-tick.active{background:#ffffff22;border-color:#c6b5e9;color:#fff}
+.zero-tick:hover:not(:disabled){background:#ffffff22;border-color:#ccc0df}
+.boundary-actions{display:flex;gap:7px;margin:0 0 12px;grid-column:1}
+.boundary-actions button{padding:7px 8px;font-size:12px;min-height:36px;flex:1}
+.selected-card small{display:block;line-height:1.7;overflow-wrap:anywhere}
+.slider-help{bottom:8px;padding:0 8px;font-size:11px}
+.collection-section{border:1px solid var(--line);border-radius:22px;background:#fff;padding:23px;margin:4px 0 16px;min-width:0;box-shadow:var(--shadow)}
+.collection-heading{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:18px}
+.collection-heading h2{margin:0 0 8px;font-size:23px}.collection-heading p:not(.eyebrow){margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.collection-grand{text-align:right;min-width:120px}.collection-grand span{font-size:12px;color:var(--muted)}.collection-grand strong{display:block;font-size:25px;margin-top:5px;overflow-wrap:anywhere}
+.collection-columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0}
+.collection-group{min-width:0;border-radius:17px;background:#fff9e6;border:1px solid #efe2b9;overflow:hidden}
+.collection-group.water-group{background:#f4effd;border-color:#e1d6f5}
+.collection-group-head{padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #e2d8bd}
+.water-group .collection-group-head{border-color:#e1d7f1}.collection-group h3{margin:0;font-size:16px}.collection-group-head strong{font-size:20px;overflow-wrap:anywhere;max-width:100%}
+.collection-shelf{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px;padding:20px 20px 15px;background:var(--navy);min-height:185px}
+.collection-item{margin:0;width:82px;flex:none;display:flex;flex-direction:column;align-items:center;gap:10px;color:#e5ddf1;animation:cup-appear .22s ease-out}
+.collection-item .cup{--cup-w:62px;--cup-h:92px;width:62px;height:92px}
+.collection-item .cup:after{inset:0 -4px -4px;border-width:4px;border-radius:0 0 13px 13px}
+.collection-item .cup:before{height:4px;top:-2px;left:-8px;right:-8px}
+.collection-item .liquid{display:block}.collection-item figcaption{font-size:13px;max-width:82px;text-align:center;line-height:1.5;overflow-wrap:anywhere}.collection-index{font-size:11px;color:#cec4df}
+.collection-item .cup-grid{background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),#ffffff26 calc(25% - 1px),#ffffff26 25%)}
+.old-cups{flex:0 0 100%;min-width:0;color:#ded4ee;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px}.old-cups summary{cursor:pointer;font-size:13px}.old-cup-list{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}.old-cups button{margin-top:12px;background:#49405f;color:#fff;border-color:#716080;font-size:12px;min-height:36px}
+@keyframes cup-appear{from{opacity:0}to{opacity:1}}
+@media(max-width:1180px){main{grid-template-columns:1fr 1fr}.left{grid-column:1/-1}.boundary-actions{align-self:start;margin-bottom:8px}.collection-heading h2{font-size:21px}}
+@media(max-width:650px){:root{--cup-w:120px;--cup-h:240px}main{grid-template-columns:1fr}.stage,.stage.current{padding:70px 0;height:380px}.slider-side{width:94px;top:70px}.slider-side .tick{width:94px;font-size:11px}.ruler-title{font-size:11px}.selected-card{display:grid;grid-template-columns:1fr auto}.selected-card small{grid-column:1/-1;font-size:12px}.boundary-actions{margin-top:10px}.collection-section{padding:16px}.collection-heading{gap:10px;align-items:flex-start}.collection-heading h2{font-size:18px}.collection-grand{min-width:75px;max-width:125px}.collection-grand strong{font-size:19px}.collection-columns{grid-template-columns:1fr}.collection-shelf{gap:12px;padding:20px 12px 15px}.collection-group-head{padding:14px}.collection-group-head strong{font-size:18px}.collection-heading p:not(.eyebrow){font-size:12px}}
+@media(min-width:1600px) and (min-height:851px){.slider-side .tick{height:38px;min-height:38px;line-height:38px;font-size:14px}.slider-side .tick:after{top:18px}.slider-side .thumb{width:36px;height:36px;right:-8px}.remain-ruler .thumb{left:-8px;right:auto}.ruler-title{font-size:13px}.zero-tick{font-size:12px}}
+@media(min-width:651px) and (max-width:760px){main{grid-template-columns:1fr}}
+@media(min-width:761px) and (max-width:950px){:root{--cup-w:150px;--cup-h:260px}.slider-side,.slider-side .tick{width:94px}.slider-side .tick{font-size:11px}}
+@media(max-width:380px){:root{--cup-w:96px}.slider-side,.slider-side .tick{width:88px}.slider-side .tick{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.collection-item{animation:none}}
 </style>
 </head>
 <body>
@@ -23,8 +72,9 @@
 <main>
 <section class="panel left" aria-label="操作区">
 <h2 class="panel-title"><span class="number">01</span>动手操作</h2>
-<p class="question" id="question">开始时是1整杯纯果汁。拖动杯壁左侧的滑条，决定这一口喝多少。</p>
-<div class="selected-card"><span>本次准备喝掉</span><strong id="selected-label">4/8 = 1/2 杯</strong><small>选择的是喝掉的量，不是剩余量</small></div>
+<p class="question" id="question">开始时是1整杯纯果汁。左侧选喝掉多少，右侧选剩下多少，两种方式互相联动。</p>
+<div class="selected-card"><span>本次准备喝掉</span><strong id="selected-label">4/8 = 1/2 杯</strong><small id="planned-label">准备剩下：1/2杯</small></div>
+<div class="boundary-actions"><button id="drink-all" class="compact">喝光当前液体</button><button id="keep-all" class="compact">全部保留 · 不喝</button></div>
 <div class="actions"><button id="drink" class="primary">喝掉选中部分</button><button id="refill" class="secondary">加水至满杯</button></div>
 <div class="switches"><div><label class="switch"><input id="step-mode" type="checkbox">分步演示</label><p class="switch-note">圈出 → 分开 → 求分量 → 看算式</p></div><div><label class="switch"><input id="hide-answers" type="checkbox">隐藏分数答案</label><p class="switch-note">先观察颜色，再一起揭晓</p></div></div>
 <div class="step-controls" id="step-controls" hidden><button id="next" class="primary">下一步</button><div class="step-actions"><button id="finish" class="compact">一键完成</button><button id="cancel" class="compact">取消本次</button></div></div>
@@ -34,8 +84,10 @@
 <section class="panel center" aria-label="杯中剩余液体">
 <div class="cup-head"><div><h2>杯中剩余的</h2><p id="glass-status">初始 · 1整杯纯果汁</p></div><span class="badge" id="phase-label">选一口</span></div>
 <div class="stage current">
-<div class="slider-side" id="drink-slider" role="slider" tabindex="0" aria-label="本次喝掉的八等分份数" aria-orientation="vertical" aria-valuemin="1" aria-valuemax="8" aria-valuenow="4"><div id="tick-labels"></div><div class="thumb" id="thumb"></div></div>
-<div class="cup" id="cup" role="img" aria-label="杯中剩余的果汁和水"><div class="liquid" id="liquid"><div class="component juice" id="in-juice"><span class="inside-label"></span></div><div class="component water" id="in-water"><span class="inside-label"></span></div></div><div class="cup-grid"></div><div class="selection" id="selection"><span class="cut-label">喝完后到这里</span></div><div class="empty-hint" id="main-empty" hidden>空杯了<br>可以加水继续探索</div></div><span class="stage-label">1整杯 = 8/8</span><span class="slider-help">滑条选“喝掉多少” · 虚线表示喝完后的液面</span>
+<div class="slider-side drink-ruler" id="drink-slider" role="slider" tabindex="0" aria-label="本次喝掉的体积" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0.5"><span class="ruler-title">喝掉多少</span><div id="tick-labels"></div><button id="drink-zero" class="zero-tick" tabindex="-1">0 · 不喝</button><div class="thumb" id="thumb"></div></div>
+<div class="cup" id="cup" role="img" aria-label="杯中剩余的果汁和水"><div class="liquid" id="liquid"><div class="component juice" id="in-juice"><span class="inside-label"></span></div><div class="component water" id="in-water"><span class="inside-label"></span></div></div><div class="cup-grid"></div><div class="selection" id="selection"><span class="cut-label">喝完后到这里</span></div><div class="empty-hint" id="main-empty" hidden>空杯了<br>可以加水继续探索</div></div>
+<div class="slider-side remain-ruler" id="remain-slider" role="slider" tabindex="0" aria-label="喝完后准备剩余的体积" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0.5"><span class="ruler-title">剩下多少</span><div id="remain-ticks"></div><button id="remain-zero" class="zero-tick" tabindex="-1">0 · 喝光</button><div class="thumb" id="remain-thumb"></div></div>
+<span class="slider-help">虚线：喝完后的液面 · 两侧相加等于操作前的总量</span>
 </div>
 <div class="glass-data"><div class="total-row"><span>当前总量</span><strong id="remaining">1 杯</strong></div><div class="quantity-grid"><div class="quantity"><span>剩余果汁</span><strong id="glass-juice"></strong></div><div class="quantity water-card"><span>剩余水</span><strong id="glass-water"></strong></div></div></div>
 </section>
@@ -46,6 +98,10 @@
 </section>
 </main>
 <div class="lesson-foot"><p>左右分色是数学上的分量示意；真实饮品中的果汁与水是混合的。<br>每种颜色的面积表示它占整杯的量；两个杯子的容量和比例尺相同。</p><div><button id="reveal" class="compact" hidden>揭晓答案</button> <button id="replay" class="compact">重播本次</button></div></div>
+<section class="collection-section" aria-labelledby="collection-title">
+<div class="collection-heading"><div><p class="eyebrow">每一口，都收好</p><h2 id="collection-title">累计喝掉的果汁与水</h2><p id="collection-status" role="status">从实验开始一直累计，和“最近一口”分开记录。</p></div><div class="collection-grand"><span>累计喝掉总液体</span><strong id="collection-total">0 杯</strong></div></div>
+<div class="collection-columns"><article class="collection-group juice-group"><div class="collection-group-head"><h3><i class="dot"></i>累计喝掉的果汁</h3><strong id="juice-collection-total">0 杯</strong></div><div class="collection-shelf" id="juice-collection" aria-label="累计果汁收集杯"></div></article><article class="collection-group water-group"><div class="collection-group-head"><h3><i class="dot water"></i>累计喝掉的水</h3><strong id="water-collection-total">0 杯</strong></div><div class="collection-shelf" id="water-collection" aria-label="累计水收集杯"></div></article></div>
+</section>
 <div class="stats" aria-label="累计统计"><div class="stat"><span>累计喝水次数</span><strong id="drink-count">0 <small>次</small></strong></div><div class="stat"><span>累计喝掉的总量</span><strong id="total-drunk">0 <small>杯</small></strong></div><div class="stat"><span>累计喝掉的果汁</span><strong id="total-juice">0 <small>杯</small></strong></div><div class="stat"><span>累计喝掉的水</span><strong id="total-water">0 <small>杯</small></strong></div></div>
 <details class="history" id="history-details"><summary>操作历史 <small id="log-count">0条记录 · 点击展开</small></summary><div id="history"></div></details>
 </div>
@@ -59,63 +115,126 @@ globalThis.JuiceModel=(()=>{
   const value=a=>Number(a.n*1000000000000n/a.d)/1e12,percent=a=>100*value(a);
   const initial=()=>({juice:ONE,water:ZERO,volume:ONE,totalJuice:ZERO,totalWater:ZERO,waterAdded:ZERO,drinks:0,refills:0,log:[],last:null});
   const maxTick=s=>Number(s.volume.n*8n/s.volume.d);
-  const drink=(s,k)=>{
-    if(!Number.isInteger(k)||k<1||k>8)throw Error('请选择1至8份');
-    const amount=F(k,8);if(cmp(amount,s.volume)>0)throw Error('不能超过杯中现有的量');
+  const drinkAmount=(s,amount)=>{
+    amount=F(amount.n,amount.d);
+    if(cmp(amount,ZERO)<=0)throw Error('请选择大于0的喝水量');
+    if(cmp(amount,s.volume)>0)throw Error('不能超过杯中现有的量');
     const share=div(amount,s.volume),juice=mul(s.juice,share),water=mul(s.water,share),afterJuice=sub(s.juice,juice),afterWater=sub(s.water,water);
+    const k=amount.n*8n%amount.d===0n?Number(amount.n*8n/amount.d):null;
     const record={type:'drink',index:s.drinks+1,k,amount,juice,water,added:ZERO,beforeJuice:s.juice,beforeWater:s.water,beforeVolume:s.volume,afterJuice,afterWater,afterVolume:sub(s.volume,amount),share};
     return {...s,juice:afterJuice,water:afterWater,volume:record.afterVolume,totalJuice:add(s.totalJuice,juice),totalWater:add(s.totalWater,water),drinks:s.drinks+1,last:record,log:[...s.log,record]};
   };
+  const drink=(s,k)=>{if(!Number.isInteger(k)||k<1||k>8)throw Error('请选择1至8份');return drinkAmount(s,F(k,8))};
   const refill=s=>{const added=sub(ONE,s.volume);if(cmp(added,ZERO)<=0)throw Error('已经是满杯了');const water=add(s.water,added),record={type:'refill',index:s.refills+1,amount:ZERO,juice:ZERO,water:ZERO,added,beforeJuice:s.juice,beforeWater:s.water,beforeVolume:s.volume,afterJuice:s.juice,afterWater:water,afterVolume:ONE};return {...s,water,volume:ONE,waterAdded:add(s.waterAdded,added),refills:s.refills+1,log:[...s.log,record]}};
   const visual=(juice,water)=>{const total=add(juice,water);return {total,height:percent(total),juiceWidth:cmp(total,ZERO)?percent(div(juice,total)):0,waterWidth:cmp(total,ZERO)?percent(div(water,total)):0}};
-  return {F,ZERO,ONE,add,sub,mul,div,cmp,fmt,value,percent,initial,maxTick,drink,refill,visual};
+  const clamp=(x,limit)=>cmp(x,ZERO)<0?ZERO:cmp(x,limit)>0?limit:x;
+  // 唯一选中值是喝掉体积；另一侧始终从当前真实体积相减得到。
+  const selectAmount=(volume,side,requested)=>{const chosen=clamp(requested,volume),amount=side==='remain'?sub(volume,chosen):chosen;return {amount,remaining:sub(volume,amount)}};
+  const rulerChoices=volume=>{const choices=[ZERO];for(let k=1;k<=8;k++)if(cmp(F(k,8),volume)<=0)choices.push(F(k,8));if(cmp(choices.at(-1),volume)!==0)choices.push(volume);return choices};
+  const rulerPosition=(side,amount,height)=>(side==='drink'?value(amount):1-value(amount))*height;
+  const nearestRuler=(volume,side,y,height)=>rulerChoices(volume).reduce((best,next)=>Math.abs(rulerPosition(side,next,height)-y)<Math.abs(rulerPosition(side,best,height)-y)?next:best,ZERO);
+  const collectionSpec=total=>{if(cmp(total,ZERO)<0)throw Error('累计量不能为负');const whole=total.n/total.d,rest=F(total.n%total.d,total.d);return {count:whole+(rest.n?1n:0n)||1n,whole,rest}};
+  const collectionVolume=(total,index)=>{index=BigInt(index);const {count}=collectionSpec(total);if(index<0n||index>=count)throw Error('收集杯序号超出范围');return clamp(sub(total,F(index)),ONE)};
+  const mixed=total=>{const whole=total.n/total.d,rest=F(total.n%total.d,total.d);return whole>0n&&rest.n?whole+'又'+fmt(rest)+'杯（'+fmt(total)+'杯）':fmt(total)+' 杯'};
+  return {F,ZERO,ONE,add,sub,mul,div,cmp,fmt,value,percent,initial,maxTick,drink,drinkAmount,refill,visual,clamp,selectAmount,rulerChoices,rulerPosition,nearestRuler,collectionSpec,collectionVolume,mixed};
 })();
 </script>
 <script id="juice-ui">
 (()=>{'use strict';
 const M=JuiceModel,{F,ZERO,ONE,add,sub,mul,div,cmp,fmt,percent}=M,$=id=>document.getElementById(id);
-let s=M.initial(),selected=4,lastChoice=4,stepMode=false,hidden=false,phase=4,pending=null,busy=false,replaying=false,undoStack=[],redoStack=[],token=0,flying=null,flight=null;
+let s=M.initial(),selected=F(4,8),lastChoice=F(4,8),stepMode=false,hidden=false,phase=4,pending=null,busy=false,replaying=false,undoStack=[],redoStack=[],token=0,flying=null,flight=null,collectionT=ONE;
+const collectionUI={juice:{open:false,limit:20},water:{open:false,limit:20}};
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
-const snapshot=()=>({s,selected,lastChoice,stepMode,hidden,phase,historyOpen:$('history-details').open});
-function restore(v){s=v.s;selected=v.selected;lastChoice=v.lastChoice;stepMode=v.stepMode;hidden=v.hidden;phase=v.phase;$('history-details').open=v.historyOpen;pending=null;busy=false;replaying=false;render()}
+const snapshot=()=>({s,selected,lastChoice,stepMode,hidden,phase,historyOpen:$('history-details').open,collectionUI:{juice:{...collectionUI.juice},water:{...collectionUI.water}}});
+function restore(v){s=v.s;selected=v.selected;lastChoice=v.lastChoice;stepMode=v.stepMode;hidden=v.hidden;phase=v.phase;$('history-details').open=v.historyOpen;pending=null;busy=false;replaying=false;collectionT=ONE;for(const type of ['juice','water'])Object.assign(collectionUI[type],v.collectionUI[type]);render()}
 function stopMotion(){token++;if(flight)flight.cancel();flight=null;if(flying)flying.remove();flying=null}
 function notice(text,error=false){$('notice').textContent=text;$('notice').classList.toggle('error',error)}
 const answer=(f,allowed=true)=>hidden||!allowed?'？':fmt(f);
 const cupAmount=(id,f,allowed=true)=>{$(id).textContent=answer(f,allowed)+' 杯'};
-function drawCup(prefix,j,w,labels=true){const v=M.visual(j,w),out=prefix==='out-',liquid=$(out?'out-liquid':'liquid'),jbox=$(out?'out-juice':'in-juice'),wbox=$(out?'out-water':'in-water'),cup=$(out?'out-cup':'cup');liquid.style.height=v.height+'%';jbox.style.width=v.juiceWidth+'%';wbox.style.width=v.waterWidth+'%';for(const [box,f,width] of [[jbox,j,v.juiceWidth],[wbox,w,v.waterWidth]]){const label=box.firstElementChild;label.textContent=answer(f,labels);label.style.visibility=labels&&!hidden&&width*cup.clientWidth/100>=64&&v.height*cup.clientHeight/100>=38&&fmt(f).length<=12&&!(prefix===''&&!busy&&!replaying&&selected&&Math.abs(M.value(v.total)/2-(M.value(v.total)-selected/8))*cup.clientHeight<27)?'visible':'hidden'}$(out?'out-empty':'main-empty').hidden=cmp(v.total,ZERO)!==0;cup.setAttribute('aria-label',(out?'本次喝掉':'杯中剩余')+'总量'+fmt(v.total)+'杯，'+(hidden||!labels?'分量答案已隐藏':'果汁'+fmt(j)+'杯，水'+fmt(w)+'杯'))}
-function selection(){const max=M.maxTick(s),active=!busy&&!pending&&!replaying;selected=max?Math.min(Math.max(1,selected||lastChoice),max):0;$('selected-label').textContent=selected?selected+'/8'+(selected===8?' = 1':fmt(F(selected,8))===selected+'/8'?'':' = '+fmt(F(selected,8)))+' 杯':'空杯 · 请先加水';const slider=$('drink-slider');slider.setAttribute('aria-valuemin',max?'1':'0');slider.setAttribute('aria-valuemax',String(max));slider.setAttribute('aria-valuenow',String(selected));slider.setAttribute('aria-valuetext',selected?'本次喝掉'+fmt(F(selected,8))+'杯':'空杯，不能喝水');slider.setAttribute('aria-disabled',String(!max||!active));slider.tabIndex=max&&active?0:-1;$('thumb').hidden=!selected;$('thumb').style.bottom=selected/8*100+'%';for(const tick of $('tick-labels').children){const k=Number(tick.dataset.k);tick.disabled=k>max||!active;tick.classList.toggle('active',k===selected)}const show=selected>0&&!busy&&!replaying&&(!pending||phase===1);$('selection').hidden=!show;if(show){const amount=F(selected,8);$('selection').style.bottom=percent(sub(s.volume,amount))+'%';$('selection').style.height=percent(amount)+'%'}}
-function render(){selection();const staged=!!pending,allowed=!staged||phase>=3;
- drawCup('',s.juice,s.water,allowed);const last=s.last,showLast=last&&(!staged||phase>=2);drawCup('out-',showLast?last.juice:ZERO,showLast?last.water:ZERO,allowed);
- $('remaining').textContent=fmt(s.volume)+' 杯';cupAmount('glass-juice',s.juice,allowed);cupAmount('glass-water',s.water,allowed);$('glass-status').textContent=s.drinks?'已喝'+s.drinks+'次 · 加水'+s.refills+'次':'初始 · 1整杯纯果汁';
+function drawCup(prefix,j,w,labels=true){const v=M.visual(j,w),out=prefix==='out-',liquid=$(out?'out-liquid':'liquid'),jbox=$(out?'out-juice':'in-juice'),wbox=$(out?'out-water':'in-water'),cup=$(out?'out-cup':'cup');liquid.style.height=v.height+'%';jbox.style.width=v.juiceWidth+'%';wbox.style.width=v.waterWidth+'%';for(const [box,f,width] of [[jbox,j,v.juiceWidth],[wbox,w,v.waterWidth]]){const label=box.firstElementChild;label.textContent=answer(f,labels);label.style.visibility=labels&&!hidden&&width*cup.clientWidth/100>=64&&v.height*cup.clientHeight/100>=38&&fmt(f).length<=12&&!(prefix===''&&!busy&&!replaying&&cmp(selected,ZERO)>0&&Math.abs(M.value(v.total)/2-(M.value(v.total)-M.value(selected)))*cup.clientHeight<27)?'visible':'hidden'}$(out?'out-empty':'main-empty').hidden=cmp(v.total,ZERO)!==0;cup.setAttribute('aria-label',(out?'本次喝掉':'杯中剩余')+'总量'+fmt(v.total)+'杯，'+(hidden||!labels?'分量答案已隐藏':'果汁'+fmt(j)+'杯，水'+fmt(w)+'杯'))}
+function selection(){
+ const volume=pending?pending.before.s.volume:s.volume,active=!busy&&!pending&&!replaying;
+ selected=M.clamp(selected,volume);const remaining=sub(volume,selected);
+ const chosen=fmt(selected),eighths=selected.n*8n%selected.d===0n?Number(selected.n*8n/selected.d):null;
+ $('selected-label').textContent=(eighths&&chosen!==eighths+'/8'?eighths+'/8 = ':'')+chosen+' 杯';
+ $('planned-label').textContent='准备剩下：'+fmt(remaining)+'杯 · 操作前：'+fmt(volume)+'杯';
+ for(const [side,id,ticks,thumb,zero,val] of [['drink','drink-slider','tick-labels','thumb','drink-zero',selected],['remain','remain-slider','remain-ticks','remain-thumb','remain-zero',remaining]]){
+   const slider=$(id);slider.setAttribute('aria-valuemax',String(M.value(volume)));slider.setAttribute('aria-valuenow',String(M.value(val)));slider.setAttribute('aria-valuetext',fmt(val)+'杯；喝掉'+fmt(selected)+'杯，剩下'+fmt(remaining)+'杯');slider.setAttribute('aria-disabled',String(!active||!cmp(volume,ZERO)));slider.tabIndex=active&&cmp(volume,ZERO)>0?0:-1;
+   $(thumb).style.top=M.rulerPosition(side,val,slider.clientHeight)+'px';
+   for(const tick of $(ticks).children){const amount=F(tick.dataset.k,8);tick.disabled=cmp(amount,volume)>0||!active;tick.classList.toggle('active',cmp(amount,val)===0)}
+   $(zero).disabled=!active||cmp(volume,ZERO)===0;$(zero).classList.toggle('active',cmp(val,ZERO)===0);
+ }
+ $('drink-all').disabled=$('keep-all').disabled=!active||cmp(volume,ZERO)===0;$('drink').disabled=!active||cmp(selected,ZERO)<=0;
+ const show=cmp(selected,ZERO)>0&&!busy&&!replaying&&(!pending||phase===1);$('selection').hidden=!show;
+ if(show){$('selection').style.bottom=percent(remaining)+'%';$('selection').style.height=percent(selected)+'%'}
+}
+function render(){selection();const staged=!!pending,allowed=!staged||phase>=3,shown=staged&&phase>=2?pending.after:s;
+ drawCup('',shown.juice,shown.water,allowed);const last=shown.last,showLast=last&&(!staged||phase>=2);drawCup('out-',showLast?last.juice:ZERO,showLast?last.water:ZERO,allowed);
+ $('remaining').textContent=fmt(shown.volume)+' 杯';cupAmount('glass-juice',shown.juice,allowed);cupAmount('glass-water',shown.water,allowed);$('glass-status').textContent=shown.drinks?'已喝'+shown.drinks+'次 · 加水'+shown.refills+'次':'初始 · 1整杯纯果汁';
  $('last-label').textContent=staged&&phase===1?'先看左杯将喝掉的区域':last?'第'+last.index+'次喝水 · 最新一口':'尚未喝水';$('last-volume').textContent=showLast?fmt(last.amount)+' 杯':'0 杯';cupAmount('this-juice',showLast?last.juice:ZERO,allowed);cupAmount('this-water',showLast?last.water:ZERO,allowed);
- $('phase-label').textContent=staged?['','① 圈出这一口','② 分到右杯','③ 求出分量','④ 看算式'][phase]:'选一口';$('last-title').textContent=replaying?'动画回看':'只看这一口';$('last-title').classList.toggle('replay-tag',replaying);
+ $('phase-label').textContent=staged?['','① 圈出这一口','② 分到右杯','③ 分别收集','④ 看算式'][phase]:'选一口';$('last-title').textContent=replaying?'动画回看':'只看这一口';$('last-title').classList.toggle('replay-tag',replaying);
  const eq=$('equation');eq.replaceChildren();if(last&&(!staged||phase>=4)&&!hidden){for(const [name,before,taken] of [['果汁',last.beforeJuice,last.juice],['水',last.beforeWater,last.water]]){const p=document.createElement('p');p.textContent=name+'：'+fmt(before)+' × ('+fmt(last.amount)+' ÷ '+fmt(last.beforeVolume)+') = '+fmt(taken)+' 杯';eq.append(p)}const p=document.createElement('p');p.className='muted';p.textContent='各自原有量 ×（这一口总量 ÷ 原来总量）';eq.append(p)}else{eq.textContent=hidden?'答案已隐藏，先观察两种颜色的面积。':staged?'按“下一步”，一起揭晓这一口的分量与算式。':'喝掉一口后，这里会自动生成两种分量的算式。'}
  $('step-mode').checked=stepMode;$('hide-answers').checked=hidden;$('step-mode').disabled=busy||staged||replaying;$('reveal').hidden=!hidden;$('hide-answers').disabled=busy;$('reveal').disabled=busy;
- $('drink').disabled=busy||staged||replaying||!selected;$('refill').disabled=busy||staged||replaying||cmp(s.volume,ONE)===0;$('undo').disabled=busy||staged||replaying||!undoStack.length;$('redo').disabled=busy||staged||replaying||!redoStack.length;$('reset').disabled=busy||staged||replaying;$('replay').disabled=busy||staged||replaying||!last;
- $('step-controls').hidden=!staged&&!busy&&!replaying;$('next').hidden=!staged||busy||!stepMode;$('next').textContent=phase===1?'下一步 · 分到右杯':phase===2?'下一步 · 求出分量':'下一步 · 看算式';$('cancel').hidden=!staged;$('finish').textContent=replaying?'结束回看':busy&&!staged?'跳过动画':'一键完成';
- $('drink-count').textContent=s.drinks+' 次';$('total-drunk').textContent=fmt(add(s.totalJuice,s.totalWater))+' 杯';cupAmount('total-juice',s.totalJuice,allowed);cupAmount('total-water',s.totalWater,allowed);renderHistory();
+ $('drink').disabled=busy||staged||replaying||cmp(selected,ZERO)<=0;$('refill').disabled=busy||staged||replaying||cmp(s.volume,ONE)===0;$('undo').disabled=busy||staged||replaying||!undoStack.length;$('redo').disabled=busy||staged||replaying||!redoStack.length;$('reset').disabled=busy||staged||replaying;$('replay').disabled=busy||staged||replaying||!last;
+ $('step-controls').hidden=!staged&&!busy&&!replaying;$('next').hidden=!staged||busy||!stepMode;$('next').textContent=phase===1?'下一步 · 分到右杯':phase===2?'下一步 · 分别收集':'下一步 · 看算式';$('cancel').hidden=!staged;$('finish').textContent=replaying?'结束回看':busy&&!staged?'跳过动画':'一键完成';
+ $('drink-count').textContent=s.drinks+' 次';$('total-drunk').textContent=fmt(add(s.totalJuice,s.totalWater))+' 杯';cupAmount('total-juice',s.totalJuice);cupAmount('total-water',s.totalWater);renderHistory();renderCollections();
 }
 function renderHistory(){$('log-count').textContent=s.log.length+'条记录 · 点击展开';const host=$('history');host.replaceChildren();if(!s.log.length){const p=document.createElement('p');p.className='history-empty';p.textContent='从1整杯果汁开始，每一口与每一次加水都会记在这里。';host.append(p);return}const wrap=document.createElement('div');wrap.className='table-wrap';const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');for(const text of ['操作','本次喝掉','其中果汁','其中水','本次加水','之后剩余果汁','之后剩余水']){const th=document.createElement('th');th.textContent=text;th.scope='col';tr.append(th)}head.append(tr);table.append(head);const body=document.createElement('tbody');for(const item of [...s.log].reverse()){const row=document.createElement('tr');for(const text of [item.type==='drink'?'第'+item.index+'次喝水':'第'+item.index+'次加水',fmt(item.amount)+'杯',answer(item.juice,!pending||phase>=3)+'杯',answer(item.water,!pending||phase>=3)+'杯',fmt(item.added)+'杯',answer(item.afterJuice,!pending||phase>=3)+'杯',answer(item.afterWater,!pending||phase>=3)+'杯']){const td=document.createElement('td');td.textContent=text;row.append(td)}body.append(row)}table.append(body);wrap.append(table);host.append(wrap)}
-function choose(k){if(busy||pending||replaying||!M.maxTick(s))return;selected=Math.max(1,Math.min(M.maxTick(s),k));lastChoice=selected;selection();drawCup('',s.juice,s.water)}
-for(let k=1;k<=8;k++){const b=document.createElement('button');b.type='button';b.className='tick';b.dataset.k=k;b.style.bottom=k/8*100+'%';const f=fmt(F(k,8));b.textContent=k+'/8'+(f!==k+'/8'?' = '+f:'');b.setAttribute('aria-label','喝掉'+k+'/8杯');b.tabIndex=-1;b.onclick=e=>{e.stopPropagation();choose(k)};$('tick-labels').append(b)}
-let pointer=null;const slider=$('drink-slider');function pointerChoose(e){const rect=slider.getBoundingClientRect();choose(Math.round(8*(rect.bottom-e.clientY)/rect.height))}slider.addEventListener('pointerdown',e=>{if(e.button!==0||busy||pending||replaying||!M.maxTick(s))return;e.preventDefault();pointer=e.pointerId;slider.setPointerCapture(pointer);slider.focus();pointerChoose(e)});slider.addEventListener('pointermove',e=>{if(pointer===e.pointerId)pointerChoose(e)});const release=e=>{if(pointer!==e.pointerId)return;if(slider.hasPointerCapture(pointer))slider.releasePointerCapture(pointer);pointer=null};slider.addEventListener('pointerup',release);slider.addEventListener('pointercancel',release);slider.addEventListener('lostpointercapture',()=>pointer=null);slider.addEventListener('keydown',e=>{const keys={ArrowUp:selected+1,ArrowRight:selected+1,ArrowDown:selected-1,ArrowLeft:selected-1,Home:1,End:M.maxTick(s)};if(e.key in keys){e.preventDefault();choose(keys[e.key])}});
+function choose(side,requested){if(busy||pending||replaying||cmp(s.volume,ZERO)===0)return;selected=M.selectAmount(s.volume,side,requested).amount;lastChoice=selected;selection();drawCup('',s.juice,s.water)}
+for(const [side,host] of [['drink','tick-labels'],['remain','remain-ticks']])for(const k of side==='drink'?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1]){
+ const b=document.createElement('button');b.type='button';b.className='tick';b.dataset.k=k;b.style.setProperty('--tick-y',((side==='drink'?k:8-k)/8*100)+'%');
+ const f=fmt(F(k,8));b.textContent=k+'/8'+(f!==k+'/8'?' = '+f:'');b.setAttribute('aria-label',(side==='drink'?'喝掉':'剩下')+k+'/8杯');b.tabIndex=-1;b.onclick=e=>{e.stopPropagation();choose(side,F(k,8))};$(host).append(b);
+}
+$('drink-zero').onclick=()=>choose('drink',ZERO);$('remain-zero').onclick=()=>choose('remain',ZERO);$('drink-all').onclick=()=>choose('drink',s.volume);$('keep-all').onclick=()=>choose('remain',s.volume);
+for(const [side,id] of [['drink','drink-slider'],['remain','remain-slider']]){
+ let pointer=null;const slider=$(id);
+ function pointerChoose(e){const rect=slider.getBoundingClientRect();choose(side,M.nearestRuler(s.volume,side,e.clientY-rect.top,rect.height))}
+ slider.addEventListener('pointerdown',e=>{if(e.target.closest('button')?.disabled||e.button!==0||busy||pending||replaying||!cmp(s.volume,ZERO))return;e.preventDefault();pointer=e.pointerId;slider.setPointerCapture(pointer);slider.focus();pointerChoose(e)});
+ slider.addEventListener('pointermove',e=>{if(pointer===e.pointerId)pointerChoose(e)});
+ const release=e=>{if(pointer!==e.pointerId)return;if(slider.hasPointerCapture(pointer))slider.releasePointerCapture(pointer);pointer=null};slider.addEventListener('pointerup',release);slider.addEventListener('pointercancel',release);slider.addEventListener('lostpointercapture',()=>pointer=null);
+ slider.addEventListener('keydown',e=>{if(busy||pending||replaying)return;const choices=M.rulerChoices(s.volume),val=side==='drink'?selected:sub(s.volume,selected),index=choices.findIndex(f=>cmp(f,val)===0);let target=index;
+   if(e.key==='Home')target=side==='drink'?0:choices.length-1;else if(e.key==='End')target=side==='drink'?choices.length-1:0;else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){const upward=e.key==='ArrowUp'||e.key==='ArrowLeft';target+=upward?(side==='drink'?-1:1):(side==='drink'?1:-1)}else return;
+   e.preventDefault();choose(side,choices[Math.max(0,Math.min(choices.length-1,target))]);
+ });
+}
+function collectionTotals(){if(pending&&!pending.committed)return {juice:add(pending.before.s.totalJuice,mul(pending.after.last.juice,collectionT)),water:add(pending.before.s.totalWater,mul(pending.after.last.water,collectionT))};return {juice:s.totalJuice,water:s.totalWater}}
+function renderCollections(){
+ const totals=collectionTotals(),animating=!!pending&&busy&&phase===3,allowed=!hidden;
+ $('collection-total').textContent=animating?'正在收集…':M.mixed(add(totals.juice,totals.water));
+ $('collection-status').textContent=replaying?'正在回看最近一口，累计收集量保持不变。':pending?(phase===1?'先圈出这一口，收集杯暂时保持不变。':phase===2?'这一口已到右杯；下一步将果汁和水分别收好。':animating?'把这一口的黄色和紫色，分别添入各自的收集杯。':'这一口已经收好，再看计算算式。'):'从实验开始一直累计；加水不会直接增加这里的液体。';
+ for(const type of ['juice','water']){
+   const total=totals[type],spec=M.collectionSpec(total),host=$(type+'-collection'),ui=collectionUI[type],older=spec.count>6n?spec.count-4n:0n;
+   $(type+'-collection-total').textContent=animating?'正在收集…':allowed?M.mixed(total):'？ 杯';
+   const key=String(spec.count)+':'+ui.open+':'+ui.limit;
+   if(host.dataset.key!==key){host.dataset.key=key;const fragment=document.createDocumentFragment();
+     const makeCup=index=>{const figure=document.createElement('figure');figure.className='collection-item';figure.dataset.index=String(index);const number=document.createElement('span');number.className='collection-index';number.textContent='第'+(index+1n)+'杯';const cup=document.createElement('div');cup.className='cup';cup.role='img';const fill=document.createElement('div');fill.className='liquid collection-fill '+type;const grid=document.createElement('div');grid.className='cup-grid';cup.append(fill,grid);const caption=document.createElement('figcaption');figure.append(number,cup,caption);return figure};
+     if(older){const details=document.createElement('details');details.className='old-cups';details.open=ui.open;const summary=document.createElement('summary');summary.textContent='前'+older+'个满杯已收好 · 展开查看';details.append(summary);details.ontoggle=()=>{if(ui.open===details.open)return;ui.open=details.open;renderCollections()};if(ui.open){const list=document.createElement('div');list.className='old-cup-list';const limit=older<BigInt(ui.limit)?older:BigInt(ui.limit);for(let index=0n;index<limit;index++)list.append(makeCup(index));details.append(list);if(limit<older){const more=document.createElement('button');more.textContent='再显示20个满杯';more.onclick=()=>{ui.limit+=20;renderCollections()};details.append(more)}}fragment.append(details)}
+     for(let index=older;index<spec.count;index++)fragment.append(makeCup(index));host.replaceChildren(fragment);
+   }
+   for(const figure of host.querySelectorAll('.collection-item')){const index=BigInt(figure.dataset.index),amount=M.collectionVolume(total,index),caption=figure.querySelector('figcaption'),cup=figure.querySelector('.cup');figure.querySelector('.collection-fill').style.height=percent(amount)+'%';caption.textContent=animating?'收集中…':allowed?fmt(amount)+' 杯':'？ 杯';cup.setAttribute('aria-label',(type==='juice'?'果汁':'水')+'第'+(index+1n)+'杯，'+(animating?'收集中':allowed?fmt(amount)+'杯':'分量答案已隐藏'))}
+ }
+}
 const frame=(duration,update,run)=>new Promise(resolve=>{if(reduceMotion.matches){update(ONE);resolve(true);return}const start=performance.now();function tick(now){if(run!==token){resolve(false);return}const ms=Math.min(duration,Math.max(0,Math.round(now-start)));update(F(ms,duration));if(ms===duration)resolve(true);else requestAnimationFrame(tick)}requestAnimationFrame(tick)});
 async function animateDrink(record,run){const beforeJ=record.beforeJuice,beforeW=record.beforeWater;drawCup('',beforeJ,beforeW,false);drawCup('out-',ZERO,ZERO,false);$('selection').hidden=true;const left=$('cup').getBoundingClientRect(),right=$('out-cup').getBoundingClientRect(),h=left.height*M.value(record.amount),y=left.bottom-left.height*M.value(record.beforeVolume);
  flying=document.createElement('div');flying.className='flying';flying.style.cssText='left:'+left.left+'px;top:'+y+'px;width:'+left.width+'px;height:0px';const v=M.visual(record.juice,record.water);for(const [name,width] of [['juice',v.juiceWidth],['water',v.waterWidth]]){const part=document.createElement('div');part.className='component '+name;part.style.width=width+'%';flying.append(part)}document.body.append(flying);
  if(!await frame(430,t=>{drawCup('',sub(beforeJ,mul(record.juice,t)),sub(beforeW,mul(record.water,t)),false);if(flying)flying.style.height=h*M.value(t)+'px'},run))return false;
  if(!reduceMotion.matches){flight=flying.animate([{transform:'translate(0,0)'},{transform:'translate('+(right.left-left.left)+'px,'+(right.bottom-h-y)+'px)'}],{duration:650,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});try{await flight.finished}catch{return false}flight=null}
  if(run!==token)return false;flying.remove();flying=null;drawCup('out-',record.juice,record.water,false);return true}
-function commitPending(){if(!pending||pending.committed)return;undoStack.push(pending.before);redoStack=[];s=pending.after;pending.committed=true;selected=Math.min(selected,M.maxTick(s))}
-function completeDrink(){stopMotion();commitPending();busy=false;phase=4;pending=null;render();notice('这一口已完成。可以继续喝，也可以加水至满杯。')}
-async function separate(){if(!pending||busy)return;busy=true;render();const run=++token,record=pending.after.last;if(!await animateDrink(record,run)||run!==token)return;commitPending();busy=false;phase=2;render();notice('第2步：喝掉的部分来到右杯。两只杯子使用同一比例尺。');if(!stepMode){phase=4;pending=null;render();notice('这一口已完成。右杯只显示最新这一口。')}}
-$('drink').onclick=()=>{if(busy||pending||!selected)return;const before=snapshot(),after=M.drink(s,selected);pending={before,after,committed:false,redoBefore:redoStack};phase=1;render();notice('第1步：虚线上方是准备喝掉的部分，黄色和紫色一起取走。');if(!stepMode){const run=++token;frame(400,()=>{},run).then(ok=>{if(ok&&pending)separate()})}};
-$('next').onclick=()=>{if(!pending||busy)return;if(phase===1)separate();else if(phase===2){phase=3;render();notice('第3步：看一看，这一口中果汁和水各占整杯的多少？')}else completeDrink()};
+function commitPending(){if(!pending||pending.committed)return;undoStack.push(pending.before);redoStack=[];s=pending.after;pending.committed=true;collectionT=ONE}
+function completeDrink(){stopMotion();commitPending();collectionT=ONE;busy=false;phase=4;pending=null;render();notice('这一口已完成。可以继续喝，也可以加水至满杯。')}
+async function separate(){if(!pending||busy)return;busy=true;render();const run=++token,record=pending.after.last;if(!await animateDrink(record,run)||run!==token)return;busy=false;phase=2;render();notice('第2步：这一口来到右杯。下一步将果汁和水分别收好。');if(!stepMode){if(!await frame(220,()=>{},run)||run!==token)return;collect()}}
+async function collect(){if(!pending||busy||phase!==2)return;busy=true;phase=3;collectionT=ZERO;render();notice('第3步：分别收集这一口的果汁和水，满1杯就接着装下一杯。');const run=++token;
+ if(!await frame(800,t=>{collectionT=t;renderCollections()},run)||run!==token)return;
+ commitPending();busy=false;render();if(!stepMode){phase=4;pending=null;render();notice('这一口已完成，果汁和水已分别计入累计收集杯。')}
+}
+$('drink').onclick=()=>{if(busy||pending||cmp(selected,ZERO)<=0)return;const before=snapshot(),after=M.drinkAmount(s,selected);pending={before,after,committed:false,redoBefore:redoStack};collectionT=ZERO;phase=1;render();notice('第1步：虚线上方是准备喝掉的部分，黄色和紫色一起取走。');if(!stepMode){const run=++token;frame(400,()=>{},run).then(ok=>{if(ok&&pending)separate()})}};
+$('next').onclick=()=>{if(!pending||busy)return;if(phase===1)separate();else if(phase===2)collect();else completeDrink()};
 $('finish').onclick=()=>{if(replaying){stopMotion();replaying=false;busy=false;render();notice('已回到当前杯子，回看没有改变数据。')}else if(pending)completeDrink();else if(busy&&refillTarget){stopMotion();s=refillTarget;refillTarget=null;busy=false;render();notice('已加水至满杯，果汁的量没有变化。')}};
 $('cancel').onclick=()=>{if(!pending)return;stopMotion();const p=pending;if(p.committed)undoStack.pop();redoStack=p.redoBefore;restore(p.before);notice('已取消本次喝水，完整恢复到操作前。')};
 let refillTarget=null;
 $('refill').onclick=async()=>{if(busy||pending||cmp(s.volume,ONE)===0)return;undoStack.push(snapshot());redoStack=[];const before=s;refillTarget=M.refill(s);const target=refillTarget,added=sub(ONE,s.volume);busy=true;render();notice('只加入紫色的水：果汁的量保持不变。');const run=++token;const ok=await frame(900,t=>drawCup('',before.juice,add(before.water,mul(added,t)),false),run);if(!ok||run!==token)return;s=target;refillTarget=null;busy=false;render();notice('加了'+fmt(added)+'杯水，现在是满杯。果汁的量保持不变。')};
 $('undo').onclick=()=>{if(busy||pending||!undoStack.length)return;redoStack.push(snapshot());restore(undoStack.pop());notice('已撤销上一步。')};$('redo').onclick=()=>{if(busy||pending||!redoStack.length)return;undoStack.push(snapshot());restore(redoStack.pop());notice('已重做上一步。')};
-$('reset').onclick=()=>{if(busy||pending)return;undoStack.push(snapshot());redoStack=[];s=M.initial();selected=lastChoice=4;phase=4;hidden=false;stepMode=false;$('history-details').open=false;render();notice('回到1整杯纯果汁。需要时可以撤销这次重置。')};
+$('reset').onclick=()=>{if(busy||pending)return;undoStack.push(snapshot());redoStack=[];s=M.initial();selected=lastChoice=F(4,8);collectionT=ONE;for(const type of ['juice','water'])Object.assign(collectionUI[type],{open:false,limit:20});phase=4;hidden=false;stepMode=false;$('history-details').open=false;render();notice('回到1整杯纯果汁。需要时可以撤销这次重置。')};
 $('step-mode').onchange=e=>{stepMode=e.target.checked;notice(stepMode?'分步演示已开启，每一步由你点击“下一步”。':'一键演示已开启，点击喝水会自动完成。')};$('hide-answers').onchange=e=>{hidden=e.target.checked;render()};$('reveal').onclick=()=>{hidden=false;render();notice('答案已揭晓。')};
 $('replay').onclick=async()=>{if(busy||pending||!s.last)return;replaying=true;busy=true;render();const run=++token;notice('回看第'+s.last.index+'次喝水动画，不改变当前数据与历史。');if(!await animateDrink(s.last,run)||run!==token)return;await frame(650,()=>{},run);if(run!==token)return;replaying=false;busy=false;render();notice('回看结束，已回到当前杯子。数据与历史保持不变。')};
 $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{notice('浏览器未允许全屏，可以按F11进入全屏。')}};document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'退出全屏':'全屏授课'});
