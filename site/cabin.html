@@ -1321,7 +1321,7 @@
         <div class="gameShelfPanel">
             <h2 class="gameShelfTitle">课堂游戏</h2>
             <nav id="gameShelfList" class="gameShelfList" aria-label="选择游戏">
-                <a class="gameShelfLink" href="juice-fractions/"><span class="gameShelfIcon">⅛</span><span>乐乐喝果汁</span><span class="gameShelfGo">›</span></a>
+                <a class="gameShelfLink" href="juice-fractions/"><span class="gameShelfIcon">1/12</span><span>乐乐喝果汁</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="magic-24/game.html"><span class="gameShelfIcon">24</span><span>24点游戏</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="prime-factor/?v=2026.09.18.2" data-live="https://chyahy.github.io/software-picks/prime-factor/?v=2026.09.18.2"><span class="gameShelfIcon">2×</span><span>分解质因数</span><span class="gameShelfGo">›</span></a>
                 <a class="gameShelfLink" href="cube-coloring/?v=2026.09.18.1" data-live="https://chyahy.github.io/software-picks/cube-coloring/?v=2026.09.18.1"><span class="gameShelfIcon">立方</span><span>正方体涂色</span><span class="gameShelfGo">›</span></a>
@@ -1362,7 +1362,7 @@
     <script>
         (function () {
             'use strict';
-            const PAGE_VERSION = '2026.11.11.3';
+            const PAGE_VERSION = '2026.11.12.1';
 
             async function refreshWhenSiteUpdates() {
                 if (!/^https?:$/.test(location.protocol)) return;
@@ -4197,7 +4197,7 @@
                 for(const [dx,color] of [[-.066,0xffd258],[.066,0xab95f1]])put(new THREE.Mesh(new THREE.BoxGeometry(.132,.205,.23),LITMAT(color)),dx,.108,0,0,0,0,cup);
             }
             const juiceBadgeCanvas=document.createElement('canvas');juiceBadgeCanvas.width=128;juiceBadgeCanvas.height=128;
-            const juiceBadgeContext=juiceBadgeCanvas.getContext('2d');juiceBadgeContext.fillStyle='#6550b9';juiceBadgeContext.fillRect(0,0,128,128);juiceBadgeContext.fillStyle='#fff';juiceBadgeContext.font='bold 84px sans-serif';juiceBadgeContext.textAlign='center';juiceBadgeContext.fillText('⅛',64,94);
+            const juiceBadgeContext=juiceBadgeCanvas.getContext('2d');juiceBadgeContext.fillStyle='#6550b9';juiceBadgeContext.fillRect(0,0,128,128);juiceBadgeContext.fillStyle='#fff';juiceBadgeContext.font='bold 48px sans-serif';juiceBadgeContext.textAlign='center';juiceBadgeContext.fillText('1/12',64,85);
             const juiceBadge=new THREE.Mesh(new THREE.PlaneGeometry(.21,.21),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(juiceBadgeCanvas)}));juiceBadge.position.set(0,.15,.245);juiceG.add(juiceBadge);
             juiceG.userData.aimLabel='拿起果汁杯，进入乐乐喝果汁';juiceG.userData.sfx='magic';let juiceLaunching=false,juiceTimer=null;
             function openJuiceLesson(playSound=true){if(juiceLaunching)return;juiceLaunching=true;if(playSound)SND.play('magic');juiceCups.forEach((cup,i)=>{cup.rotation.z=i?-.12:.12;cup.position.y=.14});juiceTimer=setTimeout(()=>{location.href=location.protocol==='file:'?'https://dangdanglaoshi.cn/juice-fractions/':new URL('juice-fractions/',location.href).href},650)}
