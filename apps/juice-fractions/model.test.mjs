@@ -7,6 +7,16 @@ vm.runInContext(html.match(/<script id="juice-model">([\s\S]*?)<\/script>/)[1],c
 const M=context.JuiceModel,{F,ONE,ZERO,fmt,add,sub,mul,div,cmp}=M;
 const drinkEighths=(s,k)=>M.drinkAmount(s,F(k,8));
 const equal=(a,b)=>assert.equal(fmt(a),b);
+test('Juice and water accumulate independently and exclude refills from both calculation histories',()=>{
+ let s=M.drink(M.initial(),6);s=M.drink(M.refill(s),6);let c=M.cumulativeCalculation(s);
+ equal(c.steps[0].juiceAmount,'1/2');equal(c.steps[0].waterAmount,'0');equal(c.steps[1].juicePrevious,'1/2');equal(c.steps[1].juiceAmount,'1/4');equal(c.steps[1].juiceTotal,'3/4');equal(c.steps[1].waterPrevious,'0');equal(c.steps[1].waterAmount,'1/4');equal(c.steps[1].waterTotal,'1/4');
+ const before=s;s=M.drink(M.refill(s),6);c=M.cumulativeCalculation(s);equal(c.steps[2].juiceAmount,'1/8');equal(c.steps[2].juiceTotal,'7/8');equal(c.steps[2].waterAmount,'3/8');equal(c.steps[2].waterTotal,'5/8');equal(M.cumulativeCalculation(before).juice,'3/4');
+});
+test('Only cumulative collection cups and separate calculations occupy the right panel',()=>{
+ const panel=html.slice(html.indexOf('<section class="panel right"'),html.indexOf('</main>'));
+ for(const id of ['juice-collection','water-collection','juice-process','water-process','collection-total'])assert(panel.includes('id="'+id+'"'));
+ assert(!html.includes('id="out-cup"'));assert(!html.includes('class="collection-section"'));assert(!html.includes('id="this-juice"'));
+});
 test('Twelve selectable parts drink exact twelfths and keep both rulers complementary',()=>{
  assert.equal(M.DIVISIONS,12);assert.equal(M.rulerChoices(ONE).length,13);
  for(let k=1;k<=12;k++){const s=M.drink(M.initial(),k);equal(s.last.amount,fmt(F(k,12)));equal(s.volume,fmt(F(12-k,12)));assert.equal(M.maxTick(s),12-k);for(const side of ['drink','remain']){const choice=M.selectAmount(ONE,side,F(k,12));equal(add(choice.amount,choice.remaining),'1')}}
