@@ -221,14 +221,14 @@
   },
   {
     "id": "custom-grade1-add-sub-50-v1-021",
-    "expression": "11+7",
-    "answer": "18",
+    "expression": "8+7",
+    "answer": "15",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "11+7=18。"
+    "explanation": "8+7=15。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-022",
@@ -236,7 +236,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "10+7=17。"
@@ -247,7 +247,7 @@
     "answer": "15",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "12+3=15。"
@@ -258,7 +258,7 @@
     "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "10+6=16。"
@@ -269,7 +269,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "15+2=17。"
@@ -280,7 +280,7 @@
     "answer": "18",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "17+1=18。"
@@ -291,7 +291,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "16+1=17。"
@@ -302,21 +302,21 @@
     "answer": "18",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "10+8=18。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-029",
-    "expression": "13+5",
-    "answer": "18",
+    "expression": "9+6",
+    "answer": "15",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "13+5=18。"
+    "explanation": "9+6=15。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-030",
@@ -324,21 +324,21 @@
     "answer": "15",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "11+4=15。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-031",
-    "expression": "14+5",
-    "answer": "19",
+    "expression": "7+6",
+    "answer": "13",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "14+5=19。"
+    "explanation": "7+6=13。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-032",
@@ -346,7 +346,7 @@
     "answer": "14",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "13+1=14。"
@@ -357,7 +357,7 @@
     "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "12+4=16。"
@@ -368,7 +368,7 @@
     "answer": "13",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "10+3=13。"
@@ -379,7 +379,7 @@
     "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "15+1=16。"
@@ -390,7 +390,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "13+4=17。"
@@ -401,21 +401,21 @@
     "answer": "11",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "10+1=11。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-038",
-    "expression": "15+4",
-    "answer": "19",
+    "expression": "8+8",
+    "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "15+4=19。"
+    "explanation": "8+8=16。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-039",
@@ -423,21 +423,21 @@
     "answer": "12",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "11+1=12。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-040",
-    "expression": "17+2",
-    "answer": "19",
+    "expression": "9+8",
+    "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "17+2=19。"
+    "explanation": "9+8=17。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-041",
@@ -775,7 +775,7 @@
     "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "17-1=16。"
@@ -786,21 +786,21 @@
     "answer": "13",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "15-2=13。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-073",
-    "expression": "17-5",
-    "answer": "12",
+    "expression": "13-7",
+    "answer": "6",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "17-5=12。"
+    "explanation": "13-7=6。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-074",
@@ -808,7 +808,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "18-1=17。"
@@ -819,32 +819,32 @@
     "answer": "12",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "16-4=12。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-076",
-    "expression": "18-7",
-    "answer": "11",
+    "expression": "14-8",
+    "answer": "6",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "18-7=11。"
+    "explanation": "14-8=6。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-077",
-    "expression": "19-8",
-    "answer": "11",
+    "expression": "15-9",
+    "answer": "6",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "19-8=11。"
+    "explanation": "15-9=6。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-078",
@@ -852,7 +852,7 @@
     "answer": "16",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "18-2=16。"
@@ -863,7 +863,7 @@
     "answer": "10",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "17-7=10。"
@@ -874,32 +874,32 @@
     "answer": "14",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "17-3=14。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-081",
-    "expression": "19-5",
-    "answer": "14",
+    "expression": "16-7",
+    "answer": "9",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "19-5=14。"
+    "explanation": "16-7=9。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-082",
-    "expression": "19-9",
-    "answer": "10",
+    "expression": "17-8",
+    "answer": "9",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 3,
     "type": "calculate",
     "options": [],
-    "explanation": "19-9=10。"
+    "explanation": "17-8=9。"
   },
   {
     "id": "custom-grade1-add-sub-50-v1-083",
@@ -907,7 +907,7 @@
     "answer": "10",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "14-4=10。"
@@ -918,7 +918,7 @@
     "answer": "11",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "12-1=11。"
@@ -929,7 +929,7 @@
     "answer": "13",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "17-4=13。"
@@ -940,7 +940,7 @@
     "answer": "17",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "19-2=17。"
@@ -951,7 +951,7 @@
     "answer": "10",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "11-1=10。"
@@ -962,7 +962,7 @@
     "answer": "12",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "14-2=12。"
@@ -973,7 +973,7 @@
     "answer": "12",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "15-3=12。"
@@ -984,7 +984,7 @@
     "answer": "18",
     "grade": "一年级",
     "topic": "50以内加减法",
-    "difficulty": 1,
+    "difficulty": 2,
     "type": "calculate",
     "options": [],
     "explanation": "19-1=18。"
