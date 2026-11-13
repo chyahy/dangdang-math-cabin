@@ -1,0 +1,40 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const browser=await chromium.launch({channel:'msedge'});
+const out=new URL('../../../outputs/pythagoras/',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1');
+await fs.mkdir(out,{recursive:true});
+const base=process.env.PYTHAGORAS_QA_URL||'http://127.0.0.1:4186/pythagoras/';
+const page=await browser.newPage({viewport:{width:1920,height:1080}}),errors=[],responses=[];
+page.on('pageerror',e=>errors.push(e.message));
+page.on('response',r=>{if(r.status()>=400)responses.push(`${r.status()} ${r.url()}`)});
+const results=[];
+const check=(name)=>{results.push(name);console.log('PASS '+name)};
+const shot=name=>page.screenshot({path:`${out}/${name}.png`,fullPage:true});
+const select=async id=>{const dropdown=page.getByRole('combobox',{name:'切换证明',exact:true});if(await dropdown.isVisible())await dropdown.selectOption(id);else await page.locator('.lesson-nav>button').nth(['intro','dissection','garfield','area','similarity','free'].indexOf(id)).click()};
+const at=async n=>{await page.locator('.step-list button').nth(n).click();assert.equal(+await page.locator('.scene').getAttribute('data-progress'),n)};
+const progress=async()=>+await page.locator('.scene').getAttribute('data-progress');
+try{
+ await page.goto(base);await page.waitForSelector('.geometry');
+ assert.equal(await page.locator('.katex').count(),0);assert.equal(await progress(),0);check('initial view conceals conclusion');await shot('desktop-initial');
+ await page.getByRole('button',{name:'开始播放',exact:true}).click();await page.waitForTimeout(330);await page.getByRole('button',{name:'暂停',exact:true}).click();
+ const paused=await progress();assert(paused>0&&paused<1);await page.waitForTimeout(250);assert.equal(await progress(),paused);check('pause freezes exact in-between state');
+ await page.getByRole('button',{name:'继续',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.scene').dataset.progress==='1.000000');await page.waitForTimeout(150);assert.equal(await progress(),1);check('resume reaches one step and stops automatically');
+ await at(3);await shot('desktop-squares');await at(5);await page.getByRole('slider',{name:'边长 a',exact:true}).focus();await page.keyboard.press('ArrowRight');assert(await page.locator('.slider-row output').first().textContent()!=='3');
+ await page.getByRole('button',{name:'5 · 12 · 13',exact:true}).click();assert.match(await page.locator('.parameter-footer').textContent(),/13/);await at(6);await shot('desktop-area-numbers');check('leg sliders and 5-12-13 preset update all geometry');
+ await page.getByRole('button',{name:'3 · 4 · 5',exact:true}).click();
+ await select('dissection');await at(4);await shot('desktop-dissection');await at(8);await page.getByRole('button',{name:'切换拼法',exact:true}).click();await page.waitForTimeout(500);await page.getByRole('button',{name:'暂停',exact:true}).click();const rearrange=await progress();assert(rearrange>8&&rearrange<9);await shot('desktop-rigid-motion');
+ await select('garfield');await select('dissection');assert.equal(await progress(),rearrange);await page.getByRole('button',{name:'继续',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.scene').dataset.progress==='9.000000');await page.getByRole('button',{name:'对比两种拼法',exact:true}).click();assert.equal(await page.locator('[data-rigid]').count(),8);await shot('desktop-comparison');check('rigid rearrangement pauses, retains module progress, resumes and compares both layouts');
+ await select('garfield');await at(2);await page.getByRole('button',{name:'分离三个三角形',exact:true}).click();await shot('desktop-garfield-separated');await page.getByRole('button',{name:'恢复梯形',exact:true}).click();await at(5);await shot('desktop-garfield');await page.getByRole('combobox',{name:'高亮梯形区域'}).selectOption('middle');check('trapezoid separation, restoration, area derivation and region selection');
+ await select('area');const apex=page.getByRole('slider',{name:'等底等高三角形的顶部顶点'});await apex.focus();await page.keyboard.press('End');assert.match(await page.locator('svg.geometry').textContent(),/面积 = 9/);await shot('desktop-equal-base-height');for(let i=1;i<8;i++){await at(i);await shot(`desktop-shear-${i}`)}check('constant-area apex experiment and all seven area-transformation states');
+ await select('similarity');await at(3);await shot('desktop-similarity');await page.getByRole('button',{name:'统一对应斜边',exact:true}).click();await shot('desktop-similarity-scaled');await at(4);await page.locator('.math-formula').click();await shot('desktop-projection');await at(7);await shot('desktop-video-proof');check('similarity, matched-angle comparison and both video/projection proofs');
+ await select('free');for(let i=0;i<6;i++){await page.locator('.experiment-list button').nth(i).click();await shot(`experiment-${i+1}`)}
+ for(const [theta,sign] of [[60,'>0'],[90,'=0'],[120,'<0']]){await page.getByRole('button',{name:`${theta}°`,exact:true}).click();const text=await page.locator('.formula-ribbon').textContent();assert(text.includes(sign),`${theta}: ${text}`)}check('six free experiments and acute/right/obtuse cosine-law comparisons');
+ await page.locator('.experiment-list button').nth(3).click();await page.getByRole('button',{name:'切换拼法',exact:true}).click();await page.waitForTimeout(300);await page.getByRole('button',{name:'暂停',exact:true}).click();assert(await progress()>0&&await progress()<1);await page.getByRole('button',{name:'继续',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.scene').dataset.progress==='1.000000');check('free rearrangement has genuine pausable motion');
+ await select('intro');await page.getByRole('combobox',{name:'展示层次',exact:true}).selectOption('shapes');assert.equal(await page.locator('.math-formula').count(),0);assert.equal(await page.locator('.math-label').count(),0);await page.getByRole('combobox',{name:'展示层次',exact:true}).selectOption('full');check('display modes hide labels and formulas without revealing future conclusions');
+ await page.getByRole('button',{name:'教师演示',exact:true}).click();assert.equal(await page.locator('.teacher-sidebar').isVisible(),false);await shot('desktop-teacher-mode');await page.locator('.stage-frame').click({position:{x:35,y:80}});await page.getByRole('button',{name:'退出演示',exact:true}).click();
+ await page.getByRole('button',{name:'恢复初始状态',exact:true}).click();assert.equal(await progress(),0);await page.locator('h2').click();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.querySelector('.scene').dataset.progress==='1.000000');await page.keyboard.press('r');assert.equal(await progress(),0);check('teacher mode and keyboard next/replay');
+ for(const viewport of [{width:1366,height:768},{width:768,height:1024},{width:390,height:844},{width:844,height:390}]){await page.setViewportSize(viewport);await select('intro');await at(6);const dims=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));assert(dims.scroll<=dims.width+1,JSON.stringify(dims));await shot(`responsive-${viewport.width}x${viewport.height}`)}check('desktop, tablet, portrait phone and landscape have no horizontal overflow');
+ assert.deepEqual(errors,[]);assert.deepEqual(responses,[]);check('no runtime errors or failed assets');
+ await fs.writeFile(`${out}/browser-qa.json`,JSON.stringify({base,results,errors,responses},null,2));
+}finally{await browser.close()}

@@ -1,4 +1,5 @@
 export const GAMES = [
+  {id:'pythagoras',title:'勾股定理 · 看见证明',description:'分步控制拼接、梯形、等积变换与相似证明，在真实几何中看懂面积关系。',category:'geometry',image:'game-pythagoras.svg',path:'pythagoras/'},
   {id:'juice',title:'乐乐喝果汁',description:'选一口、兑满水，对照两只杯子，看懂果汁与水的分数变化。',category:'numbers',image:'game-juice.svg',path:'juice-fractions/'},
   {id:'mathkingdom',title:'数学王国',description:'计算赢金币，选购像素军队，展开双人运算攻城战。',category:'numbers',image:'game-mathkingdom.webp',path:'math-kingdom/'},
   {id:'wordkingdom',title:'单词王国',description:'答题赢金币，招募冰冻法师，升级城堡进行英语攻防。',category:'language',image:'game-wordkingdom-pixel-v2.webp',path:'word-kingdom/'},

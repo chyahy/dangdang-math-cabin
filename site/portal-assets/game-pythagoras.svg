@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+ <title>勾股定理 · 看见证明</title>
+ <desc>直角三角形三边上的三个真实正方形，蓝色面积与绿色面积之和等于红色面积。</desc>
+ <rect width="960" height="600" fill="#080b10"/>
+ <g fill="none" stroke="#263340" stroke-width="1"><path d="M40 112H302M40 487H280"/><path d="M40 104V120M302 104V120M40 479V495M280 479V495"/></g>
+ <g font-family="Microsoft YaHei,PingFang SC,sans-serif"><text x="40" y="57" fill="#f4b64e" font-size="16" letter-spacing="6">当当老师 · 数学可视化课堂</text><text x="40" y="209" fill="#edf3fa" font-size="50" font-weight="600">勾股定理</text><text x="42" y="255" fill="#9aabbf" font-size="26" letter-spacing="9">看见证明</text><text x="42" y="317" fill="#778b9f" font-size="17">五种演示 · 分步讲解</text><text x="42" y="348" fill="#778b9f" font-size="17">真实几何 · 自由实验</text><text x="40" y="549" fill="#98a9bd" font-size="17">从一只直角三角形开始，寻找面积的联系。</text></g>
+ <g stroke-width="2" stroke-linejoin="round"><path d="M550 370H700V520H550Z" fill="#57b6ff" fill-opacity=".22" stroke="#57b6ff"/><path d="M550 170V370H350V170Z" fill="#58d6a4" fill-opacity=".22" stroke="#58d6a4"/><path d="M700 370L550 170L750 20L900 220Z" fill="#ff6c7c" fill-opacity=".16" stroke="#ff6c7c"/><path d="M550 370H700L550 170Z" fill="#f4b64e" fill-opacity=".3" stroke="#f4b64e"/><path d="M550 351H569V370" fill="none" stroke="#edf3fa" stroke-width="1.5"/></g>
+ <g font-family="Georgia,serif" font-style="italic" text-anchor="middle"><text x="625" y="458" fill="#57b6ff" font-size="45">a²</text><text x="450" y="280" fill="#58d6a4" font-size="45">b²</text><text x="730" y="206" fill="#ff6c7c" font-size="48">c²</text><text x="625" y="355" fill="#57b6ff" font-size="27">a</text><text x="571" y="278" fill="#58d6a4" font-size="27">b</text><text x="633" y="263" fill="#ff6c7c" font-size="27">c</text></g>
+ <g fill="#edf3fa"><circle cx="550" cy="370" r="4"/><circle cx="700" cy="370" r="4"/><circle cx="550" cy="170" r="4"/></g>
+ <g fill="none" stroke="#243342" stroke-width="1"><path d="M940 560V580H920M20 20V40M20 20H40M920 20H940V40M20 560V580H40"/></g>
+</svg>
