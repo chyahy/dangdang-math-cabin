@@ -29,7 +29,7 @@ export function Intro({a,b,p,options:o,onLegs,angle=90}:SceneProps){
  {angle!==90&&o.areas&&<Text at={P(500,590)} color={C.white} size={23}>a² + b² − c² = {fmt(delta)}</Text>}
  </SVG>
 }
-function Arrangement({a,b,p,o,box,layout}:{a:number;b:number;p:number;o:Options;box:{x:number;y:number;w:number;h:number};layout?:number}){
+function Arrangement({a,b,p,o,box,layout,pieceCount=4,colors=C}:{a:number;b:number;p:number;o:Options;box:{x:number;y:number;w:number;h:number};layout?:number;pieceCount?:number;colors?:typeof C}){
  const L=a+b,T=rightTriangle(a,b);
  const poses=dissection(a,b,0),dest=dissection(a,b,1);const move=layout??phase(p,8,9);
  // Rigid displacement only. The lifted path makes it clear that the partition is temporarily open.
@@ -39,18 +39,30 @@ function Arrangement({a,b,p,o,box,layout}:{a:number;b:number;p:number;o:Options;
  const cam=camera([P(-L*.12,-L*.12),P(L*1.12,L*1.12),...current.flatMap(q=>posedTriangle(a,b,q))],box),f=cam.map;
  const central=[P(a,0),P(L,a),P(b,L),P(0,b)];
  const newSquares=[[P(0,0),P(a,0),P(a,a),P(0,a)],[P(a,a),P(L,a),P(L,L),P(a,L)]];
- return <g><Poly ps={[P(0,0),P(L,0),P(L,L),P(0,L)].map(f)} color={o.guides||p>=5?C.white:'#283443'} fill={0} active={p>=5&&p<6}/>
- {showPartition&&move<.001&&<><Poly ps={central.map(f)} color={C.c} fill={p>=5?.4:.12} active={p>=8}/>{o.areas&&<Text at={f(P(L/2,L/2))} color={C.c} size={30}>c²</Text>}</>}
- {showPartition&&final&&newSquares.map((sq,i)=><g key={i}><Poly ps={sq.map(f)} color={i===0?C.a:C.b} fill={.3}/>{o.areas&&<Text at={f(center(sq))} color={i===0?C.a:C.b} size={30}>{i===0?'a²':'b²'}</Text>}</g>)}
- {poses.map((pose,i)=>{const {x,y,r}=current[i];
- const origin=f(P(x,y));const moving=move>0&&move<1;return <g key={i} transform={`translate(${origin.x} ${origin.y}) rotate(${r}) scale(${cam.s})`}><polygon data-rigid={i} points={pts(T)} fill={C.tri} fillOpacity={moving?.62:.28} stroke={C.tri} strokeWidth={1.7/cam.s} strokeLinejoin="round"/>
- <polyline points={pts([P(a*.09,0),P(a*.09,Math.min(a,b)*.09),P(0,Math.min(a,b)*.09)])} fill="none" stroke={C.white} strokeWidth={1/cam.s}/>
- {o.lengths&&<>{[[P(a/2,-13/cam.s),'a'],[P(-13/cam.s,b/2),'b'],[P(a*.55,b*.55),'c']].map(([q,label],j)=><text key={j} x={(q as Point).x} y={(q as Point).y} textAnchor="middle" fill={C.white} fontSize={18/cam.s} style={{fontSize:`${18/(cam.s*24)}em`}} className="math-label" transform={`rotate(${-r} ${(q as Point).x} ${(q as Point).y})`}>{label as string}</text>)}</>}
+ return <g><Poly ps={[P(0,0),P(L,0),P(L,L),P(0,L)].map(f)} color={o.guides||p>=5?colors.white:'#283443'} fill={0} active={p>=5&&p<6}/>
+ {showPartition&&move<.001&&<><Poly ps={central.map(f)} color={colors.c} fill={p>=5?.4:.12} active={p>=8}/>{o.areas&&<Text at={f(P(L/2,L/2))} color={colors.c} size={30}>c²</Text>}</>}
+ {showPartition&&pieceCount>0&&final&&newSquares.map((sq,i)=><g key={i}><Poly ps={sq.map(f)} color={i===0?colors.a:colors.b} fill={.3}/>{o.areas&&<Text at={f(center(sq))} color={i===0?colors.a:colors.b} size={30}>{i===0?'a²':'b²'}</Text>}</g>)}
+ {poses.slice(0,pieceCount).map((pose,i)=>{const {x,y,r}=current[i];
+ const origin=f(P(x,y));const moving=move>0&&move<1;return <g key={i} transform={`translate(${origin.x} ${origin.y}) rotate(${r}) scale(${cam.s})`}><polygon data-rigid={i} points={pts(T)} fill={colors.tri} fillOpacity={moving?.62:.28} stroke={colors.tri} strokeWidth={1.7/cam.s} strokeLinejoin="round"/>
+ <polyline points={pts([P(a*.09,0),P(a*.09,Math.min(a,b)*.09),P(0,Math.min(a,b)*.09)])} fill="none" stroke={colors.white} strokeWidth={1/cam.s}/>
+ {o.lengths&&<>{[[P(a/2,-13/cam.s),'a'],[P(-13/cam.s,b/2),'b'],[P(a*.55,b*.55),'c']].map(([q,label],j)=><text key={j} x={(q as Point).x} y={(q as Point).y} textAnchor="middle" fill={colors.white} fontSize={18/cam.s} style={{fontSize:`${18/(cam.s*24)}em`}} className="math-label" transform={`rotate(${-r} ${(q as Point).x} ${(q as Point).y})`}>{label as string}</text>)}</>}
  </g>})}
  {o.lengths&&<EdgeLabel u={f(P(0,0))} v={f(P(L,0))} text="a + b" offset={-24}/>}
  </g>
 }
-export function Dissection({a,b,p,options:o,compare=false,layout}:SceneProps){return <SVG label="四个全等直角三角形的两种拼接"><Arrangement a={a} b={b} p={p} o={o} box={compare?{x:15,y:75,w:475,h:450}:{x:100,y:10,w:800,h:570}} layout={compare?0:layout}/>{compare&&<><Line a={P(500,80)} b={P(500,520)} color="#26313e"/><Arrangement a={a} b={b} p={10} o={o} box={{x:510,y:75,w:475,h:450}} layout={1}/><Text at={P(250,565)} color={C.c} size={26}>剩余：c²</Text><Text at={P(750,565)} color={C.b} size={26}>剩余：a² + b²</Text></>}{!compare&&p>8&&p<9&&<Text at={P(500,590)} color={C.dim} size={17} math={false}>刚体移动中 · 到位后再比较剩余面积</Text>}</SVG>}
+export function Dissection({a,b,p,options:o,compare=false,layout,reverseComparison=false,pieceCount=4}:SceneProps & {reverseComparison?:boolean;pieceCount?:number}){
+ const colors=reverseComparison?{...C,a:'#ff777d',b:'#f3d55b',c:'#67dca7',tri:'#63c9ff'}:C;
+ const left=reverseComparison?1:0, right=1-left;
+ return <SVG label="四个全等直角三角形的两种拼接">
+  <Arrangement a={a} b={b} p={p} o={o} colors={colors} pieceCount={pieceCount} box={compare?{x:15,y:75,w:475,h:450}:{x:100,y:10,w:800,h:570}} layout={compare?left:layout}/>
+  {compare&&<><Line a={P(500,80)} b={P(500,520)} color="#26313e"/>
+   <Arrangement a={a} b={b} p={10} o={o} colors={colors} box={{x:510,y:75,w:475,h:450}} layout={right}/>
+   <Text at={P(250,565)} color={left?colors.b:colors.c} size={26}>{left?'剩余：a² + b²':'剩余：c²'}</Text>
+   <Text at={P(750,565)} color={right?colors.b:colors.c} size={26}>{right?'剩余：a² + b²':'剩余：c²'}</Text>
+  </>}
+  {!compare&&p>8&&p<9&&<Text at={P(500,590)} color={C.dim} size={17} math={false}>刚体移动中 · 到位后再比较剩余面积</Text>}
+ </SVG>
+}
 export function Garfield({a,b,p,options:o,spread=0,highlight='',onHighlight}:SceneProps){
  const L=a+b;
  const triangles=garfieldTriangles(a,b,p),k=phase(p,0),middleOpacity=phase(p,1),gap=spread*L*.22;
